@@ -2,6 +2,46 @@
 
 Pipeline de ingestão em Python para coleta de dados da API de dados, com foco em confiabilidade de carga, idempotência por registro e controle de execução incremental.
 
+## Links de download dos datasets
+- [IDEB](https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/ideb/resultados)
+- [Censo Escolar]()
+- [IBGE]
+
+## De-Para IDEB Anos Iniciais
+
+| Campo | Descrição |
+|---|---|
+| `SG_UF` | Sigla da UF |
+| `CO_MUNICIPIO` | Código do município |
+| `NO_MUNICIPIO` | Nome do município |
+| `REDE` | Rede de ensino |
+| `VL_APROVACAO_2023_SI_4` | Taxa de aprovação 2023 — Anos Iniciais (4ª série/5º ano) |
+| `VL_APROVACAO_2023_SI` | Taxa de aprovação 2023 — Anos Iniciais (total) |
+| `VL_APROVACAO_2023_1` | Taxa de aprovação 2023 — 1º ano |
+| `VL_APROVACAO_2023_2` | Taxa de aprovação 2023 — 2º ano |
+| `VL_APROVACAO_2023_3` | Taxa de aprovação 2023 — 3º ano |
+| `VL_APROVACAO_2023_4` | Taxa de aprovação 2023 — 4º ano |
+| `VL_INDICADOR_REND_2023` | Indicador de rendimento escolar 2023 |
+| `VL_NOTA_MATEMATICA_2023` | Nota de Matemática 2023 (SAEB) |
+| `VL_NOTA_PORTUGUES_2023` | Nota de Língua Portuguesa 2023 (SAEB) |
+| `VL_NOTA_MEDIA_2023` | Nota média padronizada 2023 |
+| `VL_OBSERVADO_2023` | IDEB observado 2023 |
+
+## De-Para IDEB Anos Finais
+
+| Campo | Descrição |
+|---|---|
+
+## De-Para Censo Escolar
+
+| Campo | Descrição |
+|---|---|
+
+## De-Para IBGE
+
+| Campo | Descrição |
+|---|---|
+
 ## Fonte de dados
 
 A fonte escolhida é a API de dados do [Portal da Transparência](https://api.portaldatransparencia.gov.br) acessada por rotas sob o prefixo `/api-de-dados/`.
