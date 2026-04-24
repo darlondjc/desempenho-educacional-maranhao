@@ -2,12 +2,9 @@
 
 Pipeline de ingestão em Python para coleta de dados da API de dados, com foco em confiabilidade de carga, idempotência por registro e controle de execução incremental.
 
-## Links de download dos datasets
-- [IDEB](https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/ideb/resultados)
-- [Censo Escolar]()
-- [IBGE]
-
 ## De-Para IDEB Anos Iniciais
+
+Base: *IDEB Resultados* (Dados agregados por município). Disponível no [link](https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/ideb/resultados).
 
 | Campo | Descrição |
 |---|---|
@@ -34,8 +31,40 @@ Pipeline de ingestão em Python para coleta de dados da API de dados, com foco e
 
 ## De-Para Censo Escolar
 
+Base: *Microdados da Educação Básica 2023* (INEP - dados agregados por município). Disponível no [link](https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar).
+
 | Campo | Descrição |
 |---|---|
+| `CO_MUNICIPIO` | Código do município (IBGE) |
+| `SG_UF` | Sigla da unidade federativa |
+| `NO_MUNICIPIO` | Nome do município |
+| `QT_ESCOLAS` | Quantidade de escolas |
+| `PCT_ESCOLAS_COM_INTERNET` | Percentual de escolas com internet |
+| `PCT_ESCOLAS_COM_BIBLIOTECA_LEITURA` | Percentual de escolas com biblioteca/sala de leitura |
+| `PCT_ESCOLAS_COM_LAB_INFORMATICA` | Percentual de escolas com laboratório de informática |
+| `PCT_ESCOLAS_COM_QUADRA` | Percentual de escolas com quadra de esportes |
+| `PCT_ESCOLAS_COM_AGUA_ADEQUADA` | Percentual de escolas com água da rede pública adequada |
+| `PCT_ESCOLAS_COM_ESGOTO_ADEQUADO` | Percentual de escolas com esgoto sanitário adequado |
+| `QT_DOC_BAS` | Quantidade total de docentes na educação básica |
+| `QT_DOC_BAS_ESCO_SUP_GRAD` | Quantidade de docentes com escolaridade superior — graduação |
+| `QT_DOC_BAS_ESCO_SUP_GRAD_LICEN` | Quantidade de docentes com escolaridade superior — licenciatura |
+| `QT_MAT_BAS` | Quantidade total de matrículas na educação básica |
+| `QT_MAT_FUND` | Quantidade de matrículas no ensino fundamental |
+| `QT_MAT_MED` | Quantidade de matrículas no ensino médio |
+| `QT_MAT_BAS_15_17` | Quantidade de matrículas — educação básica, idade 15–17 anos |
+| `QT_MAT_BAS_18_MAIS` | Quantidade de matrículas — educação básica, idade 18+ anos |
+| `QT_TUR_BAS` | Quantidade total de turmas na educação básica |
+| `QT_TUR_FUND` | Quantidade de turmas no ensino fundamental |
+| `QT_TUR_MED` | Quantidade de turmas no ensino médio |
+| `QT_TUR_FUND_AF` | Quantidade de turmas — ensino fundamental — anos finais |
+| `QT_TUR_FUND_AF_CORRFLUXO` | Quantidade de turmas — ensino fundamental — anos finais — correção de fluxo |
+| `PCT_DOC_SUPERIOR_COMPLETO` | Percentual de docentes com educação superior completa |
+| `PCT_DOC_LICENCIATURA_TOTAL` | Percentual de docentes com licenciatura (total, incluindo dupla formação) |
+| `MEDIA_ALUNOS_POR_TURMA_BAS` | Média de alunos por turma — educação básica |
+| `MEDIA_ALUNOS_POR_TURMA_FUND` | Média de alunos por turma — ensino fundamental |
+| `MEDIA_ALUNOS_POR_TURMA_MED` | Média de alunos por turma — ensino médio |
+| `PCT_MAT_15_ANOS_OU_MAIS_PROXY_DISTSERIE` | Percentual de matrículas com 15+ anos proxy de distorção série-idade |
+| `PCT_TURMAS_CORRFLUXO_FUND_AF` | Percentual de turmas com correção de fluxo — ensino fundamental (anos finais) |
 
 ## De-Para IBGE
 
