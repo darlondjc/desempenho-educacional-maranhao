@@ -68,6 +68,10 @@ Base: *Microdados da Educação Básica 2023* (INEP - dados agregados por munic�
 
 ## De-Para IBGE
 
+IDHM: disponível em [IDHM](https://dataimesc.imesc.ma.gov.br/series/875/show).
+
+Outros indicadores IBGE: disponível em [Atlas Brasil](http://www.atlasbrasil.org.br/consulta/planilha).
+
 | Campo | Descrição |
 |---|---|
 

@@ -1,5 +1,6 @@
 from pathlib import Path
 import pandas as pd
+from util import start_timer, stop_timer
 
 BASE_DIR = Path("data/base")
 RAW_DIR = Path("data/raw")
@@ -73,6 +74,25 @@ def load_censo_microdados() -> pd.DataFrame:
 	)
 
 
+def load_sinopse_docentes_efai_2023() -> pd.DataFrame:
+	"""Carrega Tabela 2.23 da Sinopse Estatística 2023 (docentes EFAI por município)."""
+	path = BASE_DIR / "microdados_censo_escolar_2023" / "dados" / "docentes.ods"
+	df = pd.read_excel(path, engine="odf", header=None, skiprows=10)
+	df.columns = [
+		"regiao", "uf", "municipio", "co_municipio",
+		"qt_doc_efai_total", "qt_doc_efai_fund", "qt_doc_efai_medio",
+		"qt_doc_efai_sup_grad", "qt_doc_efai_sup_grad_lic", "qt_doc_efai_sup_grad_sem_lic",
+		"qt_doc_efai_pos_esp", "qt_doc_efai_pos_mest", "qt_doc_efai_pos_dout",
+	]
+	# Remove linhas de totais regionais/estaduais (sem município preenchido)
+	df = df.dropna(subset=["municipio"])
+	df = df[df["municipio"].str.strip() != ""]
+	df["co_municipio"] = normalize_municipio_code(df["co_municipio"])
+	for col in ["qt_doc_efai_total", "qt_doc_efai_sup_grad", "qt_doc_efai_sup_grad_lic"]:
+		df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0).astype(int)
+	return df[["co_municipio", "qt_doc_efai_total", "qt_doc_efai_sup_grad", "qt_doc_efai_sup_grad_lic"]]
+
+
 def ensure_columns(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 	for col in columns:
 		if col not in df.columns:
@@ -80,11 +100,42 @@ def ensure_columns(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 	return df
 
 
+def build_indicadores_municipais_ma_censo_docentes_2023(indicadores: pd.DataFrame) -> pd.DataFrame:
+	"""Substitui as colunas de docentes com formação superior pelos dados da
+	Sinopse Estatística 2023 (Tabela 2.23 – EFAI), garantindo que numerador e
+	denominador sejam da mesma fonte e ano."""
+	sinopse = load_sinopse_docentes_efai_2023()
+	# Filtra apenas municípios do Maranhão (CO_MUNICIPIO inicia com 21)
+	sinopse = sinopse[sinopse["co_municipio"].str.startswith("21")].copy()
+
+	indicadores = indicadores.copy()
+	indicadores["CO_MUNICIPIO"] = normalize_municipio_code(indicadores["CO_MUNICIPIO"])
+	indicadores = indicadores.merge(
+		sinopse.rename(columns={"co_municipio": "CO_MUNICIPIO"}),
+		on="CO_MUNICIPIO",
+		how="left",
+	)
+
+	# Substitui QT_DOC_BAS pelo total EFAI (denominador consistente com os numeradores)
+	indicadores["QT_DOC_BAS"] = indicadores["qt_doc_efai_total"].fillna(0).astype(int)
+	indicadores["QT_DOC_BAS_ESCO_SUP_GRAD"] = indicadores["qt_doc_efai_sup_grad"].fillna(0).astype(int)
+	indicadores["QT_DOC_BAS_ESCO_SUP_GRAD_LICEN"] = indicadores["qt_doc_efai_sup_grad_lic"].fillna(0).astype(int)
+
+	indicadores["PCT_DOC_SUPERIOR_COMPLETO"] = safe_divide(
+		indicadores["QT_DOC_BAS_ESCO_SUP_GRAD"], indicadores["QT_DOC_BAS"], factor=100
+	)
+	indicadores["PCT_DOC_LICENCIATURA_TOTAL"] = safe_divide(
+		indicadores["QT_DOC_BAS_ESCO_SUP_GRAD_LICEN"], indicadores["QT_DOC_BAS"], factor=100
+	)
+
+	return indicadores.drop(
+		columns=["qt_doc_efai_total", "qt_doc_efai_sup_grad", "qt_doc_efai_sup_grad_lic"]
+	)
+
+
 def build_indicadores_municipais_ma_censo_escolar_2023() -> pd.DataFrame:
 	censo = load_censo_microdados()
-	has_doc_sup = "QT_DOC_BAS_ESCO_SUP_GRAD" in censo.columns
-	has_doc_lic = "QT_DOC_BAS_ESCO_SUP_GRAD_LICEN" in censo.columns
-	has_corrfluxo = "QT_TUR_FUND_AF_CORRFLUXO" in censo.columns
+
 	censo = ensure_columns(
 		censo,
 		[
@@ -94,6 +145,9 @@ def build_indicadores_municipais_ma_censo_escolar_2023() -> pd.DataFrame:
 			"QT_TUR_FUND_AF_CORRFLUXO",
 		],
 	)
+	has_doc_sup = censo["QT_DOC_BAS_ESCO_SUP_GRAD"].sum() > 0
+	has_doc_lic = censo["QT_DOC_BAS_ESCO_SUP_GRAD_LICEN"].sum() > 0
+	has_corrfluxo = censo["QT_TUR_FUND_AF_CORRFLUXO"].sum() > 0
 
 	# Foco em rede municipal no Maranhão.
 	censo = censo[(censo["SG_UF"] == "MA") & (censo["TP_DEPENDENCIA"] == 3)].copy()
@@ -206,15 +260,28 @@ def build_indicadores_municipais_ma_censo_escolar_2023() -> pd.DataFrame:
 
 	return indicadores
 
+# ── INGESTÃO DO IBGE ───────────────────
+def build_indicadores_municipais_ma_ibge_2010():
+	df_ma = pd.read_excel(BASE_DIR / 'ibge.xlsx')
+
+	return df_ma
+
+# ── INGESTÃO DO IDHM ───────────────────
+def build_indicadores_municipais_ma_idhm_2010():
+	df_ma = pd.read_excel(BASE_DIR / 'idhm.xlsx')
+
+	return df_ma
 
 def main() -> None:
 	RAW_DIR.mkdir(parents=True, exist_ok=True)
 
-	# ── INGESTÃO DO IDEB ───────────────────
+	#── INGESTÃO DO IDEB ───────────────────
 	print("Iniciando ingestão do IDEB 2023...")
+	timer_thread = start_timer()
 	indicadores_ideb = build_indicadores_municipais_ma_ideb_2023()
 	output_path_ideb = RAW_DIR / "indicadores_municipais_ma_ideb_2023.csv"
 	indicadores_ideb.to_csv(output_path_ideb, index=False, sep=";")
+	stop_timer(timer_thread)
 
 	print(f"Arquivo gerado: {output_path_ideb}")
 	print(f"Linhas: {len(indicadores_ideb)}")
@@ -222,13 +289,40 @@ def main() -> None:
 
 	# ── INGESTÃO DO CENSO ESCOLAR 2023 ───────────────────	
 	print("Iniciando ingestão do Censo Escolar 2023...")
+	timer_thread = start_timer()
 	indicadores_censo_escolar = build_indicadores_municipais_ma_censo_escolar_2023()
-	output_path_censo_escolar = RAW_DIR / "indicadores_municipais_ma_censo_escolar_2023.csv"
-	indicadores_censo_escolar.to_csv(output_path_censo_escolar, index=False, sep=";")
+	indicadores_censo_com_docentes = build_indicadores_municipais_ma_censo_docentes_2023(indicadores_censo_escolar)
+	output_path_censo_escolar_com_docentes = RAW_DIR / "indicadores_municipais_ma_censo_escolar_2023.csv"
+	indicadores_censo_com_docentes.to_csv(output_path_censo_escolar_com_docentes, index=False, sep=";")
+	stop_timer(timer_thread)
 
-	print(f"Arquivo gerado: {output_path_censo_escolar}")
-	print(f"Linhas: {len(indicadores_censo_escolar)}")
-	print(f"Colunas: {len(indicadores_censo_escolar.columns)}")
+	print(f"Arquivo gerado: {output_path_censo_escolar_com_docentes}")
+	print(f"Linhas: {len(indicadores_censo_com_docentes)}")
+	print(f"Colunas: {len(indicadores_censo_com_docentes.columns)}")
+
+	#── INGESTÃO DO IBGE ───────────────────
+	print("Iniciando ingestão do IBGE 2010...")
+	timer_thread = start_timer()
+	indicadores_ibge = build_indicadores_municipais_ma_ibge_2010()
+	output_path_ibge = RAW_DIR / "indicadores_municipais_ma_ibge_2010.csv"
+	indicadores_ibge.to_csv(output_path_ibge, index=False, sep=";")
+	stop_timer(timer_thread)
+
+	print(f"Arquivo gerado: {output_path_ibge}")
+	print(f"Linhas: {len(indicadores_ibge)}")
+	print(f"Colunas: {len(indicadores_ibge.columns)}")
+
+	# ── INGESTÃO DO IDHM ───────────────────
+	print("Iniciando ingestão do IDHM 2010...")
+	timer_thread = start_timer()
+	indicadores_idhm = build_indicadores_municipais_ma_idhm_2010()
+	output_path_idhm = RAW_DIR / "indicadores_municipais_ma_idhm_2010.csv"
+	indicadores_idhm.to_csv(output_path_idhm, index=False, sep=";")
+	stop_timer(timer_thread)
+
+	print(f"Arquivo gerado: {output_path_idhm}")
+	print(f"Linhas: {len(indicadores_idhm)}")
+	print(f"Colunas: {len(indicadores_idhm.columns)}")	
 
 
 if __name__ == "__main__":
