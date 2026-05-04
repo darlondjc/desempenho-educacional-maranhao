@@ -1,0 +1,257 @@
+---
+title: "Uso do Python como ferramenta base para o Artigo"
+subtitle: "PPGCA · Mestrado Profissional em Computação Aplicada · IFMA"
+author: "**Darlon Coqueiro**"
+date: "2026-05-07"
+date-format: "D [de] MMMM [de] YYYY"
+lang: pt-BR
+format:
+  revealjs:
+    theme: [default, theme.scss]
+    slide-number: true
+    toc: false
+    incremental: false
+    transition: slide
+    code-copy: true
+    code-line-numbers: true
+    chalkboard: false
+    footer: "PPGCA · Linguagens para Ciência de Dados e Aprendizado de Máquinas · 2026"
+execute:
+  enabled: false
+---
+
+# Objetivo Central
+
+---
+
+## Objetivo Central
+
+Apresentar os **conceitos de Python** mobilizados na pesquisa,
+exemplificando a implementação em **classes e métodos** que compõem
+a lógica do projeto.
+
+---
+
+## Problema de Pesquisa
+
+- **Tema:** Padrões de Desempenho Educacional nos Municípios Maranhenses
+- **Pergunta:** Quais fatores estruturais e escolares se associam ao IDEB entre os municípios?
+- **Recorte:** Municípios maranhenses — IDEB e Censo Escolar (2023) + IBGE e IDHM (2010)
+
+---
+
+## Arquitetura em Python
+
+- **Pipeline de dados:** `base → raw → trusted → reports`
+- **Módulos do projeto:**
+  - `src/ingest.py` — ingestão e engenharia de indicadores
+  - `src/transform.py` — limpeza e integração das bases
+  - `src/analytics.py` — clusterização, comparação e modelagem
+  - `src/util.py` — utilitários de tempo e controle
+- **Paradigma:** pipeline funcional orientado a dados
+
+# Conceitos de Python
+
+---
+
+## Conceitos de Python utilizados
+
+- **Type hints** — `-> pd.DataFrame`, `-> None`
+- **`pathlib.Path`** — composição segura de caminhos (`/`, `exists()`, `mkdir()`)
+- **Tratamento de exceções** — `FileNotFoundError` na resolução de arquivos
+- **Funções auxiliares reutilizáveis** — `safe_divide`, `normalize_municipio_code`, `ensure_columns`
+- **Transformação vetorizada com Pandas** — sem laços explícitos
+
+---
+
+## Classes e Métodos Usados
+
+| Classe | Biblioteca | Métodos principais |
+|---|---|---|
+| `Path` | `pathlib` | `exists()`, `mkdir()` |
+| `DataFrame` | `pandas` | `groupby()`, `agg()`, `assign()`, `merge()` |
+| `Series` | `pandas` | `replace()`, `astype()`, `str.*` |
+| `RobustScaler` | `sklearn` | `fit_transform()` |
+| `KMeans` | `sklearn` | `fit_predict()` |
+| `PCA` | `sklearn` | `fit_transform()` |
+| `RandomForestRegressor` | `sklearn` | `fit()`, `score()` |
+
+# Exemplos de Código
+
+---
+
+## Exemplo 1: Divisão Segura {.smaller}
+
+```python
+# Divisão por zero gera inf ou erro; pd.NA propaga o valor ausente de forma controlada ao longo do pipeline
+def safe_divide(
+    numerator: pd.Series,
+    denominator: pd.Series,
+    factor: float = 1.0,
+) -> pd.Series:
+    denominator = denominator.replace(0, pd.NA)   # substitui 0 por NA
+    return (numerator / denominator) * factor
+```
+
+::: {.mensagem}
+Evita divisão por zero sem interromper o pipeline — retorna `NA` onde o denominador é inválido.
+:::
+
+---
+
+## Exemplo 2: Padronização do identificador do município {.smaller}
+
+```python
+def normalize_municipio_code(series: pd.Series) -> pd.Series:
+    return (
+        pd.to_numeric(series, errors="coerce")  # converte, força NA em falhas
+        .astype("Int64")                         # inteiro nullable
+        .astype("string")                        # string para join seguro
+    )
+```
+
+::: {.mensagem}
+Bases distintas (IDEB, Censo, IBGE) codificam **CO_MUNICIPIO** como _int, float ou string_
+:::
+::: {.mensagem}
+Sem padronização de tipo, joins entre bases públicas podem falhar de forma silenciosa.
+:::
+
+---
+
+## Exemplo 3: Agregação Municipal com Pandas {.smaller}
+
+```python
+indicadores = (
+    censo.groupby("CO_MUNICIPIO", as_index=False)
+    .agg(
+        NO_MUNICIPIO              = ("NO_MUNICIPIO",   "first"),
+        QT_ESCOLAS                = ("CO_ENTIDADE",    "nunique"),
+        PCT_ESCOLAS_COM_INTERNET  = ("IN_INTERNET",    "mean"),
+        QT_MAT_BAS                = ("QT_MAT_BAS",     "sum"),
+        QT_TUR_BAS                = ("QT_TUR_BAS",     "sum"),
+    )
+    .assign(
+        PCT_ESCOLAS_COM_INTERNET  = lambda x: x["PCT_ESCOLAS_COM_INTERNET"] * 100,
+        MEDIA_ALUNOS_POR_TURMA   = lambda x: x["QT_MAT_BAS"] / x["QT_TUR_BAS"],
+    )
+)
+```
+::: {.mensagem}
+**Groupby + agg** aplica múltiplas funções em uma só: passagem vetorizada → sem laços explícitos por município
+:::
+::: {.mensagem}
+As regras de negócio ficam explícitas na estrutura do código → sem laços manuais.
+:::
+
+---
+
+## Exemplo 4: Limpeza de Valores do IDEB {.smaller}
+
+```python
+# Por que: o INEP publica valores como "ND", "(*)", "--" para
+# municípios sem divulgação — converter sem tratar gera NaN
+# silencioso ou erro de tipo na análise
+valores_nulos = ["ND", "ND*", "ND***", "(*)", "(**)", "--", "-", ""]
+
+for col in cols_numericas:
+    df_ideb[col] = df_ideb[col].replace(valores_nulos, np.nan)
+    df_ideb[col] = df_ideb[col].astype(str).str.strip()
+    df_ideb[col] = df_ideb[col].replace("nan", np.nan)
+    df_ideb[col] = df_ideb[col].str.replace(",", ".", regex=False)
+    df_ideb[col] = pd.to_numeric(df_ideb[col], errors="coerce")
+```
+
+::: {.mensagem}
+Dados administrativos heterogêneos transformados em base analítica consistente e tipada.
+:::
+
+# Modelagem e Análise
+
+---
+
+## Exemplo 5: Clusterização com *KMeans* {.smaller}
+
+```python
+# Por que: o número ideal de clusters não é definido
+# arbitrariamente — o Silhouette Score mede coesão interna
+# e separação entre grupos para cada valor de k
+inertias, silhouettes = [], []
+for k in range(2, 11):
+    km = KMeans(n_clusters=k, random_state=42, n_init=10)
+    labels = km.fit_predict(X_scaled)         # instancia + ajusta + prediz
+    inertias.append(km.inertia_)
+    silhouettes.append(silhouette_score(X_scaled, labels))
+
+best_k = range(2, 11)[silhouettes.index(max(silhouettes))]
+print(f"Melhor k pelo Silhouette: {best_k}")
+```
+
+::: {.mensagem}
+O número de clusters é selecionado por critério quantitativo — não por escolha arbitrária.
+:::
+
+---
+
+## Exemplo 6: Importância de Variáveis com *Random Forest* {.smaller}
+
+```python
+# Por que: além de prever o IDEB, o modelo ranqueia os fatores
+# com maior poder explicativo — apoia a interpretação teórica
+rf = RandomForestRegressor(n_estimators=200, random_state=42)
+rf.fit(X_rf, y_rf)
+
+importancias = pd.Series(
+    rf.feature_importances_,   # atributo do modelo treinado
+    index=VARS_RF,
+).sort_values(ascending=False)
+
+print(importancias)
+```
+
+::: {.mensagem}
+O modelo apoia a interpretação dos fatores mais associados à variação do IDEB entre municípios.
+:::
+
+# Encadeamento e Conclusão
+
+---
+
+## Encadeamento Lógico da Pesquisa
+
+- **Ingestão** → indicadores municipais por fonte (IDEB, Censo, IBGE, IDHM)
+- **Transformação** → limpeza, padronização e merge das bases
+- **Análise** → clusters, comparação de perfis e importância de variáveis
+- **Produto** → base consolidada `trusted/` + figuras analíticas em `reports/figures/`
+
+---
+
+## Defesa Metodológica
+
+- O projeto atual é **funcional**, com poucas classes autorais.
+- A lógica depende de classes robustas de bibliotecas científicas consolidadas.
+- **Evolução proposta:** classe `PipelineEducacional` com métodos:
+  - `run_ingest()`
+  - `run_transform()`
+  - `run_analytics()`
+  - `run_all()`
+
+---
+
+## Conclusão
+
+- Python foi mobilizado para **integração, tratamento e modelagem** de dados educacionais.
+- As **classes e métodos** escolhidos sustentam a inferência analítica do projeto.
+- O próximo passo técnico é encapsular a orquestração em **classe própria** ou até arquivo **_.yaml_**.
+
+---
+
+## {.center}
+
+<br>
+
+### Obrigado!
+
+::: {.mensagem}
+Perguntas?
+:::
