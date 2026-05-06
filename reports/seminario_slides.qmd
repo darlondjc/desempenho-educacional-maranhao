@@ -1,5 +1,5 @@
 ---
-title: "Uso do Python como ferramenta base para o Artigo"
+title: "Uso do Python como ferramenta base"
 subtitle: "PPGCA · Mestrado Profissional em Computação Aplicada · IFMA"
 author: "**Darlon Coqueiro**"
 date: "2026-05-07"
@@ -36,7 +36,9 @@ a lógica do projeto.
 
 - **Tema:** Padrões de Desempenho Educacional nos Municípios Maranhenses
 - **Pergunta:** Quais fatores estruturais e escolares se associam ao IDEB entre os municípios?
-- **Recorte:** Municípios maranhenses — IDEB e Censo Escolar (2023) + IBGE e IDHM (2010)
+- **Recorte:** Municípios maranhenses, com os seguintes _datasets_:
+  - IDEB e Censo Escolar (2023) 
+  - IBGE e IDHM (2010)
 
 ---
 
@@ -61,6 +63,7 @@ a lógica do projeto.
 - **Tratamento de exceções** — `FileNotFoundError` na resolução de arquivos
 - **Funções auxiliares reutilizáveis** — `safe_divide`, `normalize_municipio_code`, `ensure_columns`
 - **Transformação vetorizada com Pandas** — sem laços explícitos
+  - Em estudo a atualização das etapas de Transformação/Análise com uso do DuckDB por questões de uso de memória
 
 ---
 
@@ -224,12 +227,14 @@ O modelo apoia a interpretação dos fatores mais associados à variação do ID
 - **Análise** → clusters, comparação de perfis e importância de variáveis
 - **Produto** → base consolidada `trusted/` + figuras analíticas em `reports/figures/`
 
+![Distribuição do IDEB nos municípios maranhenses](figures/ideb_ma_distribuicao.png){width=75% fig-align="center"}
+
 ---
 
 ## Defesa Metodológica
 
 - O projeto atual é **funcional**, com poucas classes autorais.
-- A lógica depende de classes robustas de bibliotecas científicas consolidadas.
+- A lógica depende de classes robustas de bibliotecas científicas já consolidadas.
 - **Evolução proposta:** classe `PipelineEducacional` com métodos:
   - `run_ingest()`
   - `run_transform()`
