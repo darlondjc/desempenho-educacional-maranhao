@@ -63,7 +63,11 @@ a lógica do projeto.
 - **Tratamento de exceções** — `FileNotFoundError` na resolução de arquivos
 - **Funções auxiliares reutilizáveis** — `safe_divide`, `normalize_municipio_code`, `ensure_columns`
 - **Transformação vetorizada com Pandas** — sem laços explícitos
-  - Em estudo a atualização das etapas de Transformação/Análise com uso do DuckDB por questões de uso de memória
+  - Em estudo mudanças na Transformação/Análise com **DuckDB** por questões de memória
+    - Sem leitura lazy
+    - Cada transformação cria uma cópia do df
+    - Python serializa objetos antes de processar → _overhead_ do _garbage collector_
+
 
 ---
 
@@ -134,7 +138,7 @@ indicadores = (
         QT_MAT_BAS                = ("QT_MAT_BAS",     "sum"),
         QT_TUR_BAS                = ("QT_TUR_BAS",     "sum"),
     )
-    .assign(
+    .assign( # multiplica cada item por 100 para ficar em escala percentual (0 a 100)
         PCT_ESCOLAS_COM_INTERNET  = lambda x: x["PCT_ESCOLAS_COM_INTERNET"] * 100,
         MEDIA_ALUNOS_POR_TURMA   = lambda x: x["QT_MAT_BAS"] / x["QT_TUR_BAS"],
     )
@@ -152,9 +156,8 @@ As regras de negócio ficam explícitas na estrutura do código → sem laços m
 ## Exemplo 4: Limpeza de Valores do IDEB {.smaller}
 
 ```python
-# Por que: o INEP publica valores como "ND", "(*)", "--" para
+# o INEP publica valores como "ND", "(*)", "--" para
 # municípios sem divulgação — converter sem tratar gera NaN
-# silencioso ou erro de tipo na análise
 valores_nulos = ["ND", "ND*", "ND***", "(*)", "(**)", "--", "-", ""]
 
 for col in cols_numericas:
@@ -168,6 +171,9 @@ for col in cols_numericas:
 ::: {.mensagem}
 Dados administrativos heterogêneos transformados em base analítica consistente e tipada.
 :::
+::: {.mensagem}
+Ou problema silencioso ou erro de tipo na análise
+:::
 
 # Modelagem e Análise
 
@@ -176,9 +182,7 @@ Dados administrativos heterogêneos transformados em base analítica consistente
 ## Exemplo 5: Clusterização com *KMeans* {.smaller}
 
 ```python
-# Por que: o número ideal de clusters não é definido
-# arbitrariamente — o Silhouette Score mede coesão interna
-# e separação entre grupos para cada valor de k
+# O número ideal de clusters não é definido arbitrariamente
 inertias, silhouettes = [], []
 for k in range(2, 11):
     km = KMeans(n_clusters=k, random_state=42, n_init=10)
@@ -191,7 +195,11 @@ print(f"Melhor k pelo Silhouette: {best_k}")
 ```
 
 ::: {.mensagem}
-O número de clusters é selecionado por critério quantitativo — não por escolha arbitrária.
+**KMeans** é um algoritmo de agrupamento, clusterização.
+O número de clusters é definido por critério quantitativo, com ajuda do **Silhouette Score** — não por escolha arbitrária.
+:::
+::: {.mensagem}
+O **Silhouette Score** mede coesão interna e separação entre grupos para cada valor de k
 :::
 
 ---
@@ -199,8 +207,6 @@ O número de clusters é selecionado por critério quantitativo — não por esc
 ## Exemplo 6: Importância de Variáveis com *Random Forest* {.smaller}
 
 ```python
-# Por que: além de prever o IDEB, o modelo ranqueia os fatores
-# com maior poder explicativo — apoia a interpretação teórica
 rf = RandomForestRegressor(n_estimators=200, random_state=42)
 rf.fit(X_rf, y_rf)
 
@@ -213,7 +219,7 @@ print(importancias)
 ```
 
 ::: {.mensagem}
-O modelo apoia a interpretação dos fatores mais associados à variação do IDEB entre municípios.
+O modelo apoia a interpretação dos **fatores mais associados** à variação do IDEB entre municípios.
 :::
 
 # Encadeamento e Conclusão
@@ -227,7 +233,7 @@ O modelo apoia a interpretação dos fatores mais associados à variação do ID
 - **Análise** → clusters, comparação de perfis e importância de variáveis
 - **Produto** → base consolidada `trusted/` + figuras analíticas em `reports/figures/`
 
-![Distribuição do IDEB nos municípios maranhenses](figures/ideb_ma_distribuicao.png){width=75% fig-align="center"}
+![](figures/distribuicao_ideb.png){width=75% fig-align="center"}
 
 ---
 
@@ -235,11 +241,10 @@ O modelo apoia a interpretação dos fatores mais associados à variação do ID
 
 - O projeto atual é **funcional**, com poucas classes autorais.
 - A lógica depende de classes robustas de bibliotecas científicas já consolidadas.
-- **Evolução proposta:** classe `PipelineEducacional` com métodos:
-  - `run_ingest()`
-  - `run_transform()`
-  - `run_analytics()`
-  - `run_all()`
+- **Evoluções propostas:**
+  - classe `PipelineEducacional`
+  - Uso do DuckDB para não haver problemas de memória
+  - Revisão da etapa de Análise para melhorias
 
 ---
 

@@ -206,11 +206,36 @@ def random_forest(df: pd.DataFrame) -> None:
     plt.tight_layout()
     plt.savefig('reports/figures/random_forest_importancia.png', dpi=150, bbox_inches='tight')
 
+def distribuicao_ideb(df: pd.DataFrame) -> None:
+    ideb = df['VL_OBSERVADO_2023'].dropna()
+    media = ideb.mean()
+    mediana = ideb.median()
+    std = ideb.std()
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.hist(ideb, bins=20, color='steelblue', edgecolor='white', alpha=0.85)
+    ax.axvline(media, color='red', linestyle='--', linewidth=1.5, label=f'Média: {media:.2f}')
+    ax.axvline(mediana, color='orange', linestyle='--', linewidth=1.5, label=f'Mediana: {mediana:.2f}')
+    ax.axvspan(media - std, media + std, alpha=0.1, color='red', label=f'±1 desvio-padrão ({std:.2f})')
+    ax.set_title('Distribuição do IDEB 2023 — Municípios Maranhenses (Rede Municipal)', fontsize=13, fontweight='bold')
+    ax.set_xlabel('IDEB (Anos Iniciais do Ensino Fundamental)')
+    ax.set_ylabel('Número de municípios')
+    ax.legend()
+    plt.tight_layout()
+    plt.savefig('reports/figures/distribuicao_ideb.png', dpi=150, bbox_inches='tight')
+
+    print(f"\nDistribuição do IDEB 2023:")
+    print(f"  Municípios com dado: {len(ideb)}")
+    print(f"  Média:   {media:.2f}")
+    print(f"  Mediana: {mediana:.2f}")
+    print(f"  Desvio-padrão: {std:.2f}")
+    print(f"  Min: {ideb.min():.2f}  |  Max: {ideb.max():.2f}")
 
 # ── PIPELINE PRINCIPAL ────────────────────────────────────────────────────────
 
 def main() -> None:
     df = carregar_dados()
+    distribuicao_ideb(df)
     X_scaled, _ = normalizar(df)
 
     k_range = range(2, 11)

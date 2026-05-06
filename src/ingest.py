@@ -149,8 +149,9 @@ def build_indicadores_municipais_ma_censo_escolar_2023() -> pd.DataFrame:
 	has_doc_lic = censo["QT_DOC_BAS_ESCO_SUP_GRAD_LICEN"].sum() > 0
 	has_corrfluxo = censo["QT_TUR_FUND_AF_CORRFLUXO"].sum() > 0
 
-	# Foco em rede municipal no Maranhão.
-	censo = censo[(censo["SG_UF"] == "MA") & (censo["TP_DEPENDENCIA"] == 3)].copy()
+	# FILTRA rede municipal no Maranhão.
+	REDE_MUNICIPAL = 3
+	censo = censo[(censo["SG_UF"] == "MA") & (censo["TP_DEPENDENCIA"] == REDE_MUNICIPAL)].copy()
 	censo["CO_MUNICIPIO"] = normalize_municipio_code(censo["CO_MUNICIPIO"])
 
 	censo["IN_BIBLIOTECA_OU_LEITURA"] = (
