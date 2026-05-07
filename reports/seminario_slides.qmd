@@ -73,15 +73,17 @@ a lógica do projeto.
 
 ## Classes e Métodos Usados
 
-| Classe | Biblioteca | Métodos principais |
-|---|---|---|
-| `Path` | `pathlib` | `exists()`, `mkdir()` |
-| `DataFrame` | `pandas` | `groupby()`, `agg()`, `assign()`, `merge()` |
-| `Series` | `pandas` | `replace()`, `astype()`, `str.*` |
-| `RobustScaler` | `sklearn` | `fit_transform()` |
-| `KMeans` | `sklearn` | `fit_predict()` |
-| `PCA` | `sklearn` | `fit_transform()` |
-| `RandomForestRegressor` | `sklearn` | `fit()`, `score()` |
+::: {.tabela-objetivo}
+| Classe | Objetivo | Biblioteca | Métodos principais |
+|---|---|---|---|
+| `Path` | organização de caminhos e pastas | `pathlib` | `exists()`, `mkdir()` |
+| `DataFrame` | transformação e integração tabular | `pandas` | `groupby()`, `agg()`, `assign()`, `merge()` |
+| `Series` | limpeza e padronização de colunas | `pandas` | `replace()`, `astype()`, `str.*` |
+| `RobustScaler` | normaliza as variáveis | `sklearn` | `fit_transform()` |
+| `KMeans` | clusterização de municípios | `sklearn` | `fit_predict()` |
+| `PCA` | redução de dimensionalidade | `sklearn` | `fit_transform()` |
+| `RandomForestRegressor` | importância de variáveis e predição | `sklearn` | `fit()`, `score()` |
+:::
 
 # Exemplos de Código
 
@@ -241,6 +243,7 @@ O modelo apoia a interpretação dos **fatores mais associados** à variação d
 
 - O projeto atual é **funcional**, com poucas classes autorais.
 - A lógica depende de classes robustas de bibliotecas científicas já consolidadas.
+- Os paradigmas de programação da linguagem escolhidos atendem aos objetivos do trabalho.
 - **Evoluções propostas:**
   - classe `PipelineEducacional`
   - Uso do DuckDB para não haver problemas de memória

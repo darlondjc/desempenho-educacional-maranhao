@@ -147,5 +147,11 @@ $presentation-h2-font-size: 1.2em;
   background: $light-bg;
 }
 
+.reveal .tabela-objetivo table th:nth-child(2),
+.reveal .tabela-objetivo table td:nth-child(2) {
+font-size: 0.86em;
+line-height: 1.2;
+}
+
 // ── Utilitários ──────────────────────────────────────────────────
 strong { color: $primary; }
