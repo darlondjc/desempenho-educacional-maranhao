@@ -61,7 +61,7 @@ a lógica do projeto.
 - **Type hints** — `-> pd.DataFrame`, `-> None`
 - **`pathlib.Path`** — composição segura de caminhos (`/`, `exists()`, `mkdir()`)
 - **Tratamento de exceções** — `FileNotFoundError` na resolução de arquivos
-- **Funções auxiliares reutilizáveis** — `safe_divide`, `normalize_municipio_code`, `ensure_columns`
+- **Uso de funções reutilizáveis** — `safe_divide`, `normalize_municipio_code`, `ensure_columns`
 - **Transformação vetorizada com Pandas** — sem laços explícitos
   - Em estudo mudanças na Transformação/Análise com **DuckDB** por questões de memória
     - Sem leitura lazy
@@ -81,7 +81,7 @@ a lógica do projeto.
 | `Series` | limpeza e padronização de colunas | `pandas` | `replace()`, `astype()`, `str.*` |
 | `RobustScaler` | normaliza as variáveis | `sklearn` | `fit_transform()` |
 | `KMeans` | clusterização de municípios | `sklearn` | `fit_predict()` |
-| `PCA` | redução de dimensionalidade | `sklearn` | `fit_transform()` |
+| `PCA` | (princp. comp. analisys) redução de dimensionalidade | `sklearn` | `fit_transform()` |
 | `RandomForestRegressor` | importância de variáveis e predição | `sklearn` | `fit()`, `score()` |
 :::
 
@@ -114,8 +114,8 @@ Evita divisão por zero sem interromper o pipeline — retorna `NA` onde o denom
 def normalize_municipio_code(series: pd.Series) -> pd.Series:
     return (
         pd.to_numeric(series, errors="coerce")  # converte, força NA em falhas
-        .astype("Int64")                         # inteiro nullable
-        .astype("string")                        # string para join seguro
+        .astype("Int64")                         # inteiro que aceita valores nulos
+        .astype("string")                        # string para join/merge seguro
     )
 ```
 
@@ -201,7 +201,7 @@ print(f"Melhor k pelo Silhouette: {best_k}")
 O número de clusters é definido por critério quantitativo, com ajuda do **Silhouette Score** — não por escolha arbitrária.
 :::
 ::: {.mensagem}
-O **Silhouette Score** mede coesão interna e separação entre grupos para cada valor de k
+**Silhouette Score** mede coesão interna e separação entre grupos para cada valor de k
 :::
 
 ---
