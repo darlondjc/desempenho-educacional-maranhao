@@ -72,7 +72,7 @@ xdg-open reports/seminario_slides.html
 
 ## Referências e Créditos
 
-- Dados: INEP, IBGE, Censo Escolar, IDEB
+- Dados: INEP, IBGE, Censo Escolar, IDEB EFAI
 - Código: Darlon Coqueiro (PPGCA/IFMA)
 
 ---

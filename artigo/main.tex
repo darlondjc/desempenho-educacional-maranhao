@@ -1,0 +1,80 @@
+\documentclass[
+	12pt,				% tamanho da fonte
+	openright,			% capítulos começam em pág ímpar (insere página vazia caso preciso)
+	oneside,			% para impressão em verso e anverso. Oposto a oneside
+	a4paper,			% tamanho do papel. 
+	english,			% idioma adicional para hifenização
+	french,				% idioma adicional para hifenização
+	spanish,			% idioma adicional para hifenização
+	brazil				% o último idioma é o principal do documento
+	]{abntex2}
+
+% Pacotes essenciais
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}           % Hifenização e datas em português
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{indentfirst}
+\usepackage{xurl}                    % Substitui url e breakurl
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{soul}
+\usepackage{xcolor}
+\usepackage[alf]{abntex2cite}
+\newcommand{\citet}[1]{\citeauthoronline{#1} (\citeyear{#1})}
+
+
+% hyperref já é carregado pelo abntex2; usar \hypersetup para opções adicionais
+\usepackage{hyperref}
+\hypersetup{breaklinks=true}
+\setlength{\emergencystretch}{3em}
+
+\graphicspath{{images/}}
+
+% Suprime erro de \theforeigntitle no \maketitle do abntex2 article
+\providecommand{\theforeigntitle}{}
+
+% Reduz espaço após títulos de capítulo e seção (memoir nativo)
+\setlength{\beforechapskip}{0pt}
+\setlength{\afterchapskip}{1em}
+
+
+% Informações do documento
+\title{Desempenho Educacional nos Municípios Maranhenses: Uma Análise Comparativa entre as Regiões do Estado}
+\author{Darlon José Coqueiro}
+\date{\today}
+
+\begin{document}
+
+\vspace*{-2cm}
+\begin{center}
+  \includegraphics[scale=0.5]{images/logo_ifma.png}\\[1cm]
+  {\large\bfseries Desempenho Educacional nos Municípios Maranhenses: Uma Análise Comparativa entre as Regiões do Estado}\\[0.5cm]
+  {\normalsize Darlon José Coqueiro}\\[0.3cm]
+  {\normalsize \today}
+\end{center}
+\vspace{2em}
+\pagestyle{plain}
+
+
+\input{0_abstract.tex}
+\input{1_introduction.tex}
+\input{2_related_works.tex}
+\input{3_material_and_methods.tex}
+\input{4_computational_experiments.tex}
+\input{5_conclusions.tex}
+\input{6_acknowlegment_and_credits.tex}
+
+\bibliographystyle{abntex2-alf}
+\bibliography{references}
+
+\end{document}
