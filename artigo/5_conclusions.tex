@@ -1,7 +1,26 @@
-\chapter{Conclusions}
+\chapter{Conclusões}
 \label{cap:conclusions}
 
-\section{Comparison with IDEB Works}
+\section{Comparação com a Literatura sobre IDEB}
 
+Este trabalho propôs e aplicou uma abordagem em dois estágios (segmentação socioeconômica por K-Means seguida de análise intragrupo com Random Forest Classifier e teste de Mann-Whitney) aos 217 municípios maranhenses com dados no IDEB 2023 (Anos Iniciais, rede municipal). Os resultados identificaram formação docente, acesso a bibliotecas e conectividade à internet como os fatores intracontextuais mais consistentemente associados ao desempenho superior dentro do grupo de municípios vulneráveis.
 
-\section{Limitations and Future Direction}
+Esses achados dialogam com a literatura de maneiras específicas. A centralidade da qualificação docente confirma o achado seminal de \citet{rivkin2005} no contexto norte-americano e é convergente com estudos brasileiros que identificaram formação superior como fator associado ao IDEB \cite{barbosa2021}. A relevância da infraestrutura de leitura reforça a tese de \citet{coleman1966} de que recursos escolares têm efeito real, embora secundário ao contexto familiar, o que, no caso de municípios igualmente vulneráveis, pode ganhar destaque justamente porque o efeito do contexto é controlado.
+
+Em relação à literatura de mineração de dados educacionais, o trabalho contribui com uma aplicação metodológica que supera duas limitações frequentes: (i) o uso de modelos globais que ignoram a heterogeneidade socioeconômica entre municípios; e (ii) a concentração de estudos EDM nas regiões Sul e Sudeste \cite{baker2010, romero2020}. A abordagem em dois estágios é replicável para outros estados e pode ser adaptada a outros níveis de ensino (Anos Finais, Ensino Médio) ou outras medidas de desempenho.
+
+Quanto ao IDEB como métrica, os pressupostos estatísticos identificados por \citet{soares2013} (especialmente a correlação entre fluxo e proficiência) não invalidam a análise, mas sugerem cautela na interpretação: municípios com IDEB elevado podem estar priorizando aprovação em detrimento da proficiência. A combinação de variáveis de fluxo (distorção idade-série, correção de fluxo) com os indicadores estruturais na mesma análise ajuda a mitigar parcialmente esse risco.
+
+\section{Limitações e Direções Futuras}
+
+Este estudo apresenta quatro limitações relevantes que devem ser consideradas na interpretação dos resultados.
+
+\textbf{Defasagem dos dados socioeconômicos.} A renda per capita e o IDHM utilizados são provenientes do Censo Demográfico de 2010, com 14 anos de defasagem em relação ao IDEB 2023. Mudanças na estrutura econômica e social dos municípios nesse período (como a expansão de programas de transferência de renda e variações na atividade econômica regional) podem não estar refletidas na segmentação. A atualização com os dados do Censo Demográfico 2022 (IBGE) e do IDHM 2022 (PNUD), quando disponíveis, é a principal direção de melhoria metodológica.
+
+\textbf{Tamanho do cluster de maior renda.} O cluster composto por 20 municípios de maior renda não atingiu o número mínimo de amostras para a análise intragrupo por quartis, impedindo a identificação de fatores discriminantes nesse grupo. Uma possível solução é adotar um limiar de corte mais amplo (por exemplo, tercis em vez de quartis) ou combinar esse cluster com dados de outros estados nordestinos para ampliar a amostra.
+
+\textbf{Causalidade e endogeneidade.} A análise é descritiva e associativa, não causal. Variáveis como formação docente e infraestrutura escolar podem ser endógenas ao desempenho: municípios com melhor gestão tendem a contratar mais docentes qualificados \textit{e} a obter melhores resultados ao mesmo tempo. Estudos de painel com variação longitudinal do IDEB (2019--2023) permitiriam estimativas mais robustas do efeito causal.
+
+\textbf{Variáveis de gestão escolar ausentes.} O Censo Escolar não captura variáveis de processos pedagógicos, gestão, clima escolar ou engajamento familiar, que a literatura aponta como mediadores importantes do desempenho. A inclusão de dados de avaliações de escola (como o SPAECE ou avaliações próprias do estado) em pesquisas futuras poderia complementar o diagnóstico aqui apresentado.
+
+As direções futuras prioritárias são: (i) replicar a análise com os dados socioeconômicos do Censo 2022 assim que disponibilizados; (ii) expandir o estudo para outros estados do Nordeste, permitindo comparações e identificação de padrões regionais; (iii) desenvolver análise longitudinal com os ciclos do IDEB de 2017 a 2023 para verificar se os fatores aqui identificados apresentam efeito consistente ao longo do tempo; e (iv) integrar dados de formação continuada de professores (PARFOR, UAB) ao modelo para testar se o investimento em capacitação docente precede a melhora do IDEB.

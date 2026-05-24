@@ -1,10 +1,82 @@
-\chapter{Material and Methods}
+\chapter{Materiais e Métodos}
 \label{cap:methods}
 
-\section{Machine Learning}
+\section{Fontes de Dados}
 
+Este estudo integra quatro bases de dados públicas referentes aos municípios do Maranhão.
 
-\section{Association Rules}
+\textbf{IDEB EFAI 2023 (INEP).} O Índice de Desenvolvimento da Educação Básica dos Anos Iniciais do Ensino Fundamental, divulgado pelo Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira \cite{inep2023}, é calculado conforme a metodologia proposta por \citet{fernandes2007}: combina a taxa de aprovação escolar (fluxo) com a proficiência média em Língua Portuguesa e Matemática aferida pelo Saeb. Para este estudo, utilizou-se a edição 2023 da rede municipal, que cobriu 217 dos 217 municípios do estado com dados disponíveis.
 
+\textbf{Censo Escolar 2023 (INEP).} Os microdados do Censo Escolar fornecem informações a nível de escola sobre infraestrutura física (internet, biblioteca/sala de leitura, laboratório de informática, quadra esportiva, abastecimento de água e esgotamento sanitário) e sobre o corpo docente. Para as variáveis de formação docente nos Anos Iniciais do Ensino Fundamental, utilizou-se a Tabela 2.23 da Sinopse Estatística do Educacenso 2023, que fornece o número de docentes EFAI por nível de formação de modo consistente entre numerador e denominador, eliminando o viés de dupla contagem presente nos microdados brutos.
 
-\section{Methodology}
+\textbf{IBGE Censo Demográfico 2010.} A renda per capita municipal de 2010 foi extraída do Censo Demográfico \cite{ibge2010} e utilizada como proxy da capacidade econômica dos municípios. Embora defasada, essa variável é o indicador de renda municipal mais desagregado disponível com cobertura universal para os 217 municípios analisados.
+
+\textbf{IDHM 2010 (Atlas Brasil/PNUD).} O Índice de Desenvolvimento Humano Municipal, calculado pelo PNUD Brasil com base no Censo 2010, captura três dimensões do desenvolvimento humano (longevidade, educação e renda) em um índice composto entre 0 e 1. Junto com a renda per capita, compõe o espaço de segmentação socioeconômica utilizado na clusterização.
+
+\section{Variáveis}
+
+As variáveis são organizadas em três grupos, descritos na Tabela~\ref{tab:variaveis}.
+
+\begin{table}[H]
+\centering
+\caption{Variáveis utilizadas na análise}
+\label{tab:variaveis}
+\begin{tabular}{p{5.5cm} p{2.5cm} p{6cm}}
+\toprule
+\textbf{Variável} & \textbf{Fonte} & \textbf{Definição operacional} \\
+\midrule
+\multicolumn{3}{l}{\textit{Segmentação socioeconômica}} \\
+Renda per capita 2010 & IBGE 2010 & Renda domiciliar per capita média municipal (R\$) \\
+IDHM 2010 & PNUD/Atlas & Índice de Desenvolvimento Humano Municipal \\
+\midrule
+\multicolumn{3}{l}{\textit{Infraestrutura escolar}} \\
+\% escolas com internet & Censo 2023 & Proporção de escolas municipais com acesso à internet \\
+\% escolas com biblioteca/sala de leitura & Censo 2023 & Proporção com biblioteca, biblioteca-sala de leitura ou sala de leitura \\
+\% escolas com laboratório de informática & Censo 2023 & Proporção com laboratório de informática \\
+\% escolas com quadra esportiva & Censo 2023 & Proporção com quadra de esportes \\
+\% escolas com água adequada & Censo 2023 & Proporção com água potável ou rede pública \\
+\% escolas com esgoto adequado & Censo 2023 & Proporção com rede pública ou fossa séptica \\
+\midrule
+\multicolumn{3}{l}{\textit{Qualificação docente}} \\
+\% docentes EFAI com ensino superior & Sinopse 2023 & Proporção de docentes dos Anos Iniciais com graduação \\
+\% docentes EFAI com licenciatura & Sinopse 2023 & Proporção de docentes dos Anos Iniciais com licenciatura \\
+\midrule
+\multicolumn{3}{l}{\textit{Fluxo e distorção}} \\
+Média de alunos/turma (EF) & Censo 2023 & Total de matrículas no EF dividido pelo total de turmas EF \\
+Proxy distorção idade-série & Censo 2023 & \% matrículas com 15 anos ou mais na educação básica municipal \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Metodologia}
+
+A análise é conduzida em dois estágios sequenciais, conforme ilustrado a seguir.
+
+\subsection{Estágio 1: Segmentação Socioeconômica por K-Means}
+
+O K-Means \cite{macqueen1967} agrupa os 217 municípios com base em renda per capita e IDHM. Antes da clusterização, as duas variáveis são normalizadas via \textit{RobustScaler}, que centraliza na mediana e escala pelo intervalo interquartil, reduzindo a influência de municípios atípicos (como São Luís e Imperatriz).
+
+O número de clusters $k$ é selecionado pela inspeção conjunta de dois critérios: (i) o método do cotovelo, que avalia a inércia total em função de $k$; e (ii) o coeficiente de silhouette médio \cite{rousseeuw1987}, que mede a separação relativa dos grupos. O algoritmo é executado com $k \in \{2, \ldots, 10\}$, inicialização \textit{k-means++} e $n\_\text{init} = 10$. A estabilidade dos clusters é avaliada por bootstrap de 25 iterações com 80\% dos dados, usando o Adjusted Rand Index (ARI) como métrica de concordância.
+
+A visualização dos clusters é feita via Análise de Componentes Principais \cite{abdi2010} com duas componentes, permitindo inspeção gráfica da separação em espaço reduzido.
+
+\subsection{Estágio 2: Análise Intragrupo}
+
+Dentro de cada cluster com amostra suficiente, os municípios são divididos em dois grupos por desempenho: (i) \textit{alto IDEB}: quartil superior ($\geq Q_{75}$) e (ii) \textit{baixo IDEB}: quartil inferior ($\leq Q_{25}$). Os municípios do intervalo central são excluídos da análise comparativa, o que aumenta o contraste entre os grupos e reduz o ruído.
+
+Para identificar quais variáveis diferenciam os dois grupos, aplica-se um \textit{Random Forest Classifier} \cite{breiman2001} com 500 árvores, \textit{class\_weight='balanced'} e $\text{min\_samples\_leaf} = 3$. A importância de cada variável é medida pela redução média de impureza de Gini ponderada pelo número de amostras que passam pelo nó. Em paralelo, o teste de Mann-Whitney \cite{mannwhitney1947} bicaudal verifica se as distribuições das variáveis diferem significativamente entre os grupos alto e baixo IDEB. São utilizados três limiares de significância: $\alpha = 0{,}01$ (***), $\alpha = 0{,}05$ (**) e $\alpha = 0{,}10$ (*).
+
+A combinação de importâncias do Random Forest com os p-valores do Mann-Whitney permite distinguir variáveis com alta relevância preditiva daquelas com diferença estatisticamente sustentada: uma variável é considerada fator discriminante relevante quando apresenta alta importância \textit{e} diferença significativa ao nível de $\alpha = 0{,}10$.
+
+\section{Uso de Ferramentas de Inteligência Artificial Generativa}
+\label{sec:uso_ia}
+
+Este trabalho utilizou ferramentas de inteligência artificial generativa em três etapas do processo de pesquisa.
+
+\textbf{Revisão de código.} A primeira etada do trabalho é toda relacionada à fases de ciências de dados com Python. Foi utilizado a ferramenta Claude (Anthropic) para correção e revisão dos scripts Python do pipeline de análise (\texttt{ingest.py}, \texttt{transform.py} e os módulos de modelagem), com validação e aprovação do autor em cada alteração sugerida.
+
+\textbf{Revisão e edição de texto.} Na fase da produção escrita deste artigo, o Claude (Anthropic) e ChatGPT (OpenAI) foram utilizados para revisar a redação e a clareza das seções do artigo. O texto original, a estrutura argumentativa e as interpretações dos resultados são de autoria exclusiva do autor.
+
+\textbf{Busca e validação de referências bibliográficas.} Claude (Anthropic) e SciSpace AI Research foram utilizados para identificar trabalhos potencialmente relevantes e verificar metadados de citações. Cada referência foi checada pelo autor nas fontes originais antes da inclusão.
+
+O uso dessas ferramentas está declarado em conformidade com as diretrizes de integridade científica do CNPq, que exigem a identificação explícita das ferramentas de inteligência artificial generativa utilizadas, suas finalidades e a responsabilização integral do pesquisador pelos resultados produzidos.
