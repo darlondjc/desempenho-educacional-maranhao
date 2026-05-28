@@ -5,13 +5,13 @@
 
 Este estudo integra quatro bases de dados públicas referentes aos municípios do Maranhão.
 
-\textbf{IDEB EFAI 2023 (INEP).} O Índice de Desenvolvimento da Educação Básica dos Anos Iniciais do Ensino Fundamental, divulgado pelo Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira \cite{inep2023}, é calculado conforme a metodologia proposta por \citet{fernandes2007}: combina a taxa de aprovação escolar (fluxo) com a proficiência média em Língua Portuguesa e Matemática aferida pelo Saeb. Para este estudo, utilizou-se a edição 2023 da rede municipal, que cobriu 217 dos 217 municípios do estado com dados disponíveis.
+\textbf{IDEB EFAI 2023 (INEP).} O Índice de Desenvolvimento da Educação Básica dos Anos Iniciais do Ensino Fundamental, divulgado pelo Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira \cite{inep2023}, é calculado conforme a metodologia proposta por \citet{fernandes2007}: combina a taxa de aprovação escolar (fluxo) com a proficiência média em Língua Portuguesa e Matemática aferida pelo Saeb. Para este estudo, utilizou-se a edição 2023 da rede municipal, que cobriu os 217 (todos) municípios do estado com dados disponíveis.
 
 \textbf{Censo Escolar 2023 (INEP).} Os microdados do Censo Escolar fornecem informações a nível de escola sobre infraestrutura física (internet, biblioteca/sala de leitura, laboratório de informática, quadra esportiva, abastecimento de água e esgotamento sanitário) e sobre o corpo docente. Para as variáveis de formação docente nos Anos Iniciais do Ensino Fundamental, utilizou-se a Tabela 2.23 da Sinopse Estatística do Educacenso 2023, que fornece o número de docentes EFAI por nível de formação de modo consistente entre numerador e denominador, eliminando o viés de dupla contagem presente nos microdados brutos.
 
-\textbf{IBGE Censo Demográfico 2010.} A renda per capita municipal de 2010 foi extraída do Censo Demográfico \cite{ibge2010} e utilizada como proxy da capacidade econômica dos municípios. Embora defasada, essa variável é o indicador de renda municipal mais desagregado disponível com cobertura universal para os 217 municípios analisados.
+\textbf{Censo Demográfico 2010 (IBGE).} A renda per capita municipal de 2010 foi extraída do Censo Demográfico \cite{ibge2010} e utilizada como proxy da capacidade econômica dos municípios. Embora defasada, essa variável é o indicador de renda municipal mais desagregado disponível com cobertura universal para os 217 municípios analisados.
 
-\textbf{IDHM 2010 (Atlas Brasil/PNUD).} O Índice de Desenvolvimento Humano Municipal, calculado pelo PNUD Brasil com base no Censo 2010, captura três dimensões do desenvolvimento humano (longevidade, educação e renda) em um índice composto entre 0 e 1. Junto com a renda per capita, compõe o espaço de segmentação socioeconômica utilizado na clusterização.
+\textbf{IDHM 2010 (Atlas Brasil/PNUD).} O Índice de Desenvolvimento Humano Municipal, calculado pelo PNUD Brasil (Programa das Nações Unidas para o Desenvolvimento) com base no Censo 2010, captura três dimensões do desenvolvimento humano (longevidade, educação e renda) em um índice composto entre 0 e 1. Junto com a renda per capita, compõe o espaço de segmentação socioeconômica utilizado na clusterização.
 
 \section{Variáveis}
 
@@ -50,21 +50,21 @@ Proxy distorção idade-série & Censo 2023 & \% matrículas com 15 anos ou mais
 
 \section{Metodologia}
 
-A análise é conduzida em dois estágios sequenciais, conforme ilustrado a seguir.
+O pipeline analítico segue as etapas do processo CRISP-DM (\textit{Cross-Industry Standard Process for Data Mining}) \cite{shearer2000}, adaptado ao contexto de análise de dados educacionais: compreensão do domínio, coleta e preparação dos dados, modelagem e avaliação dos resultados. Dentro desse processo, a análise é conduzida em dois estágios sequenciais, conforme descrito a seguir.
 
 \subsection{Estágio 1: Segmentação Socioeconômica por K-Means}
 
-O K-Means \cite{macqueen1967} agrupa os 217 municípios com base em renda per capita e IDHM. Antes da clusterização, as duas variáveis são normalizadas via \textit{RobustScaler}, que centraliza na mediana e escala pelo intervalo interquartil, reduzindo a influência de municípios atípicos (como São Luís e Imperatriz).
+O K-Means \cite{macqueen1967} agrupa os 217 municípios com base em renda per capita e IDHM. Antes da clusterização, as duas variáveis são normalizadas via \texttt{RobustScaler}, que centraliza na mediana e escala pelo intervalo interquartil, reduzindo a influência de municípios atípicos (como São Luís e Imperatriz).
 
-O número de clusters $k$ é selecionado pela inspeção conjunta de dois critérios: (i) o método do cotovelo, que avalia a inércia total em função de $k$; e (ii) o coeficiente de silhouette médio \cite{rousseeuw1987}, que mede a separação relativa dos grupos. O algoritmo é executado com $k \in \{2, \ldots, 10\}$, inicialização \textit{k-means++} e $n\_\text{init} = 10$. A estabilidade dos clusters é avaliada por bootstrap de 25 iterações com 80\% dos dados, usando o Adjusted Rand Index (ARI) como métrica de concordância.
+O número de clusters $k$ é selecionado pela inspeção conjunta do Método do Cotovelo, que avalia a inércia total em função de $k$, e do Silhouette Score médio \cite{rousseeuw1987}, que mede a separação relativa dos grupos. O algoritmo é executado com $k \in \{2, \ldots, 10\}$, inicialização \texttt{k-means++} e \texttt{n\_init = 10}. A estabilidade dos clusters é avaliada por bootstrap de 25 iterações com 80\% dos dados, seguindo a configuração de referência de \citet{benhur2002}, usando o Adjusted Rand Index (ARI) como métrica de concordância.
 
 A visualização dos clusters é feita via Análise de Componentes Principais \cite{abdi2010} com duas componentes, permitindo inspeção gráfica da separação em espaço reduzido.
 
 \subsection{Estágio 2: Análise Intragrupo}
 
-Dentro de cada cluster com amostra suficiente, os municípios são divididos em dois grupos por desempenho: (i) \textit{alto IDEB}: quartil superior ($\geq Q_{75}$) e (ii) \textit{baixo IDEB}: quartil inferior ($\leq Q_{25}$). Os municípios do intervalo central são excluídos da análise comparativa, o que aumenta o contraste entre os grupos e reduz o ruído.
+Dentro de cada cluster com amostra suficiente, os municípios são divididos em dois grupos por desempenho: \textit{alto IDEB}, formado pelo quartil superior ($\geq Q_{75}$), e \textit{baixo IDEB}, formado pelo quartil inferior ($\leq Q_{25}$). Os municípios do intervalo central são excluídos da análise comparativa, o que aumenta o contraste entre os grupos e reduz o ruído.
 
-Para identificar quais variáveis diferenciam os dois grupos, aplica-se um \textit{Random Forest Classifier} \cite{breiman2001} com 500 árvores, \textit{class\_weight='balanced'} e $\text{min\_samples\_leaf} = 3$. A importância de cada variável é medida pela redução média de impureza de Gini ponderada pelo número de amostras que passam pelo nó. Em paralelo, o teste de Mann-Whitney \cite{mannwhitney1947} bicaudal verifica se as distribuições das variáveis diferem significativamente entre os grupos alto e baixo IDEB. São utilizados três limiares de significância: $\alpha = 0{,}01$ (***), $\alpha = 0{,}05$ (**) e $\alpha = 0{,}10$ (*).
+Para identificar quais variáveis diferenciam os dois grupos, aplica-se um Random Forest Classifier \cite{breiman2001} com 500 árvores, \texttt{class\_weight='balanced'} e \texttt{min\_samples\_leaf=3}. A importância de cada variável é calculada pelo critério de redução média de impureza (\textit{Mean Decrease in Impurity}), que quantifica a contribuição de cada variável para separar os dois grupos ao longo das 500 árvores. Em paralelo, o teste de Mann-Whitney \cite{mannwhitney1947} bicaudal verifica se as distribuições das variáveis diferem significativamente entre os grupos alto e baixo IDEB. São utilizados três limiares de significância: $\alpha = 0{,}01$ (***), $\alpha = 0{,}05$ (**) e $\alpha = 0{,}10$ (*).
 
 A combinação de importâncias do Random Forest com os p-valores do Mann-Whitney permite distinguir variáveis com alta relevância preditiva daquelas com diferença estatisticamente sustentada: uma variável é considerada fator discriminante relevante quando apresenta alta importância \textit{e} diferença significativa ao nível de $\alpha = 0{,}10$.
 
@@ -77,6 +77,6 @@ Este trabalho utilizou ferramentas de inteligência artificial generativa em tr�
 
 \textbf{Revisão e edição de texto.} Na fase da produção escrita deste artigo, o Claude (Anthropic) e ChatGPT (OpenAI) foram utilizados para revisar a redação e a clareza das seções do artigo. O texto original, a estrutura argumentativa e as interpretações dos resultados são de autoria exclusiva do autor.
 
-\textbf{Busca e validação de referências bibliográficas.} Claude (Anthropic) e SciSpace AI Research foram utilizados para identificar trabalhos potencialmente relevantes e verificar metadados de citações. Cada referência foi checada pelo autor nas fontes originais antes da inclusão.
+\textbf{Busca e validação de referências bibliográficas.} Claude (Anthropic) e SciSpace AI Research (PubGenius Inc.) foram utilizados para identificar trabalhos potencialmente relevantes e verificar metadados de citações. Cada referência foi checada pelo autor nas fontes originais antes da inclusão.
 
 O uso dessas ferramentas está declarado em conformidade com as diretrizes de integridade científica do CNPq, que exigem a identificação explícita das ferramentas de inteligência artificial generativa utilizadas, suas finalidades e a responsabilização integral do pesquisador pelos resultados produzidos.

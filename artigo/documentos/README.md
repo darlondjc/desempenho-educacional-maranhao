@@ -12,7 +12,7 @@ Nome de arquivo: `<chave_bibtex>.pdf`
 | inep2023 | INEP (2024) — Nota Informativa IDEB 2023 | ✅ Disponível | https://download.inep.gov.br/ideb/nota_informativa_ideb_2023.pdf |
 | ibge2010 | IBGE — Censo Demográfico 2010 | ✅ Disponível | https://www.ibge.gov.br |
 | coleman1966 | Coleman et al. (1966) — Equality of Educational Opportunity | ✅ Disponível (ERIC) | https://eric.ed.gov/?id=ED012275 |
-| barbosa2021 | Vasconcelos et al. (2021) — Ensaio | ✅ Disponível (SciELO) | https://doi.org/10.1590/S0104-40362020002802245 |
+| vasconcelos2021 | Vasconcelos et al. (2021) — Ensaio | ✅ Disponível (SciELO) | https://doi.org/10.1590/S0104-40362020002802245 |
 | soares2013 | Soares & Xavier (2013) — Educação & Sociedade | ✅ Disponível (SciELO) | https://doi.org/10.1590/S0101-73302013000300013 |
 | baker2010 | Baker & Yacef (2009) — JEDM | ✅ Disponível (OA) | https://doi.org/10.5281/zenodo.3554658 |
 | romero2020 | Romero & Ventura (2020) — WIREs Data Mining | ✅ Disponível (OA) | https://doi.org/10.1002/widm.1355 |
