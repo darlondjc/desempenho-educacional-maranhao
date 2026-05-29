@@ -491,6 +491,68 @@ def random_forest(df: pd.DataFrame, salvar_arquivo: bool = True) -> None:
     plt.tight_layout()
     _renderizar_ou_salvar("random_forest_importancia.png", salvar_arquivo=salvar_arquivo)
 
+def distribuicao_quartis_cluster(
+    df: pd.DataFrame,
+    cluster_nome: str = 'vulneráveis',
+    q: float = 0.25,
+    salvar_arquivo: bool = True,
+) -> None:
+    sub = df[df['CLUSTER_NOME'] == cluster_nome].copy()
+    sub = classificar_perfil(sub, q=q)
+
+    ideb_all = sub['VL_OBSERVADO_2023']
+    q_baixo = ideb_all.quantile(q)
+    q_alto = ideb_all.quantile(1 - q)
+
+    cores = {'baixo': '#e74c3c', 'médio': '#95a5a6', 'alto': '#27ae60'}
+    xmin = ideb_all.min() - 0.15
+    xmax = ideb_all.max() + 0.15
+    bins = np.linspace(xmin, xmax, 22)
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+
+    ax.axvspan(xmin, q_baixo, alpha=0.10, color=cores['baixo'])
+    ax.axvspan(q_baixo, q_alto, alpha=0.06, color=cores['médio'])
+    ax.axvspan(q_alto, xmax, alpha=0.10, color=cores['alto'])
+
+    for perfil in ['baixo', 'médio', 'alto']:
+        grupo = sub[sub['PERFIL'] == perfil]['VL_OBSERVADO_2023']
+        ax.hist(
+            grupo, bins=bins, alpha=0.80,
+            color=cores[perfil], edgecolor='white', linewidth=0.5,
+            label=f'{perfil.capitalize()} IDEB (n={len(grupo)})',
+        )
+
+    ax.axvline(q_baixo, color=cores['baixo'], linestyle='--', linewidth=2,
+               label=f'Q{int(q * 100)} = {q_baixo:.2f}')
+    ax.axvline(q_alto, color=cores['alto'], linestyle='--', linewidth=2,
+               label=f'Q{int((1 - q) * 100)} = {q_alto:.2f}')
+
+    ax.set_xlim(xmin, xmax)
+    ax.set_title(
+        f'Distribuição do IDEB — Cluster {cluster_nome} (n={len(sub)})\n'
+        f'Grupos alto e baixo definidos pelos quartis Q{int(q * 100)} e Q{int((1 - q) * 100)}',
+        fontsize=12, fontweight='bold',
+    )
+    ax.set_xlabel('IDEB 2023 (Anos Iniciais do Ensino Fundamental)')
+    ax.set_ylabel('Número de municípios')
+    ax.legend(loc='upper right', fontsize=9)
+    plt.tight_layout()
+    _renderizar_ou_salvar(
+        f'distribuicao_quartis_{_slug_cluster_nome(cluster_nome)}.png',
+        salvar_arquivo=salvar_arquivo,
+    )
+
+    print(f'\nDistribuição por perfil — Cluster {cluster_nome}:')
+    for perfil in ['alto', 'médio', 'baixo']:
+        grupo = sub[sub['PERFIL'] == perfil]['VL_OBSERVADO_2023']
+        print(
+            f'  {perfil.capitalize()}: n={len(grupo)}'
+            f' | média={grupo.mean():.2f}'
+            f' | [{grupo.min():.2f}–{grupo.max():.2f}]'
+        )
+
+
 def distribuicao_ideb(df: pd.DataFrame, salvar_arquivo: bool = True) -> None:
     ideb = df['VL_OBSERVADO_2023'].dropna()
     media = ideb.mean()
@@ -531,6 +593,7 @@ def main(salvar_graficos: bool = True) -> None:
     relevancia_variaveis_cluster(X_scaled, k=CLUSTER_K, n_bootstrap=25)
     destacar_municipios_por_cluster(df, top_n=5)
     variaveis_relevantes_por_cluster(df, salvar_arquivo=salvar_graficos, q=0.25)
+    distribuicao_quartis_cluster(df, cluster_nome='vulneráveis', q=0.25, salvar_arquivo=salvar_graficos)
     outliers_positivos(df)
     comparar_perfis(df)
     mann_whitney(df)

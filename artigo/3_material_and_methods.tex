@@ -3,15 +3,17 @@
 
 \section{Fontes de Dados}
 
-Este estudo integra quatro bases de dados públicas referentes aos municípios do Maranhão.
+Este estudo integra quatro bases de dados públicas referentes aos municípios do Maranhão:
 
-\textbf{IDEB EFAI 2023 (INEP).} O Índice de Desenvolvimento da Educação Básica dos Anos Iniciais do Ensino Fundamental, divulgado pelo Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira \cite{inep2023}, é calculado conforme a metodologia proposta por \citet{fernandes2007}: combina a taxa de aprovação escolar (fluxo) com a proficiência média em Língua Portuguesa e Matemática aferida pelo Saeb. Para este estudo, utilizou-se a edição 2023 da rede municipal, que cobriu os 217 (todos) municípios do estado com dados disponíveis.
+\begin{itemize}
+    \item \textbf{IDEB EFAI 2023 (INEP).} O Índice de Desenvolvimento da Educação Básica dos Anos Iniciais do Ensino Fundamental, divulgado pelo Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira \cite{inep2023}, é calculado conforme a metodologia proposta por \citet{fernandes2007}: combina a taxa de aprovação escolar (fluxo) com a proficiência média em Língua Portuguesa e Matemática aferida pelo Saeb. Para este estudo, utilizou-se a edição 2023 da rede municipal, que cobriu os 217 (todos) municípios do estado com dados disponíveis.
 
-\textbf{Censo Escolar 2023 (INEP).} Os microdados do Censo Escolar fornecem informações a nível de escola sobre infraestrutura física (internet, biblioteca/sala de leitura, laboratório de informática, quadra esportiva, abastecimento de água e esgotamento sanitário) e sobre o corpo docente. Para as variáveis de formação docente nos Anos Iniciais do Ensino Fundamental, utilizou-se a Tabela 2.23 da Sinopse Estatística do Educacenso 2023, que fornece o número de docentes EFAI por nível de formação de modo consistente entre numerador e denominador, eliminando o viés de dupla contagem presente nos microdados brutos.
+    \item \textbf{Censo Escolar 2023 (INEP).} Os microdados do Censo Escolar fornecem informações a nível de escola sobre infraestrutura física (internet, biblioteca/sala de leitura, laboratório de informática, quadra esportiva, abastecimento de água e esgotamento sanitário) e sobre o corpo docente. Para as variáveis de formação docente nos Anos Iniciais do Ensino Fundamental, utilizou-se a Tabela 2.23 da Sinopse Estatística do Educacenso 2023, que fornece o número de docentes EFAI por nível de formação de modo consistente entre numerador e denominador, eliminando o viés de dupla contagem presente nos microdados brutos.
 
-\textbf{Censo Demográfico 2010 (IBGE).} A renda per capita municipal de 2010 foi extraída do Censo Demográfico \cite{ibge2010} e utilizada como proxy da capacidade econômica dos municípios. Embora defasada, essa variável é o indicador de renda municipal mais desagregado disponível com cobertura universal para os 217 municípios analisados.
+    \item \textbf{Censo Demográfico 2010 (IBGE).} A renda per capita municipal de 2010 foi extraída do Censo Demográfico \cite{ibge2010} e utilizada como proxy da capacidade econômica dos municípios. Embora defasada, essa variável é o indicador de renda municipal mais desagregado disponível com cobertura universal para os 217 municípios analisados.
 
-\textbf{IDHM 2010 (Atlas Brasil/PNUD).} O Índice de Desenvolvimento Humano Municipal, calculado pelo PNUD Brasil (Programa das Nações Unidas para o Desenvolvimento) com base no Censo 2010, captura três dimensões do desenvolvimento humano (longevidade, educação e renda) em um índice composto entre 0 e 1. Junto com a renda per capita, compõe o espaço de segmentação socioeconômica utilizado na clusterização.
+    \item \textbf{IDHM 2010 (Atlas Brasil/PNUD).} O Índice de Desenvolvimento Humano Municipal, calculado pelo PNUD Brasil (Programa das Nações Unidas para o Desenvolvimento) com base no Censo 2010, captura três dimensões do desenvolvimento humano (longevidade, educação e renda) em um índice composto entre 0 e 1. Junto com a renda per capita, compõe o espaço de segmentação socioeconômica utilizado na clusterização.
+\end{itemize}
 
 \section{Variáveis}
 
@@ -71,12 +73,12 @@ A combinação de importâncias do Random Forest com os p-valores do Mann-Whitne
 \section{Uso de Ferramentas de Inteligência Artificial Generativa}
 \label{sec:uso_ia}
 
-Este trabalho utilizou ferramentas de inteligência artificial generativa em três etapas do processo de pesquisa.
+Este trabalho utilizou ferramentas de inteligência artificial generativa em três etapas do processo de pesquisa:
 
-\textbf{Revisão de código.} A primeira etada do trabalho é toda relacionada à fases de ciências de dados com Python. Foi utilizado a ferramenta Claude (Anthropic) para correção e revisão dos scripts Python do pipeline de análise (\texttt{ingest.py}, \texttt{transform.py} e os módulos de modelagem), com validação e aprovação do autor em cada alteração sugerida.
-
-\textbf{Revisão e edição de texto.} Na fase da produção escrita deste artigo, o Claude (Anthropic) e ChatGPT (OpenAI) foram utilizados para revisar a redação e a clareza das seções do artigo. O texto original, a estrutura argumentativa e as interpretações dos resultados são de autoria exclusiva do autor.
-
-\textbf{Busca e validação de referências bibliográficas.} Claude (Anthropic) e SciSpace AI Research (PubGenius Inc.) foram utilizados para identificar trabalhos potencialmente relevantes e verificar metadados de citações. Cada referência foi checada pelo autor nas fontes originais antes da inclusão.
+\begin{itemize}
+    \item \textbf{Revisão de código.} A primeira etada do trabalho é toda relacionada à fases de ciências de dados com Python. Foi utilizado a ferramenta Claude (Anthropic) para correção e revisão dos scripts Python do pipeline de análise (\texttt{ingest.py}, \texttt{transform.py} e os módulos de modelagem), com validação e aprovação do autor em cada alteração sugerida.
+    \item \textbf{Revisão e edição de texto.} Na fase da produção escrita deste artigo, o Claude (Anthropic) e ChatGPT (OpenAI) foram utilizados para revisar a redação e a clareza das seções do artigo. O texto original, a estrutura argumentativa e as interpretações dos resultados são de autoria exclusiva do autor.
+    \item \textbf{Busca e validação de referências bibliográficas.} Claude (Anthropic) e SciSpace AI Research (PubGenius Inc.) foram utilizados para identificar trabalhos potencialmente relevantes e verificar metadados de citações. Cada referência foi checada pelo autor nas fontes originais antes da inclusão.
+\end{itemize}
 
 O uso dessas ferramentas está declarado em conformidade com as diretrizes de integridade científica do CNPq, que exigem a identificação explícita das ferramentas de inteligência artificial generativa utilizadas, suas finalidades e a responsabilização integral do pesquisador pelos resultados produzidos.

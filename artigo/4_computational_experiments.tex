@@ -9,7 +9,7 @@ A questão central desta investigação é identificar, entre municípios com co
 
 \section{Coleta de Dados}
 
-O pipeline de ingestão (\texttt{ingest.py}) automatiza a carga das quatro fontes descritas no Capítulo~\ref{cap:methods}. Para o IDEB, lê a planilha oficial do INEP e filtra os municípios maranhenses da rede municipal, tratando os códigos de não divulgação (ND, ND*, (*), (**)) como valores ausentes. Para o Censo Escolar, carrega os microdados em formato CSV (encoding latin-1, separador ponto-e-vírgula) e seleciona as colunas de infraestrutura, docentes e matrículas, filtrando as escolas de dependência municipal no Maranhão (TP\_DEPENDENCIA = 3). Para os docentes dos Anos Iniciais, usa exclusivamente a Tabela 2.23 da Sinopse Estatística 2023 (formato ODS), garantindo que numerador (docentes com superior) e denominador (total de docentes EFAI) venham da mesma fonte. O IBGE e o IDHM são lidos de planilhas Excel curadas previamente.
+O pipeline de ingestão (\texttt{ingest.py}) automatiza a carga das quatro fontes descritas no Capítulo~\ref{cap:methods}. Para o IDEB, lê a planilha oficial do INEP e filtra os municípios maranhenses da rede municipal, tratando os códigos de não divulgação (ND, ND*, (*), (**)) como valores ausentes. Para o Censo Escolar, carrega os microdados em formato CSV (\textit{encoding} latin-1, separador ponto-e-vírgula) e seleciona as colunas de infraestrutura, docentes e matrículas, filtrando as escolas de dependência municipal no Maranhão (TP\_DEPENDENCIA = 3). Para os docentes dos Anos Iniciais, usa exclusivamente a Tabela 2.23 da Sinopse Estatística 2023 (formato ODS), garantindo que numerador (docentes com superior) e denominador (total de docentes EFAI) venham da mesma fonte. O IBGE e o IDHM são lidos de planilhas Excel curadas previamente.
 
 As variáveis de infraestrutura são agregadas ao nível municipal como proporção de escolas com cada atributo presente. As variáveis de docentes, como percentual sobre o total de docentes EFAI do município. As variáveis de fluxo, como médias ou proporções sobre o total de matrículas e turmas municipais.
 
@@ -25,7 +25,7 @@ O pipeline de transformação (\texttt{transform.py}) aplica as seguintes opera�
   \item \textbf{Merge:} integração das quatro bases pela chave \texttt{NO\_MUNICIPIO} (normalizada), com junção à esquerda a partir do IDEB. Resultado: 217 municípios com dados completos de IDEB, Censo, IBGE e IDHM.
 \end{itemize}
 
-Após o merge, não há valores ausentes nas variáveis de cluster nem nas variáveis-alvo (IDEB), mas algumas variáveis explicativas apresentam missings pontuais decorrentes de municípios sem turmas de correção de fluxo.
+Após o merge, não há valores ausentes nas variáveis de cluster nem nas variáveis-alvo (IDEB), mas algumas variáveis explicativas apresentam missings pontuais decorrentes de municípios sem turmas de correção de fluxo (alunos com atraso no que se espera de idade/série).
 
 \section{Análise Exploratória}
 
@@ -40,13 +40,13 @@ A distribuição do IDEB dos 217 municípios maranhenses é apresentada na Figur
 
 A amplitude de 3,30 pontos (4,00 a 7,30) é expressiva dado que o IDEB varia de 0 a 10. Isso indica que, mesmo dentro do Maranhão (estado homogeneamente vulnerável em termos nacionais) existe variabilidade interna substancial que justifica investigar os fatores associados aos destaques positivos.
 
-Os percentuais médios das variáveis de infraestrutura revelam disparidades: a \textit{conectividade à internet} está presente em 73,7\% das escolas municipais do cluster vulnerável e em 81,9\% das escolas do cluster de maior renda; já o acesso a \textit{biblioteca ou sala de leitura} é notavelmente baixo em ambos os grupos (12,5\% nas escolas vulneráveis), sugerindo que esse recurso pode ser um diferencial relevante justamente por sua raridade. A proporção média de \textit{docentes EFAI com ensino superior} é de 60,5\% nos municípios mais vulneráveis e de 73,9\% naqueles de maior renda, diferença que antecipa uma das hipóteses testadas no estágio intragrupo.
-
 \section{Modelagem}
+
+A clusterização K-Means foi aplicada sobre as variáveis \textit{renda per capita} e \textit{IDHM} (normalizadas via RobustScaler), testando $k \in \{2, \ldots, 10\}$ conforme detalhado na Seção~\ref{cap:methods}.
 
 \subsection{Seleção do Número de Clusters}
 
-A Figura~\ref{fig:elbow} apresenta as curvas de inércia (cotovelo) e Silhouette Score para $k \in \{2, \ldots, 10\}$. O Silhouette Score atinge seu valor máximo em $k = 2$ (0,619), indicando dois grupos bem separados no espaço {renda, IDHM}. O Método do Cotovelo confirma a escolha: a queda marginal de inércia entre $k = 2$ e $k = 3$ é consideravelmente menor que entre $k = 1$ e $k = 2$. A estabilidade bootstrap (ARI médio = 0,89 em 25 iterações) confirma que a partição é robusta.
+A Figura~\ref{fig:elbow} apresenta as curvas de inércia (cotovelo) e Silhouette Score para $k \in \{2, \ldots, 10\}$. O Silhouette Score atinge seu valor máximo em $k = 2$ (0,619), indicando dois grupos bem separados na relação \textit{renda/IDHM}. O Método do Cotovelo confirma a escolha: a queda marginal de inércia entre $k = 2$ e $k = 3$ é consideravelmente menor que entre $k = 1$ e $k = 2$. A estabilidade bootstrap (ARI médio = 0,89 em 25 iterações) confirma que a partição é robusta.
 
 \begin{figure}[H]
   \centering
@@ -69,17 +69,19 @@ A Figura~\ref{fig:pca} exibe os clusters projetados nas duas primeiras component
 Os dois clusters obtidos são denominados pelo critério de renda média:
 
 \begin{itemize}
-  \item \textbf{Cluster ``vulneráveis''} (n = 197): renda per capita média de R\$ 210, IDHM médio de 0,737, IDEB médio de 4,96.
-  \item \textbf{Cluster ``maior renda''} (n = 20): renda per capita média de R\$ 447, IDHM médio de 0,780, IDEB médio de 5,45. Inclui municípios como Açailândia, Balsas, Bacabal e Alto Parnaíba.
+  \item \textbf{Cluster vulnerável} (n = 197): renda per capita média de R\$ 210, IDHM médio de 0,737, IDEB médio de 4,96.
+  \item \textbf{Cluster maior renda} (n = 20): renda per capita média de R\$ 447, IDHM médio de 0,780, IDEB médio de 5,45. Inclui municípios como Açailândia, Balsas, Bacabal e Alto Parnaíba.
 \end{itemize}
 
 O cluster de maior renda conta com apenas 20 municípios, número insuficiente para a análise intragrupo por quantis (que requereria ao menos 20 observações em cada subgrupo extremo). A análise comparativa detalhada é portanto conduzida exclusivamente no cluster vulnerável.
+
+Os percentuais médios das variáveis de infraestrutura revelam disparidades: a \textit{conectividade à internet} está presente em 73,7\% das escolas municipais do cluster vulnerável e em 81,9\% das escolas do cluster de maior renda; já o acesso a \textit{biblioteca ou sala de leitura} é notavelmente baixo em ambos os grupos (12,5\% nas escolas vulneráveis), sugerindo que esse recurso pode ser um diferencial relevante justamente por sua raridade. A proporção média de \textit{docentes EFAI com ensino superior} é de 60,5\% nos municípios mais vulneráveis e de 73,9\% naqueles de maior renda, diferença que antecipa uma das hipóteses testadas no estágio intragrupo.
 
 \section{Resultados e Discussão}
 
 \subsection{Fatores Discriminantes no Cluster Vulnerável}
 
-Dentro do cluster vulnerável (n = 197), os 50 municípios do quartil superior de IDEB (alto, $\geq 5{,}20$, média 5,65) são comparados aos 50 do quartil inferior (baixo, $\leq 4{,}50$, média 4,35). A diferença média de 1,30 ponto de IDEB entre os grupos é substancial: equivale a mais de dois desvios-padrão da distribuição estadual.
+Dentro do cluster vulnerável (n = 197), os 57 municípios que se encontram no quartil superior de IDEB (alto, $\geq 5{,}20$, média 5,65) são comparados aos 50 do quartil inferior (baixo, $\leq 4{,}50$, média 4,35). A diferença média de 1,30 ponto de IDEB entre os grupos é substancial: equivale a mais de dois desvios-padrão da distribuição estadual.
 
 A Figura~\ref{fig:rf_vulneraveis} apresenta as importâncias do Random Forest Classifier para o cluster vulnerável. As oito variáveis de maior importância são, em ordem decrescente: \textit{renda per capita} (0,121), \textit{média de alunos por turma no EF básico} (0,098), \textit{\% escolas com biblioteca/sala de leitura} (0,096), \textit{\% docentes com ensino superior} (0,093), \textit{proxy de distorção idade-série} (0,090), \textit{\% docentes com licenciatura} (0,087), \textit{média de alunos por turma no EF anos finais} (0,074) e \textit{\% escolas com esgoto adequado} (0,073).
 
