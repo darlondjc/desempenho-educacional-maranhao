@@ -55,4 +55,6 @@ output/
 
 # Ignorar arquivos de backup do vim
 *.swp
-*.swo
+*.swo*.bcf
+*.run.xml
+artigo/main_identificado.pdf
