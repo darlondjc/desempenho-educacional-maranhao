@@ -59,7 +59,8 @@ def ler_metadados():
     for linha in texto.splitlines():
         m = re.match(r"^\\newcommand\{\\(\w+)\}\{(.*)\}\s*$", linha)
         if m:
-            meta[m.group(1)] = m.group(2)
+            # itálico do LaTeX -> Markdown (o texto entra no front matter em Markdown)
+            meta[m.group(1)] = re.sub(r"\\textit\{([^{}]*)\}", r"*\1*", m.group(2))
         m = re.match(r"^\\autor\{(.*?)\}\{(.*?)\}\{(.*)\}\s*$", linha)
         if m:
             autores.append(m.groups())

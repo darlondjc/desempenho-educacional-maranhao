@@ -1,7 +1,7 @@
 \section{MINERAÇÃO DE DADOS EDUCACIONAIS E DETERMINANTES DO DESEMPENHO NO IDEB}
 \label{sec:referencial}
 
-Esta seção reúne as bases teórico-conceituais do estudo: o uso de aprendizado de máquina na análise educacional, o agrupamento não supervisionado como estratégia de segmentação contextual e os estudos brasileiros sobre o IDEB e os condicionantes socioeconômicos desse índice.
+Compreender os fatores associados ao desempenho escolar exige articular dois campos de conhecimento: os estudos educacionais sobre os determinantes do desempenho e os métodos computacionais capazes de extrair padrões de grandes bases administrativas. Esta seção reúne essas bases teórico-conceituais, que sustentam as escolhas metodológicas e a interpretação dos resultados do estudo. Inicialmente, discute-se o uso de aprendizado de máquina na análise educacional; em seguida, o agrupamento não supervisionado como estratégia de segmentação contextual; depois, os estudos brasileiros sobre o IDEB e os condicionantes socioeconômicos desse índice, que evidenciam a escassez de pesquisas voltadas ao Maranhão; por fim, delimita-se a contribuição deste estudo em relação a essa literatura.
 
 \subsection{Aprendizado de máquina na análise educacional}
 
@@ -19,13 +19,13 @@ Apesar dos avanços, a literatura nacional apresenta três lacunas persistentes:
 
 \subsection{Aprendizado não supervisionado para segmentação contextual}
 
-O agrupamento (\textit{clustering}) via K-Means, proposto por \textcite{macqueen1967}, é uma das técnicas de aprendizado não supervisionado mais amplamente utilizadas para segmentação de entidades em grupos homogêneos internamente e heterogêneos entre si. O algoritmo minimiza a inércia intragrupo por meio de iterações de atribuição e recentramento, requerendo apenas a especificação prévia do número de grupos~$k$.
+O agrupamento (\textit{clustering}) via \textit{K-Means}, proposto por \textcite{macqueen1967}, é uma das técnicas de aprendizado não supervisionado mais amplamente utilizadas para segmentação de entidades em grupos homogêneos internamente e heterogêneos entre si. O algoritmo minimiza a inércia intragrupo por meio de iterações de atribuição e recentramento, requerendo apenas a especificação prévia do número de grupos~$k$.
 
-A seleção de $k$ é um desafio clássico. O Método do Cotovelo (\textit{Elbow Method}) avalia a variação da inércia, mas pode ser ambíguo em dados reais. O Silhouette Score, introduzido por \textcite{rousseeuw1987}, oferece uma métrica mais interpretável: para cada ponto, mede a razão entre a coesão do ponto em relação ao próprio grupo e a separação dele em relação ao cluster mais próximo, produzindo um escore entre -1 e 1 (quanto mais alto, mais bem definido o agrupamento).
+A seleção de $k$ é um desafio clássico. O Método do Cotovelo (\textit{Elbow Method}) avalia a variação da inércia, mas pode ser ambíguo em dados reais. O \textit{Silhouette Score}, introduzido por \textcite{rousseeuw1987}, oferece uma métrica mais interpretável: para cada ponto, mede a razão entre a coesão do ponto em relação ao próprio grupo e a separação dele em relação ao \textit{cluster} mais próximo, produzindo um escore entre -1 e 1 (quanto mais alto, mais bem definido o agrupamento).
 
-Em contextos educacionais, o K-Means tem sido empregado para segmentar escolas por perfil socioeconômico antes de comparações de desempenho, o que evita confusões entre o efeito do contexto e a eficácia escolar. A visualização dos clusters via Análise de Componentes Principais \parencite{abdi2010} permite inspecionar graficamente a qualidade da separação em espaço bidimensional, mesmo quando as variáveis originais têm escalas incomparáveis.
+Em contextos educacionais, o \textit{K-Means} tem sido empregado para segmentar escolas por perfil socioeconômico antes de comparações de desempenho, o que evita confusões entre o efeito do contexto e a eficácia escolar. A visualização dos \textit{clusters} via Análise de Componentes Principais \parencite{abdi2010} permite inspecionar graficamente a qualidade da separação em espaço bidimensional, mesmo quando as variáveis originais têm escalas incomparáveis.
 
-A combinação de K-Means para segmentação contextual com testes intragrupo para identificação de fatores discriminantes representa uma abordagem metodológica que preserva a validade interna das comparações: ao comparar municípios dentro do mesmo cluster socioeconômico, reduz-se o risco de atribuir a fatores escolares diferenças que são, na verdade, determinadas pela renda ou pelo nível de desenvolvimento humano.
+A combinação de \textit{K-Means} para segmentação contextual com testes intragrupo para identificação de fatores discriminantes representa uma abordagem metodológica que preserva a validade interna das comparações: ao comparar municípios dentro do mesmo \textit{cluster} socioeconômico, reduz-se o risco de atribuir a fatores escolares diferenças que são, na verdade, determinadas pela renda ou pelo nível de desenvolvimento humano.
 
 \subsection{O IDEB e os fatores socioeconômicos do desempenho escolar no Brasil}
 
@@ -44,7 +44,7 @@ O presente trabalho distingue-se da literatura existente por três característi
 \begin{enumerate}[label=\alph*)]
     \item adota uma abordagem em dois estágios que separa explicitamente a segmentação socioeconômica da análise de fatores intracontextuais;
     \item aplica essa lógica exclusivamente aos 217 municípios maranhenses com dados disponíveis no IDEB 2023, contexto sub-representado na literatura de EDM;
-    \item combina importâncias do Random Forest \parencite{breiman2001} com testes de Mann-Whitney \parencite{mannwhitney1947} para obter tanto uma ordenação de variáveis quanto evidência estatística de que as diferenças observadas não são atribuíveis ao acaso.
+    \item combina importâncias do \textit{Random Forest} \parencite{breiman2001} com testes de Mann-Whitney \parencite{mannwhitney1947} para obter tanto uma ordenação de variáveis quanto evidência estatística de que as diferenças observadas não são atribuíveis ao acaso.
 \end{enumerate}
 
 A análise intragrupo (restrita a municípios com contexto socioeconômico semelhante) responde a uma pergunta que modelos globais não conseguem: quais fatores diferem, de forma consistente e estatisticamente significativa, entre municípios que superam e que ficam abaixo do desempenho esperado dado o contexto socioeconômico em que se encontram? Essa pergunta tem implicação direta para políticas educacionais, pois identifica alvos de intervenção que operam mesmo sob restrições socioeconômicas.

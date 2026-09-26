@@ -1,9 +1,11 @@
 \section{RESULTADOS E DISCUSSÃO}
 \label{sec:resultados}
 
+Esta seção apresenta os resultados obtidos com a aplicação dos dois estágios descritos nos procedimentos metodológicos e os discute à luz da literatura. Inicialmente, caracterizam-se o contexto socioeconômico e educacional do Maranhão e a distribuição do IDEB entre os municípios, o que evidencia a variabilidade de desempenho que motiva a investigação. Em seguida, apresentam-se a segmentação socioeconômica obtida com o \textit{K-Means} e, dentro do grupo de municípios vulneráveis, os fatores que diferenciam os municípios de alto e de baixo desempenho. Por fim, esses achados são confrontados com os estudos sobre o IDEB e traduzidos em implicações para as políticas educacionais.
+
 \subsection{Contexto socioeconômico e educacional do Maranhão}
 
-O Maranhão é o segundo maior estado do Nordeste em extensão territorial e um dos mais populosos, com 217 municípios distribuídos em cinco mesorregiões. Em indicadores socioeconômicos, ocupa posições críticas: IDHM médio de 0,639 em 2010 (um dos mais baixos do país) e renda per capita municipal mediana em torno de R\$~200 no mesmo período \parencite{ibge2010}. Esse contexto reflete-se diretamente nos resultados educacionais: na edição 2023 do IDEB, a média dos municípios maranhenses nos anos iniciais da rede municipal ficou em 5,01, com metade dos municípios abaixo de 4,90, valores que evidenciam tanto o atraso histórico quanto a dispersão expressiva do desempenho entre municípios.
+O Maranhão é o segundo maior estado do Nordeste em extensão territorial e um dos mais populosos, com 217 municípios distribuídos em cinco mesorregiões. Em indicadores socioeconômicos, ocupa posições críticas: IDHM médio de 0,639 em 2010 (um dos mais baixos do país) e renda \textit{per capita} municipal mediana em torno de R\$~200 no mesmo período \parencite{ibge2010}. Esse contexto reflete-se diretamente nos resultados educacionais: na edição 2023 do IDEB, a média dos municípios maranhenses nos anos iniciais da rede municipal ficou em 5,01, com metade dos municípios abaixo de 4,90, valores que evidenciam tanto o atraso histórico quanto a dispersão expressiva do desempenho entre municípios.
 
 A questão central desta investigação é identificar, entre municípios com contexto socioeconômico semelhante, quais fatores escolares estão associados ao desempenho superior no IDEB. Respondê-la exige, primeiro, neutralizar o efeito do contexto por meio de uma segmentação explícita e, depois, comparar, dentro de cada grupo, os municípios de alto e baixo desempenho.
 
@@ -24,49 +26,49 @@ A amplitude de 3,30 pontos (4,00 a 7,30) é expressiva dado que o IDEB varia de 
 
 \subsection{Segmentação socioeconômica dos municípios}
 
-A clusterização K-Means foi aplicada sobre as variáveis \textit{renda per capita} e \textit{IDHM} (normalizadas via RobustScaler), testando $k \in \{2, \ldots, 10\}$, conforme descrito nos procedimentos metodológicos.
+A clusterização \textit{K-Means} foi aplicada sobre as variáveis \textit{renda per capita} e \textit{IDHM} (normalizadas via RobustScaler), testando $k \in \{2, \ldots, 10\}$, conforme descrito nos procedimentos metodológicos.
 
-No gráfico~\ref{graf:elbow}, são apresentadas as curvas de inércia (cotovelo) e de Silhouette Score para $k \in \{2, \ldots, 10\}$. O Silhouette Score atinge o valor máximo em $k = 2$ (0,619), indicando dois grupos bem separados na relação \textit{renda/IDHM}. O Método do Cotovelo confirma a escolha: a queda marginal de inércia entre $k = 2$ e $k = 3$ é consideravelmente menor que entre $k = 1$ e $k = 2$. A estabilidade bootstrap (ARI médio = 0,89 em 25 iterações) confirma que a partição é robusta.
+No gráfico~\ref{graf:elbow}, são apresentadas as curvas de inércia (cotovelo) e de \textit{Silhouette Score} para $k \in \{2, \ldots, 10\}$. O \textit{Silhouette Score} atinge o valor máximo em $k = 2$ (0,619), indicando dois grupos bem separados na relação \textit{renda/IDHM}. O Método do Cotovelo confirma a escolha: a queda marginal de inércia entre $k = 2$ e $k = 3$ é consideravelmente menor que entre $k = 1$ e $k = 2$. A estabilidade \textit{bootstrap} (ARI médio = 0,89 em 25 iterações) confirma que a partição é robusta.
 
 \begin{grafico}[H]
   \centering
-  \caption{Curvas de inércia e de Silhouette Score para $k \in \{2, \ldots, 10\}$}
+  \caption{Curvas de inércia e de \textit{Silhouette Score} para $k \in \{2, \ldots, 10\}$}
   \label{graf:elbow}
   \includegraphics[width=0.90\textwidth]{elbow_silhouette.png}
-  \nota{à esquerda, inércia; à direita, Silhouette Score. A linha vertical vermelha indica o $k$ ótimo segundo o Silhouette Score.}
+  \nota{à esquerda, inércia; à direita, \textit{Silhouette Score}. A linha vertical vermelha indica o $k$ ótimo segundo o \textit{Silhouette Score}.}
   \fonte{dados da pesquisa (2026).}
 \end{grafico}
 
-No gráfico~\ref{graf:pca}, são exibidos os clusters projetados nas duas primeiras componentes principais (a primeira componente, PC1, explica 88,4\% da variância; a segunda, PC2, explica 11,6\%). A separação visual entre os dois grupos é clara, confirmando a coerência da partição; entre as alternativas testadas ($k \in \{2, 3, 4\}$), a separação em dois grupos é a mais nítida.
+No gráfico~\ref{graf:pca}, são exibidos os \textit{clusters} projetados nas duas primeiras componentes principais (a primeira componente, PC1, explica 88,4\% da variância; a segunda, PC2, explica 11,6\%). A separação visual entre os dois grupos é clara, confirmando a coerência da partição; entre as alternativas testadas ($k \in \{2, 3, 4\}$), a separação em dois grupos é a mais nítida.
 
 \begin{grafico}[H]
   \centering
-  \caption{Projeção dos clusters de municípios maranhenses nas duas primeiras componentes principais para $k \in \{2, 3, 4\}$}
+  \caption{Projeção dos \textit{clusters} de municípios maranhenses nas duas primeiras componentes principais para $k \in \{2, 3, 4\}$}
   \label{graf:pca}
   \includegraphics[width=0.85\textwidth]{pca_clusters.png}
   \fonte{dados da pesquisa (2026).}
 \end{grafico}
 
-Os dois clusters obtidos são denominados pelo critério de renda média:
+Os dois \textit{clusters} obtidos são denominados pelo critério de renda média:
 
 \begin{itemize}
-  \item \textbf{Cluster vulnerável} (n = 197): renda per capita média de R\$ 210, IDHM médio de 0,737, IDEB médio de 4,96.
-  \item \textbf{Cluster maior renda} (n = 20): renda per capita média de R\$ 447, IDHM médio de 0,780, IDEB médio de 5,45. Inclui municípios como Açailândia, Balsas, Bacabal e Alto Parnaíba.
+  \item \textbf{\textit{Cluster} vulnerável} (n = 197): renda \textit{per capita} média de R\$ 210, IDHM médio de 0,737, IDEB médio de 4,96.
+  \item \textbf{\textit{Cluster} maior renda} (n = 20): renda \textit{per capita} média de R\$ 447, IDHM médio de 0,780, IDEB médio de 5,45. Inclui municípios como Açailândia, Balsas, Bacabal e Alto Parnaíba.
 \end{itemize}
 
-O cluster de maior renda conta com apenas 20 municípios, número insuficiente para a análise intragrupo por quantis (que requereria ao menos 20 observações em cada subgrupo extremo). A análise comparativa detalhada é portanto conduzida exclusivamente no cluster vulnerável.
+O \textit{cluster} de maior renda conta com apenas 20 municípios, número insuficiente para a análise intragrupo por quantis (que requereria ao menos 20 observações em cada subgrupo extremo). A análise comparativa detalhada é portanto conduzida exclusivamente no \textit{cluster} vulnerável.
 
-Os percentuais médios das variáveis de infraestrutura revelam disparidades: a \textit{conectividade à internet} está presente em 73,7\% das escolas municipais do cluster vulnerável e em 81,9\% das escolas do cluster de maior renda; já o acesso a \textit{biblioteca ou sala de leitura} é notavelmente baixo em ambos os grupos (12,5\% nas escolas vulneráveis), sugerindo que esse recurso pode ser um diferencial relevante justamente por ser raro. A proporção média de \textit{docentes EFAI com ensino superior} é de 60,5\% nos municípios mais vulneráveis e de 73,9\% naqueles de maior renda, diferença que antecipa uma das hipóteses testadas no estágio intragrupo.
+Os percentuais médios das variáveis de infraestrutura revelam disparidades: a \textit{conectividade à internet} está presente em 73,7\% das escolas municipais do \textit{cluster} vulnerável e em 81,9\% das escolas do \textit{cluster} de maior renda; já o acesso a \textit{biblioteca ou sala de leitura} é notavelmente baixo em ambos os grupos (12,5\% nas escolas vulneráveis), sugerindo que esse recurso pode ser um diferencial relevante justamente por ser raro. A proporção média de \textit{docentes EFAI com ensino superior} é de 60,5\% nos municípios mais vulneráveis e de 73,9\% naqueles de maior renda, diferença que antecipa uma das hipóteses testadas no estágio intragrupo.
 
-\subsection{Fatores discriminantes no cluster vulnerável}
+\subsection{Fatores discriminantes no \textit{cluster} vulnerável}
 
-Dentro do cluster vulnerável (n = 197), os 57 municípios que se encontram no quartil superior de IDEB (alto, $\geq 5{,}20$, média 5,65) são comparados aos 50 do quartil inferior (baixo, $\leq 4{,}50$, média 4,35). A diferença média de 1,30 ponto de IDEB entre os grupos é substancial: equivale a mais de dois desvios-padrão da distribuição estadual.
+Dentro do \textit{cluster} vulnerável (n = 197), os 57 municípios que se encontram no quartil superior de IDEB (alto, $\geq 5{,}20$, média 5,65) são comparados aos 50 do quartil inferior (baixo, $\leq 4{,}50$, média 4,35). A diferença média de 1,30 ponto de IDEB entre os grupos é substancial: equivale a mais de dois desvios-padrão da distribuição estadual.
 
-No gráfico~\ref{graf:rf_vulneraveis}, apresentam-se as importâncias do Random Forest Classifier para o cluster vulnerável. As oito variáveis de maior importância são, em ordem decrescente: \textit{renda per capita} (0,121), \textit{média de alunos por turma no EF básico} (0,098), \textit{\% escolas com biblioteca/sala de leitura} (0,096), \textit{\% docentes com ensino superior} (0,093), \textit{proxy de distorção idade-série} (0,090), \textit{\% docentes com licenciatura} (0,087), \textit{média de alunos por turma no EF anos finais} (0,074) e \textit{\% escolas com esgoto adequado} (0,073).
+No gráfico~\ref{graf:rf_vulneraveis}, apresentam-se as importâncias do \textit{Random Forest Classifier} para o \textit{cluster} vulnerável. As oito variáveis de maior importância são, em ordem decrescente: \textit{renda per capita} (0,121), \textit{média de alunos por turma no EF básico} (0,098), \textit{\% escolas com biblioteca/sala de leitura} (0,096), \textit{\% docentes com ensino superior} (0,093), \textit{proxy de distorção idade-série} (0,090), \textit{\% docentes com licenciatura} (0,087), \textit{média de alunos por turma no EF anos finais} (0,074) e \textit{\% escolas com esgoto adequado} (0,073).
 
 \begin{grafico}[H]
   \centering
-  \caption{Importância das variáveis no Random Forest Classifier para diferenciar municípios de alto e baixo IDEB no cluster vulnerável}
+  \caption{Importância das variáveis no \textit{Random Forest Classifier} para diferenciar municípios de alto e baixo IDEB no \textit{cluster} vulnerável}
   \label{graf:rf_vulneraveis}
   \includegraphics[width=0.85\textwidth]{cluster_vulneraveis_variaveis_relevantes_destaque.png}
   \fonte{dados da pesquisa (2026).}
@@ -76,7 +78,7 @@ O teste de Mann-Whitney complementa a análise ao indicar quais variáveis apres
 
 \begin{table}[H]
 \centering
-\caption{Variáveis com diferença significativa entre municípios de alto e baixo IDEB no cluster vulnerável (Mann-Whitney bicaudal)}
+\caption{Variáveis com diferença significativa entre municípios de alto e baixo IDEB no \textit{cluster} vulnerável (Mann-Whitney bicaudal)}
 \label{tab:mw}
 \corpodez
 \begin{tabular}{lcccc}
@@ -100,7 +102,7 @@ O acesso a \textit{biblioteca ou sala de leitura}, ainda que presente em apenas 
 
 A \textit{conectividade à internet} ($p = 0{,}062$) e o \textit{tamanho médio de turma} ($p = 0{,}066$) são significativos ao nível de 10\%, sinalizando tendências relevantes para políticas, embora com menor robustez estatística dada a variabilidade intragrupo.
 
-A \textit{renda per capita} aparece com a maior importância no Random Forest (0,121) mesmo dentro do cluster vulnerável, onde a variação de renda é estruturalmente menor. Isso sugere que, mesmo após a segmentação socioeconômica, a heterogeneidade residual de renda dentro do grupo tem poder preditivo, o que reforça a importância de controles socioeconômicos em análises educacionais, mesmo dentro de grupos nominalmente homogêneos.
+A \textit{renda per capita} aparece com a maior importância no \textit{Random Forest} (0,121) mesmo dentro do \textit{cluster} vulnerável, onde a variação de renda é estruturalmente menor. Isso sugere que, mesmo após a segmentação socioeconômica, a heterogeneidade residual de renda dentro do grupo tem poder preditivo, o que reforça a importância de controles socioeconômicos em análises educacionais, mesmo dentro de grupos nominalmente homogêneos.
 
 \subsection{Diálogo com a literatura sobre o IDEB}
 
@@ -114,9 +116,9 @@ Quanto ao IDEB como métrica, os pressupostos estatísticos identificados por \t
 
 Os resultados têm implicações diretas para gestores municipais e formuladores de políticas educacionais do Maranhão. Três direções de ação emergem dos achados:
 \begin{itemize}
-  \item \textbf{Formação e habilitação docente.} A diferença de 8,5 p.p. na proporção de \textit{docentes com ensino superior} entre municípios de alto e baixo IDEB, dentro do mesmo contexto socioeconômico, indica que programas de formação continuada e de indução à licenciatura específica têm potencial de impacto real sobre o IDEB. Políticas estaduais e federais de financiamento de graduação a distância para docentes em exercício (como o Programa Nacional de Formação de Professores da Educação Básica --- Parfor) são alvos naturais de expansão nos municípios do cluster vulnerável.
+  \item \textbf{Formação e habilitação docente.} A diferença de 8,5 p.p. na proporção de \textit{docentes com ensino superior} entre municípios de alto e baixo IDEB, dentro do mesmo contexto socioeconômico, indica que programas de formação continuada e de indução à licenciatura específica têm potencial de impacto real sobre o IDEB. Políticas estaduais e federais de financiamento de graduação a distância para docentes em exercício (como o Programa Nacional de Formação de Professores da Educação Básica --- Parfor) são alvos naturais de expansão nos municípios do \textit{cluster} vulnerável.
 
-  \item \textbf{Espaços de leitura nas escolas.} A escassez de \textit{bibliotecas e salas de leitura} (presentes em apenas 10--14\% das escolas) e a associação significativa desses espaços com o desempenho superior sugerem que investimentos relativamente modestos em acervo e espaço físico podem ser custo-efetivos. Municípios com IDEB baixo dentro do cluster vulnerável têm, em média, 3,3 p.p. menos escolas com esse recurso.
+  \item \textbf{Espaços de leitura nas escolas.} A escassez de \textit{bibliotecas e salas de leitura} (presentes em apenas 10--14\% das escolas) e a associação significativa desses espaços com o desempenho superior sugerem que investimentos relativamente modestos em acervo e espaço físico podem ser custo-efetivos. Municípios com IDEB baixo dentro do \textit{cluster} vulnerável têm, em média, 3,3 p.p. menos escolas com esse recurso.
 
-  \item \textbf{Conectividade digital.} A diferença de 7,6 p.p. na proporção de \textit{escolas com internet} aponta para o efeito mediado da conectividade sobre o IDEB: embora o impacto seja apenas marginalmente significativo ($p = 0{,}062$), a convergência com a importância no Random Forest justifica o monitoramento desse indicador como parte de estratégias de melhoria educacional.
+  \item \textbf{Conectividade digital.} A diferença de 7,6 p.p. na proporção de \textit{escolas com internet} aponta para o efeito mediado da conectividade sobre o IDEB: embora o impacto seja apenas marginalmente significativo ($p = 0{,}062$), a convergência com a importância no \textit{Random Forest} justifica o monitoramento desse indicador como parte de estratégias de melhoria educacional.
 \end{itemize}

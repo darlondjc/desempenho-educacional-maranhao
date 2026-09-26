@@ -1,7 +1,7 @@
 \section{PROCEDIMENTOS METODOLÓGICOS}
 \label{sec:metodos}
 
-Trata-se de uma pesquisa de abordagem quantitativa, de caráter descritivo e exploratório, baseada exclusivamente em dados secundários de acesso público. O pipeline analítico segue as etapas do processo CRISP-DM (\textit{Cross-Industry Standard Process for Data Mining}) \parencite{shearer2000}, adaptado ao contexto de análise de dados educacionais: compreensão do domínio, coleta e preparação dos dados, modelagem e avaliação dos resultados. Dentro desse processo, a análise é conduzida em dois estágios sequenciais, descritos a seguir, após a apresentação das fontes de dados, das variáveis e do tratamento dos dados.
+Trata-se de uma pesquisa de abordagem quantitativa, de caráter descritivo e exploratório, baseada exclusivamente em dados secundários de acesso público. O \textit{pipeline} analítico segue as etapas do processo CRISP-DM (\textit{Cross-Industry Standard Process for Data Mining}) \parencite{shearer2000}, adaptado ao contexto de análise de dados educacionais: compreensão do domínio, coleta e preparação dos dados, modelagem e avaliação dos resultados. Dentro desse processo, a análise é conduzida em dois estágios sequenciais, descritos a seguir, após a apresentação das fontes de dados, das variáveis e do tratamento dos dados.
 
 \subsection{Fontes de dados}
 
@@ -12,9 +12,9 @@ Este estudo integra quatro bases de dados públicas referentes aos municípios d
 
     \item \textbf{Censo Escolar 2023 (INEP).} Os microdados do Censo Escolar \parencite{inep2024microdados} fornecem informações em nível de escola sobre infraestrutura física (internet, biblioteca/sala de leitura, laboratório de informática, quadra esportiva, abastecimento de água e esgotamento sanitário) e sobre o corpo docente. Para as variáveis de formação docente nos anos iniciais do ensino fundamental (EF), utilizou-se a Tabela 2.23 da Sinopse Estatística da Educação Básica 2023 \parencite{inep2024sinopse}, que fornece o número de docentes EFAI por nível de formação de modo consistente entre numerador e denominador, eliminando o viés de dupla contagem presente nos microdados brutos.
 
-    \item \textbf{Censo Demográfico 2010 (IBGE).} A renda per capita municipal de 2010 foi extraída do Censo Demográfico do Instituto Brasileiro de Geografia e Estatística (IBGE) \parencite{ibge2010} e utilizada como proxy da capacidade econômica dos municípios. Embora defasada, essa variável é o indicador de renda municipal mais desagregado disponível com cobertura universal para os 217 municípios analisados.
+    \item \textbf{Censo Demográfico 2010 (IBGE).} A renda \textit{per capita} municipal de 2010 foi extraída do Censo Demográfico do Instituto Brasileiro de Geografia e Estatística (IBGE) \parencite{ibge2010} e utilizada como \textit{proxy} da capacidade econômica dos municípios. Embora defasada, essa variável é o indicador de renda municipal mais desagregado disponível com cobertura universal para os 217 municípios analisados.
 
-    \item \textbf{IDHM 2010 (Atlas Brasil/PNUD).} O Índice de Desenvolvimento Humano Municipal, calculado pelo Programa das Nações Unidas para o Desenvolvimento (PNUD) com base no Censo 2010 \parencite{pnud2013}, captura três dimensões do desenvolvimento humano (longevidade, educação e renda) em um índice composto entre 0 e 1. Junto com a renda per capita, compõe o espaço de segmentação socioeconômica utilizado na clusterização.
+    \item \textbf{IDHM 2010 (Atlas Brasil/PNUD).} O Índice de Desenvolvimento Humano Municipal, calculado pelo Programa das Nações Unidas para o Desenvolvimento (PNUD) com base no Censo 2010 \parencite{pnud2013}, captura três dimensões do desenvolvimento humano (longevidade, educação e renda) em um índice composto entre 0 e 1. Junto com a renda \textit{per capita}, compõe o espaço de segmentação socioeconômica utilizado na clusterização.
 \end{itemize}
 
 \subsection{Variáveis}
@@ -32,7 +32,7 @@ As variáveis são organizadas em quatro grupos, descritos no quadro~\ref{qua:va
 \hline
 \multicolumn{3}{|l|}{\textit{Segmentação socioeconômica}} \\
 \hline
-Renda per capita 2010 & IBGE 2010 & Renda domiciliar per capita média municipal (R\$) \\
+Renda \textit{per capita} 2010 & IBGE 2010 & Renda domiciliar \textit{per capita} média municipal (R\$) \\
 \hline
 IDHM 2010 & PNUD/Atlas & Índice de Desenvolvimento Humano Municipal \\
 \hline
@@ -68,11 +68,11 @@ Proxy distorção idade-série & Censo 2023 & \% matrículas com 15 anos ou mais
 
 \subsection{Coleta e pré-processamento dos dados}
 
-O pipeline de ingestão (\texttt{ingest.py}) automatiza a carga das quatro fontes descritas anteriormente. Para o IDEB, lê a planilha oficial do INEP e filtra os municípios maranhenses da rede municipal, tratando os códigos de não divulgação (ND, ND*, (*), (**)) como valores ausentes. Para o Censo Escolar, carrega os microdados em formato CSV (\textit{Comma-Separated Values}, \textit{encoding} latin-1, separador ponto-e-vírgula) e seleciona as colunas de infraestrutura, docentes e matrículas, filtrando as escolas de dependência municipal no Maranhão (TP\_DEPENDENCIA = 3). Para os docentes dos anos iniciais, usa exclusivamente a Tabela 2.23 da Sinopse Estatística 2023 (planilha no formato ODS, \textit{OpenDocument Spreadsheet}), garantindo que numerador (docentes com superior) e denominador (total de docentes EFAI) venham da mesma fonte. Os dados do IBGE e do IDHM são lidos de planilhas Excel curadas previamente.
+O \textit{pipeline} de ingestão (\texttt{ingest.py}) automatiza a carga das quatro fontes descritas anteriormente. Para o IDEB, lê a planilha oficial do INEP e filtra os municípios maranhenses da rede municipal, tratando os códigos de não divulgação (ND, ND*, (*), (**)) como valores ausentes. Para o Censo Escolar, carrega os microdados em formato CSV (\textit{Comma-Separated Values}, \textit{encoding} latin-1, separador ponto-e-vírgula) e seleciona as colunas de infraestrutura, docentes e matrículas, filtrando as escolas de dependência municipal no Maranhão (TP\_DEPENDENCIA = 3). Para os docentes dos anos iniciais, usa exclusivamente a Tabela 2.23 da Sinopse Estatística 2023 (planilha no formato ODS, \textit{OpenDocument Spreadsheet}), garantindo que numerador (docentes com superior) e denominador (total de docentes EFAI) venham da mesma fonte. Os dados do IBGE e do IDHM são lidos de planilhas Excel curadas previamente.
 
 As variáveis de infraestrutura são agregadas ao nível municipal como proporção de escolas com cada atributo presente. As variáveis de docentes, como percentual sobre o total de docentes EFAI do município. As variáveis de fluxo, como médias ou proporções sobre o total de matrículas e turmas municipais.
 
-O pipeline de transformação (\texttt{transform.py}) aplica as seguintes operações:
+O \textit{pipeline} de transformação (\texttt{transform.py}) aplica as seguintes operações:
 
 \begin{itemize}
   \item \textbf{IDEB:} substituição de valores especiais por \texttt{NaN}, conversão de vírgula para ponto decimal, remoção de colunas redundantes (notas separadas de língua portuguesa e matemática, já incorporadas na nota média).
@@ -82,23 +82,23 @@ O pipeline de transformação (\texttt{transform.py}) aplica as seguintes opera�
   \item \textbf{Integração:} junção das quatro bases pela chave \texttt{NO\_MUNICIPIO} (normalizada), com junção à esquerda a partir do IDEB. Resultado: 217 municípios com dados completos de IDEB, Censo Escolar, IBGE e IDHM.
 \end{itemize}
 
-Após a integração, não há valores ausentes nas variáveis de cluster nem nas variáveis-alvo (IDEB), mas algumas variáveis explicativas apresentam valores ausentes pontuais decorrentes de municípios sem turmas de correção de fluxo (alunos com atraso em relação à idade esperada para a série).
+Após a integração, não há valores ausentes nas variáveis de \textit{cluster} nem nas variáveis-alvo (IDEB), mas algumas variáveis explicativas apresentam valores ausentes pontuais decorrentes de municípios sem turmas de correção de fluxo (alunos com atraso em relação à idade esperada para a série).
 
-\subsection{Estágio 1: segmentação socioeconômica por K-Means}
+\subsection{Estágio 1: segmentação socioeconômica por \textit{K-Means}}
 
-O K-Means \parencite{macqueen1967} agrupa os 217 municípios com base em renda per capita e IDHM. Antes da clusterização, as duas variáveis são normalizadas via \texttt{RobustScaler}, que centraliza na mediana e escala pelo intervalo interquartil, reduzindo a influência de municípios atípicos, isto é, com renda per capita e IDHM muito acima dos demais municípios do estado, como São Luís e Imperatriz, que, por esses valores extremos, poderiam distorcer a formação dos grupos.
+O \textit{K-Means} \parencite{macqueen1967} agrupa os 217 municípios com base em renda \textit{per capita} e IDHM. Antes da clusterização, as duas variáveis são normalizadas via \texttt{RobustScaler}, que centraliza na mediana e escala pelo intervalo interquartil, reduzindo a influência de municípios atípicos, isto é, com renda \textit{per capita} e IDHM muito acima dos demais municípios do estado, como São Luís e Imperatriz, que, por esses valores extremos, poderiam distorcer a formação dos grupos.
 
-O número de clusters $k$ é selecionado pela inspeção conjunta do Método do Cotovelo, que avalia a inércia total em função de $k$, e do Silhouette Score médio \parencite{rousseeuw1987}, que mede a separação relativa dos grupos. O algoritmo é executado com $k \in \{2, \ldots, 10\}$, inicialização \texttt{k-means++} e \texttt{n\_init = 10}. A estabilidade dos clusters é avaliada por bootstrap de 25 iterações com 80\% dos dados, seguindo a configuração de referência de \textcite{benhur2002}, usando o Adjusted Rand Index (ARI) como métrica de concordância.
+O número de \textit{clusters} $k$ é selecionado pela inspeção conjunta do Método do Cotovelo, que avalia a inércia total em função de $k$, e do \textit{Silhouette Score} médio \parencite{rousseeuw1987}, que mede a separação relativa dos grupos. O algoritmo é executado com $k \in \{2, \ldots, 10\}$, inicialização \texttt{k-means++} e \texttt{n\_init = 10}. A estabilidade dos \textit{clusters} é avaliada por \textit{bootstrap} de 25 iterações com 80\% dos dados, seguindo a configuração de referência de \textcite{benhur2002}, usando o \textit{Adjusted Rand Index} (ARI) como métrica de concordância.
 
-A visualização dos clusters é feita via Análise de Componentes Principais (PCA) \parencite{abdi2010} com duas componentes, permitindo inspeção gráfica da separação em espaço reduzido.
+A visualização dos \textit{clusters} é feita via Análise de Componentes Principais (PCA) \parencite{abdi2010} com duas componentes, permitindo inspeção gráfica da separação em espaço reduzido.
 
 \subsection{Estágio 2: análise intragrupo}
 
-Dentro de cada cluster com amostra suficiente, os municípios são divididos em dois grupos por desempenho: \textit{alto IDEB}, formado pelo quartil superior ($\geq Q_{75}$), e \textit{baixo IDEB}, formado pelo quartil inferior ($\leq Q_{25}$). Os municípios do intervalo central são excluídos da análise comparativa, o que aumenta o contraste entre os grupos e reduz o ruído.
+Dentro de cada \textit{cluster} com amostra suficiente, os municípios são divididos em dois grupos por desempenho: \textit{alto IDEB}, formado pelo quartil superior ($\geq Q_{75}$), e \textit{baixo IDEB}, formado pelo quartil inferior ($\leq Q_{25}$). Os municípios do intervalo central são excluídos da análise comparativa, o que aumenta o contraste entre os grupos e reduz o ruído.
 
-Para identificar quais variáveis diferenciam os dois grupos, aplica-se um Random Forest Classifier \parencite{breiman2001} com 500 árvores, \texttt{class\_weight='balanced'} e \texttt{min\_samples\_leaf=3}. A importância de cada variável é calculada pelo critério de redução média de impureza (\textit{Mean Decrease in Impurity}), que quantifica a contribuição de cada variável para separar os dois grupos ao longo das 500 árvores. Em paralelo, o teste de Mann-Whitney \parencite{mannwhitney1947} bicaudal verifica se as distribuições das variáveis diferem significativamente entre os grupos alto e baixo IDEB. São utilizados três limiares de significância: $\alpha = 0{,}01$ (***), $\alpha = 0{,}05$ (**) e $\alpha = 0{,}10$ (*).
+Para identificar quais variáveis diferenciam os dois grupos, aplica-se um \textit{Random Forest Classifier} \parencite{breiman2001} com 500 árvores, \texttt{class\_weight='balanced'} e \texttt{min\_samples\_leaf=3}. A importância de cada variável é calculada pelo critério de redução média de impureza (\textit{Mean Decrease in Impurity}), que quantifica a contribuição de cada variável para separar os dois grupos ao longo das 500 árvores. Em paralelo, o teste de Mann-Whitney \parencite{mannwhitney1947} bicaudal verifica se as distribuições das variáveis diferem significativamente entre os grupos alto e baixo IDEB. São utilizados três limiares de significância: $\alpha = 0{,}01$ (***), $\alpha = 0{,}05$ (**) e $\alpha = 0{,}10$ (*).
 
-A combinação de importâncias do Random Forest com os p-valores do Mann-Whitney permite distinguir variáveis com alta relevância preditiva daquelas com diferença estatisticamente sustentada: uma variável é considerada fator discriminante relevante quando apresenta alta importância \textit{e} diferença significativa ao nível de $\alpha = 0{,}10$.
+A combinação de importâncias do \textit{Random Forest} com os p-valores do Mann-Whitney permite distinguir variáveis com alta relevância preditiva daquelas com diferença estatisticamente sustentada: uma variável é considerada fator discriminante relevante quando apresenta alta importância \textit{e} diferença significativa ao nível de $\alpha = 0{,}10$.
 
 \subsection{Uso de ferramentas de inteligência artificial generativa}
 \label{sec:uso_ia}
@@ -106,7 +106,7 @@ A combinação de importâncias do Random Forest com os p-valores do Mann-Whitne
 Este trabalho utilizou ferramentas de inteligência artificial generativa em três etapas do processo de pesquisa:
 
 \begin{itemize}
-    \item \textbf{Revisão de código.} A primeira etapa do trabalho corresponde às fases de ciência de dados com Python. A ferramenta Claude (Anthropic) foi utilizada para correção e revisão dos scripts Python do pipeline de análise (\texttt{ingest.py}, \texttt{transform.py} e os módulos de modelagem), com validação e aprovação da autoria em cada alteração sugerida.
+    \item \textbf{Revisão de código.} A primeira etapa do trabalho corresponde às fases de ciência de dados com Python. A ferramenta Claude (Anthropic) foi utilizada para correção e revisão dos \textit{scripts} Python do \textit{pipeline} de análise (\texttt{ingest.py}, \texttt{transform.py} e os módulos de modelagem), com validação e aprovação da autoria em cada alteração sugerida.
     \item \textbf{Revisão e edição de texto.} Na fase de produção escrita deste artigo, o Claude (Anthropic) e o ChatGPT (OpenAI) foram utilizados para revisar a redação e a clareza das seções. O texto original, a estrutura argumentativa e as interpretações dos resultados são de responsabilidade exclusiva da autoria.
     \item \textbf{Busca e validação de referências bibliográficas.} Claude (Anthropic) e SciSpace AI Research (PubGenius Inc.) foram utilizados para identificar trabalhos potencialmente relevantes e verificar metadados de citações. Cada referência foi conferida nas fontes originais antes da inclusão.
 \end{itemize}
