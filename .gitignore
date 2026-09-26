@@ -55,6 +55,9 @@ output/
 
 # Ignorar arquivos de backup do vim
 *.swp
-*.swo*.bcf
+*.swo
+
+# Arquivos auxiliares do biblatex e prévia identificada
+*.bcf
 *.run.xml
 artigo/main_identificado.pdf
