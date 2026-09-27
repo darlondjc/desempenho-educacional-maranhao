@@ -15,14 +15,14 @@ TRUSTED_DIR = PROJECT_ROOT / "data" / "trusted"
 FIGURES_DIR = PROJECT_ROOT / "reports" / "figures"
 
 VARS_CLUSTER = [
-    'RENDA_PER_CAPITA_2010',
+    'RENDA_PER_CAPITA_2022',
     'IDHM_2010',
 ]
 
 CLUSTER_K = 2
 
 VARS_EXPLICATIVAS_IDEB = [
-    'RENDA_PER_CAPITA_2010',
+    'RENDA_PER_CAPITA_2022',
     'IDHM_2010',
     'PCT_ESCOLAS_COM_INTERNET',
     'PCT_ESCOLAS_COM_BIBLIOTECA_LEITURA',
@@ -40,8 +40,8 @@ VARS_EXPLICATIVAS_IDEB = [
 ]
 
 VARS_COMPARACAO = [
-    'VL_OBSERVADO_2023',
-    'RENDA_PER_CAPITA_2010',
+    'VL_OBSERVADO_2025',
+    'RENDA_PER_CAPITA_2022',
     'IDHM_2010',
     'PCT_ESCOLAS_COM_INTERNET',
     'PCT_ESCOLAS_COM_BIBLIOTECA_LEITURA',
@@ -152,12 +152,12 @@ def clusterizar(df: pd.DataFrame, X_scaled, k: int = 3) -> pd.DataFrame:
         nome = _nome_cluster(df, cid)
         sub = df[df['CLUSTER'] == cid]
         print(f"\nCluster {nome} — municípios ({len(sub)}):")
-        print(sub[['NO_MUNICIPIO', 'RENDA_PER_CAPITA_2010', 'VL_OBSERVADO_2023']]
-              .sort_values('RENDA_PER_CAPITA_2010', ascending=False)
+        print(sub[['NO_MUNICIPIO', 'RENDA_PER_CAPITA_2022', 'VL_OBSERVADO_2025']]
+              .sort_values('RENDA_PER_CAPITA_2022', ascending=False)
               .to_string(index=False))
 
     for nome in [n for n in df['CLUSTER_NOME'].dropna().unique() if n != 'alta renda']:
-        sub = df[df['CLUSTER_NOME'] == nome]['VL_OBSERVADO_2023']
+        sub = df[df['CLUSTER_NOME'] == nome]['VL_OBSERVADO_2025']
         print(f"\nCluster {nome} ({len(sub)} municípios):")
         print(f"  IDEB médio: {sub.mean():.2f}  |  min: {sub.min():.2f}  |  max: {sub.max():.2f}")
 
@@ -166,7 +166,7 @@ def clusterizar(df: pd.DataFrame, X_scaled, k: int = 3) -> pd.DataFrame:
 
 def nomear_clusters(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
-    medias_renda = df.groupby('CLUSTER')['RENDA_PER_CAPITA_2010'].mean().sort_values()
+    medias_renda = df.groupby('CLUSTER')['RENDA_PER_CAPITA_2022'].mean().sort_values()
     ordem = list(medias_renda.index)
 
     if len(ordem) == 3:
@@ -184,7 +184,7 @@ def nomear_clusters(df: pd.DataFrame) -> pd.DataFrame:
 
 def _clusters_ordenados_por_renda(df: pd.DataFrame) -> list:
     ordem = (
-        df.groupby(['CLUSTER', 'CLUSTER_NOME'])['RENDA_PER_CAPITA_2010']
+        df.groupby(['CLUSTER', 'CLUSTER_NOME'])['RENDA_PER_CAPITA_2022']
         .mean()
         .sort_values()
         .index
@@ -276,12 +276,12 @@ def relevancia_variaveis_cluster(X_scaled, k: int = 3, n_bootstrap: int = 25) ->
 def outliers_positivos(df: pd.DataFrame) -> None:
     for cid in _clusters_analise_intragrupo(df):
         sub = df[df['CLUSTER'] == cid]
-        limiar = sub['VL_OBSERVADO_2023'].mean() + sub['VL_OBSERVADO_2023'].std()
-        top = sub[sub['VL_OBSERVADO_2023'] >= limiar]
+        limiar = sub['VL_OBSERVADO_2025'].mean() + sub['VL_OBSERVADO_2025'].std()
+        top = sub[sub['VL_OBSERVADO_2025'] >= limiar]
         print(f"\nOutliers positivos Cluster {_nome_cluster(df, cid)} (IDEB >= {limiar:.2f}):")
-        print(top[['NO_MUNICIPIO', 'VL_OBSERVADO_2023',
-                   'RENDA_PER_CAPITA_2010', 'IDHM_2010']].sort_values(
-            'VL_OBSERVADO_2023', ascending=False).to_string())
+        print(top[['NO_MUNICIPIO', 'VL_OBSERVADO_2025',
+                   'RENDA_PER_CAPITA_2022', 'IDHM_2010']].sort_values(
+            'VL_OBSERVADO_2025', ascending=False).to_string())
 
 
 def destacar_municipios_por_cluster(df: pd.DataFrame, top_n: int = 5) -> None:
@@ -291,10 +291,10 @@ def destacar_municipios_por_cluster(df: pd.DataFrame, top_n: int = 5) -> None:
 
     for cid in _clusters_ordenados_por_renda(df):
         sub = df[df['CLUSTER'] == cid].copy()
-        sub = sub.sort_values('VL_OBSERVADO_2023', ascending=False)
+        sub = sub.sort_values('VL_OBSERVADO_2025', ascending=False)
 
-        melhores = sub[['NO_MUNICIPIO', 'VL_OBSERVADO_2023']].head(top_n)
-        piores = sub[['NO_MUNICIPIO', 'VL_OBSERVADO_2023']].tail(top_n).sort_values('VL_OBSERVADO_2023')
+        melhores = sub[['NO_MUNICIPIO', 'VL_OBSERVADO_2025']].head(top_n)
+        piores = sub[['NO_MUNICIPIO', 'VL_OBSERVADO_2025']].tail(top_n).sort_values('VL_OBSERVADO_2025')
 
         print(f"\nCluster {_nome_cluster(df, cid)} | municípios: {len(sub)}")
         print("  Melhores IDEB:")
@@ -304,11 +304,11 @@ def destacar_municipios_por_cluster(df: pd.DataFrame, top_n: int = 5) -> None:
 
 
 def _separar_alto_baixo_por_quantis(cluster_df: pd.DataFrame, q: float = 0.25) -> tuple[pd.DataFrame, pd.DataFrame]:
-    limiar_baixo = cluster_df['VL_OBSERVADO_2023'].quantile(q)
-    limiar_alto = cluster_df['VL_OBSERVADO_2023'].quantile(1 - q)
+    limiar_baixo = cluster_df['VL_OBSERVADO_2025'].quantile(q)
+    limiar_alto = cluster_df['VL_OBSERVADO_2025'].quantile(1 - q)
 
-    baixo = cluster_df[cluster_df['VL_OBSERVADO_2023'] <= limiar_baixo].copy()
-    alto = cluster_df[cluster_df['VL_OBSERVADO_2023'] >= limiar_alto].copy()
+    baixo = cluster_df[cluster_df['VL_OBSERVADO_2025'] <= limiar_baixo].copy()
+    alto = cluster_df[cluster_df['VL_OBSERVADO_2025'] >= limiar_alto].copy()
     return alto, baixo
 
 
@@ -335,11 +335,11 @@ def variaveis_relevantes_por_cluster(
             continue
 
         extremos = pd.concat([alto, baixo], axis=0).copy()
-        extremos['DESTAQUE'] = (extremos['VL_OBSERVADO_2023'] >= alto['VL_OBSERVADO_2023'].min()).astype(int)
+        extremos['DESTAQUE'] = (extremos['VL_OBSERVADO_2025'] >= alto['VL_OBSERVADO_2025'].min()).astype(int)
 
         variaveis_modelo = [
             var for var in VARS_EXPLICATIVAS_IDEB
-            if var in extremos.columns and var != 'VL_OBSERVADO_2023'
+            if var in extremos.columns and var != 'VL_OBSERVADO_2025'
         ]
 
         X = extremos[variaveis_modelo]
@@ -421,16 +421,16 @@ def variaveis_relevantes_por_cluster(
 
 def classificar_perfil(cluster_df: pd.DataFrame, q: float = 0.25) -> pd.DataFrame:
     cluster_df = cluster_df.copy()
-    limiar_baixo = cluster_df['VL_OBSERVADO_2023'].quantile(q)
-    limiar_alto = cluster_df['VL_OBSERVADO_2023'].quantile(1 - q)
+    limiar_baixo = cluster_df['VL_OBSERVADO_2025'].quantile(q)
+    limiar_alto = cluster_df['VL_OBSERVADO_2025'].quantile(1 - q)
     cluster_df['PERFIL'] = 'médio'
-    cluster_df.loc[cluster_df['VL_OBSERVADO_2023'] >= limiar_alto, 'PERFIL'] = 'alto'
-    cluster_df.loc[cluster_df['VL_OBSERVADO_2023'] <= limiar_baixo, 'PERFIL'] = 'baixo'
+    cluster_df.loc[cluster_df['VL_OBSERVADO_2025'] >= limiar_alto, 'PERFIL'] = 'alto'
+    cluster_df.loc[cluster_df['VL_OBSERVADO_2025'] <= limiar_baixo, 'PERFIL'] = 'baixo'
     return cluster_df
 
 
 def comparar_perfis(df: pd.DataFrame, q: float = 0.25) -> None:
-    vars_analise = ['VL_OBSERVADO_2023'] + [
+    vars_analise = ['VL_OBSERVADO_2025'] + [
         var for var in VARS_EXPLICATIVAS_IDEB if var in df.columns
     ]
 
@@ -468,8 +468,9 @@ def random_forest(df: pd.DataFrame, salvar_arquivo: bool = True) -> None:
     print("=" * 60)
 
     df_rf = df[df['CLUSTER'].isin(_clusters_analise_intragrupo(df))].copy()
+    df_rf = df_rf.dropna(subset=['VL_OBSERVADO_2025'])
     X_rf = df_rf[VARS_RF]
-    y_rf = df_rf['VL_OBSERVADO_2023']
+    y_rf = df_rf['VL_OBSERVADO_2025']
 
     rf = RandomForestRegressor(n_estimators=200, random_state=42)
     rf.fit(X_rf, y_rf)
@@ -500,7 +501,7 @@ def distribuicao_quartis_cluster(
     sub = df[df['CLUSTER_NOME'] == cluster_nome].copy()
     sub = classificar_perfil(sub, q=q)
 
-    ideb_all = sub['VL_OBSERVADO_2023']
+    ideb_all = sub['VL_OBSERVADO_2025']
     q_baixo = ideb_all.quantile(q)
     q_alto = ideb_all.quantile(1 - q)
 
@@ -516,7 +517,7 @@ def distribuicao_quartis_cluster(
     ax.axvspan(q_alto, xmax, alpha=0.10, color=cores['alto'])
 
     for perfil in ['baixo', 'médio', 'alto']:
-        grupo = sub[sub['PERFIL'] == perfil]['VL_OBSERVADO_2023']
+        grupo = sub[sub['PERFIL'] == perfil]['VL_OBSERVADO_2025']
         ax.hist(
             grupo, bins=bins, alpha=0.80,
             color=cores[perfil], edgecolor='white', linewidth=0.5,
@@ -534,7 +535,7 @@ def distribuicao_quartis_cluster(
         f'Grupos alto e baixo definidos pelos quartis Q{int(q * 100)} e Q{int((1 - q) * 100)}',
         fontsize=12, fontweight='bold',
     )
-    ax.set_xlabel('IDEB 2023 (Anos Iniciais do Ensino Fundamental)')
+    ax.set_xlabel('IDEB 2025 (Anos Iniciais do Ensino Fundamental)')
     ax.set_ylabel('Número de municípios')
     ax.legend(loc='upper right', fontsize=9)
     plt.tight_layout()
@@ -545,7 +546,7 @@ def distribuicao_quartis_cluster(
 
     print(f'\nDistribuição por perfil — Cluster {cluster_nome}:')
     for perfil in ['alto', 'médio', 'baixo']:
-        grupo = sub[sub['PERFIL'] == perfil]['VL_OBSERVADO_2023']
+        grupo = sub[sub['PERFIL'] == perfil]['VL_OBSERVADO_2025']
         print(
             f'  {perfil.capitalize()}: n={len(grupo)}'
             f' | média={grupo.mean():.2f}'
@@ -554,7 +555,7 @@ def distribuicao_quartis_cluster(
 
 
 def distribuicao_ideb(df: pd.DataFrame, salvar_arquivo: bool = True) -> None:
-    ideb = df['VL_OBSERVADO_2023'].dropna()
+    ideb = df['VL_OBSERVADO_2025'].dropna()
     media = ideb.mean()
     mediana = ideb.median()
     std = ideb.std()
@@ -564,14 +565,14 @@ def distribuicao_ideb(df: pd.DataFrame, salvar_arquivo: bool = True) -> None:
     ax.axvline(media, color='red', linestyle='--', linewidth=1.5, label=f'Média: {media:.2f}')
     ax.axvline(mediana, color='orange', linestyle='--', linewidth=1.5, label=f'Mediana: {mediana:.2f}')
     ax.axvspan(media - std, media + std, alpha=0.1, color='red', label=f'±1 desvio-padrão ({std:.2f})')
-    ax.set_title('Distribuição do IDEB 2023 — Municípios Maranhenses (Rede Municipal)', fontsize=13, fontweight='bold')
+    ax.set_title('Distribuição do IDEB 2025 — Municípios Maranhenses (Rede Municipal)', fontsize=13, fontweight='bold')
     ax.set_xlabel('IDEB (Anos Iniciais do Ensino Fundamental)')
     ax.set_ylabel('Número de municípios')
     ax.legend()
     plt.tight_layout()
     _renderizar_ou_salvar("distribuicao_ideb.png", salvar_arquivo=salvar_arquivo)
 
-    print(f"\nDistribuição do IDEB 2023:")
+    print(f"\nDistribuição do IDEB 2025:")
     print(f"  Municípios com dado: {len(ideb)}")
     print(f"  Média:   {media:.2f}")
     print(f"  Mediana: {mediana:.2f}")
