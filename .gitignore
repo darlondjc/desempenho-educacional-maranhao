@@ -15,6 +15,14 @@ data/trusted/*
 data/mart/*
 !data/*/.gitkeep
 
+# Dumps brutos de microdados do Censo Escolar/Sinopse (centenas de MB, baixados
+# do Inep sob demanda pelo pipeline — nunca foram versionados no histórico deste
+# repositório; só os arquivos curados pequenos, como docentes.ods, são mantidos).
+data/base/microdados_censo_escolar_*/dados/Tabela_*.csv
+data/base/microdados_censo_escolar_*/dados/microdados_ed_basica_*.csv
+data/base/microdados_censo_escolar_*/dados/sinopse_docentes_*.xlsx
+data/base/microdados_censo_escolar_*/dados/sinopse_docentes_*.ods
+
 reports/figures/*
 !reports/figures/.gitkeep
 
