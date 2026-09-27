@@ -389,7 +389,7 @@ def variaveis_relevantes_por_cluster(
             .to_string(index=False)
         )
 
-        sugestoes = tabela[tabela['p_valor_mw'] < 0.10].head(5)
+        sugestoes = tabela[tabela["p_valor_mw"] < 0.10]
         print(f"\n  Principais oportunidades de melhoria para municípios do cluster '{nome}'")
         print(f"  (apenas variáveis com diferença estatisticamente significativa, p < 0.10):")
         if sugestoes.empty:
