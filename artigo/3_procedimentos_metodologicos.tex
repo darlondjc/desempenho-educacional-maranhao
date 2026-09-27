@@ -8,13 +8,13 @@ Trata-se de uma pesquisa de abordagem quantitativa, de caráter descritivo e exp
 Este estudo integra quatro bases de dados públicas referentes aos municípios do Maranhão:
 
 \begin{itemize}
-    \item \textbf{IDEB EFAI 2023 (INEP).} O Índice de Desenvolvimento da Educação Básica dos anos iniciais do ensino fundamental (EFAI), divulgado pelo INEP \parencite{inep2023}, é calculado conforme a metodologia proposta por \textcite{fernandes2007}: combina a taxa de aprovação escolar (fluxo) com a proficiência média em Língua Portuguesa e Matemática aferida pelo Sistema de Avaliação da Educação Básica (Saeb). Para este estudo, utilizou-se a edição 2023 da rede municipal, que cobriu os 217 (todos) municípios do estado com dados disponíveis.
+    \item \textbf{IDEB EFAI 2025 (INEP).} O Índice de Desenvolvimento da Educação Básica dos anos iniciais do ensino fundamental (EFAI), divulgado pelo INEP \parencite{inep2025}, é calculado conforme a metodologia proposta por \textcite{fernandes2007}: combina a taxa de aprovação escolar (fluxo) com a proficiência média em Língua Portuguesa e Matemática aferida pelo Sistema de Avaliação da Educação Básica (Saeb). Para este estudo, utilizou-se a edição 2025 da rede municipal, que cobriu 216 dos 217 municípios do estado; Nova Iorque não teve o indicador divulgado nesta edição.
 
-    \item \textbf{Censo Escolar 2023 (INEP).} Os microdados do Censo Escolar \parencite{inep2024microdados} fornecem informações em nível de escola sobre infraestrutura física (internet, biblioteca/sala de leitura, laboratório de informática, quadra esportiva, abastecimento de água e esgotamento sanitário) e sobre o corpo docente. Para as variáveis de formação docente nos anos iniciais do ensino fundamental (EF), utilizou-se a Tabela 2.23 da Sinopse Estatística da Educação Básica 2023 \parencite{inep2024sinopse}, que fornece o número de docentes EFAI por nível de formação de modo consistente entre numerador e denominador, eliminando o viés de dupla contagem presente nos microdados brutos.
+    \item \textbf{Censo Escolar 2025 (INEP).} Os microdados do Censo Escolar \parencite{inep2026microdados} fornecem informações em nível de escola sobre infraestrutura física (internet, biblioteca/sala de leitura, laboratório de informática, quadra esportiva, abastecimento de água e esgotamento sanitário) e sobre o corpo docente. Para as variáveis de formação docente nos anos iniciais do ensino fundamental (EF), utilizou-se a Tabela 2.29 da Sinopse Estatística da Educação Básica 2025 \parencite{inep2026sinopse}, que fornece o número de docentes EFAI por nível de formação de modo consistente entre numerador e denominador, eliminando o viés de dupla contagem presente nos microdados brutos. Na edição 2023, essa tabela era numerada 2.23; o Inep deslocou a numeração ao inserir tabelas novas de EJA e educação especial entre as edições.
 
-    \item \textbf{Censo Demográfico 2010 (IBGE).} A renda \textit{per capita} municipal de 2010 foi extraída do Censo Demográfico do Instituto Brasileiro de Geografia e Estatística (IBGE) \parencite{ibge2010} e utilizada como \textit{proxy} da capacidade econômica dos municípios. Embora defasada, essa variável é o indicador de renda municipal mais desagregado disponível com cobertura universal para os 217 municípios analisados.
+    \item \textbf{Censo Demográfico 2022 (IBGE).} A renda \textit{per capita} municipal foi extraída do Censo Demográfico 2022 do Instituto Brasileiro de Geografia e Estatística (IBGE) \parencite{ibge2022}, tabela "Valor do rendimento nominal médio mensal domiciliar per capita" (Sidra, tabela 10295), e utilizada como \textit{proxy} da capacidade econômica dos municípios. Diferentemente da edição de 2010 utilizada em versões anteriores desta análise, o dado de 2022 é o mais recente disponível com cobertura universal por município.
 
-    \item \textbf{IDHM 2010 (Atlas Brasil/PNUD).} O Índice de Desenvolvimento Humano Municipal, calculado pelo Programa das Nações Unidas para o Desenvolvimento (PNUD) com base no Censo 2010 \parencite{pnud2013}, captura três dimensões do desenvolvimento humano (longevidade, educação e renda) em um índice composto entre 0 e 1. Junto com a renda \textit{per capita}, compõe o espaço de segmentação socioeconômica utilizado na clusterização.
+    \item \textbf{IDHM 2010 (Atlas Brasil/PNUD).} O Índice de Desenvolvimento Humano Municipal, calculado pelo Programa das Nações Unidas para o Desenvolvimento (PNUD) com base no Censo 2010 \parencite{pnud2013}, captura três dimensões do desenvolvimento humano (longevidade, educação e renda) em um índice composto entre 0 e 1. A atualização do Atlas Brasil para o período 2022--2024 baseia-se na Pesquisa Nacional por Amostra de Domicílios Contínua (PNAD Contínua), cuja desagregação geográfica cobre apenas 146 estratos de municípios para todo o Brasil \parencite{ibge2022notatecnica}, não municípios individuais. Como a análise depende de diferenciar cada um dos 217 municípios maranhenses, manteve-se o IDHM calculado a partir do Censo Demográfico de 2010, a edição mais recente com desagregação municipal individual disponível. Junto com a renda \textit{per capita}, compõe o espaço de segmentação socioeconômica utilizado na clusterização.
 \end{itemize}
 
 \subsection{Variáveis}
@@ -32,35 +32,35 @@ As variáveis são organizadas em quatro grupos, descritos no quadro~\ref{qua:va
 \hline
 \multicolumn{3}{|l|}{\textit{Segmentação socioeconômica}} \\
 \hline
-Renda \textit{per capita} 2010 & IBGE 2010 & Renda domiciliar \textit{per capita} média municipal (R\$) \\
+Renda \textit{per capita} 2022 & IBGE/Censo 2022 & Rendimento domiciliar \textit{per capita} médio mensal municipal (R\$) \\
 \hline
 IDHM 2010 & PNUD/Atlas & Índice de Desenvolvimento Humano Municipal \\
 \hline
 \multicolumn{3}{|l|}{\textit{Infraestrutura escolar}} \\
 \hline
-\% escolas com internet & Censo 2023 & Proporção de escolas municipais com acesso à internet \\
+\% escolas com internet & Censo 2025 & Proporção de escolas municipais com acesso à internet \\
 \hline
-\% escolas com biblioteca/sala de leitura & Censo 2023 & Proporção com biblioteca, biblioteca-sala de leitura ou sala de leitura \\
+\% escolas com biblioteca/sala de leitura & Censo 2025 & Proporção com biblioteca, biblioteca-sala de leitura ou sala de leitura \\
 \hline
-\% escolas com laboratório de informática & Censo 2023 & Proporção com laboratório de informática \\
+\% escolas com laboratório de informática & Censo 2025 & Proporção com laboratório de informática \\
 \hline
-\% escolas com quadra esportiva & Censo 2023 & Proporção com quadra de esportes \\
+\% escolas com quadra esportiva & Censo 2025 & Proporção com quadra de esportes \\
 \hline
-\% escolas com água adequada & Censo 2023 & Proporção com água potável ou rede pública \\
+\% escolas com água adequada & Censo 2025 & Proporção com água potável ou rede pública \\
 \hline
-\% escolas com esgoto adequado & Censo 2023 & Proporção com rede pública ou fossa séptica \\
+\% escolas com esgoto adequado & Censo 2025 & Proporção com rede pública ou fossa séptica \\
 \hline
 \multicolumn{3}{|l|}{\textit{Qualificação docente}} \\
 \hline
-\% docentes EFAI com ensino superior & Sinopse 2023 & Proporção de docentes dos anos iniciais com graduação \\
+\% docentes EFAI com ensino superior & Sinopse 2025 & Proporção de docentes dos anos iniciais com graduação \\
 \hline
-\% docentes EFAI com licenciatura & Sinopse 2023 & Proporção de docentes dos anos iniciais com licenciatura \\
+\% docentes EFAI com licenciatura & Sinopse 2025 & Proporção de docentes dos anos iniciais com licenciatura \\
 \hline
 \multicolumn{3}{|l|}{\textit{Fluxo e distorção}} \\
 \hline
-Média de alunos/turma (EF) & Censo 2023 & Total de matrículas no EF dividido pelo total de turmas do EF \\
+Média de alunos/turma (EF) & Censo 2025 & Total de matrículas no EF dividido pelo total de turmas do EF \\
 \hline
-Proxy distorção idade-série & Censo 2023 & \% matrículas com 15 anos ou mais na educação básica municipal \\
+Proxy distorção idade-série & Censo 2025 & \% matrículas com 15 anos ou mais na educação básica municipal \\
 \hline
 \end{tabular}
 \fonte{elaboração própria (2026).}
@@ -68,7 +68,7 @@ Proxy distorção idade-série & Censo 2023 & \% matrículas com 15 anos ou mais
 
 \subsection{Coleta e pré-processamento dos dados}
 
-O \textit{pipeline} de ingestão (\texttt{ingest.py}) automatiza a carga das quatro fontes descritas anteriormente. Para o IDEB, lê a planilha oficial do INEP e filtra os municípios maranhenses da rede municipal, tratando os códigos de não divulgação (ND, ND*, (*), (**)) como valores ausentes. Para o Censo Escolar, carrega os microdados em formato CSV (\textit{Comma-Separated Values}, \textit{encoding} latin-1, separador ponto-e-vírgula) e seleciona as colunas de infraestrutura, docentes e matrículas, filtrando as escolas de dependência municipal no Maranhão (TP\_DEPENDENCIA = 3). Para os docentes dos anos iniciais, usa exclusivamente a Tabela 2.23 da Sinopse Estatística 2023 (planilha no formato ODS, \textit{OpenDocument Spreadsheet}), garantindo que numerador (docentes com superior) e denominador (total de docentes EFAI) venham da mesma fonte. Os dados do IBGE e do IDHM são lidos de planilhas Excel curadas previamente.
+O \textit{pipeline} de ingestão (\texttt{ingest.py}) automatiza a carga das quatro fontes descritas anteriormente. Para o IDEB, lê a planilha oficial do INEP e filtra os municípios maranhenses da rede municipal, tratando os códigos de não divulgação (ND, ND*, (*), (**)) como valores ausentes. Para o Censo Escolar 2025, o Inep passou a distribuir os microdados em quatro tabelas relacionais por domínio (escola, docente, matrícula e turma), cada uma agregada por escola; o \textit{pipeline} lê as quatro em formato CSV (\textit{encoding} latin-1, separador ponto-e-vírgula), filtra as escolas de dependência municipal no Maranhão (TP\_DEPENDENCIA = 3) e as combina pela chave de identificação da escola (CO\_ENTIDADE). Para os docentes dos anos iniciais, usa exclusivamente a Tabela 2.29 da Sinopse Estatística 2025 (planilha em formato XLSX), garantindo que numerador (docentes com superior) e denominador (total de docentes EFAI) venham da mesma fonte. Os dados de renda \textit{per capita} são obtidos via consulta à API pública do Sidra/IBGE (tabela 10295); os dados do IDHM são lidos de planilha Excel curada previamente.
 
 As variáveis de infraestrutura são agregadas ao nível municipal como proporção de escolas com cada atributo presente. As variáveis de docentes, como percentual sobre o total de docentes EFAI do município. As variáveis de fluxo, como médias ou proporções sobre o total de matrículas e turmas municipais.
 
@@ -77,12 +77,12 @@ O \textit{pipeline} de transformação (\texttt{transform.py}) aplica as seguint
 \begin{itemize}
   \item \textbf{IDEB:} substituição de valores especiais por \texttt{NaN}, conversão de vírgula para ponto decimal, remoção de colunas redundantes (notas separadas de língua portuguesa e matemática, já incorporadas na nota média).
   \item \textbf{Censo Escolar:} remoção de colunas completamente vazias, conversão de colunas de quantidade para inteiro, normalização do código municipal para 7 dígitos.
-  \item \textbf{IBGE:} remoção de linhas de totalização regional, normalização de nome de colunas.
+  \item \textbf{IBGE:} conversão do valor de renda \textit{per capita} para numérico; a fonte já chega limpa, sem linhas de totalização.
   \item \textbf{IDHM:} remoção de linhas de totalização, renomeação de colunas para padrão interno.
-  \item \textbf{Integração:} junção das quatro bases pela chave \texttt{NO\_MUNICIPIO} (normalizada), com junção à esquerda a partir do IDEB. Resultado: 217 municípios com dados completos de IDEB, Censo Escolar, IBGE e IDHM.
+  \item \textbf{Integração:} junção das quatro bases pela chave \texttt{NO\_MUNICIPIO} (normalizada), com junção à esquerda a partir do IDEB. Resultado: 217 municípios com renda \textit{per capita}, IDHM e Censo Escolar completos; 216 com o indicador do IDEB (ver seção anterior).
 \end{itemize}
 
-Após a integração, não há valores ausentes nas variáveis de \textit{cluster} nem nas variáveis-alvo (IDEB), mas algumas variáveis explicativas apresentam valores ausentes pontuais decorrentes de municípios sem turmas de correção de fluxo (alunos com atraso em relação à idade esperada para a série).
+Após a integração, não há valores ausentes nas variáveis de \textit{cluster} (renda \textit{per capita} e IDHM), o que preserva os 217 municípios no Estágio 1. A variável-alvo (IDEB) tem um valor ausente (Nova Iorque), tratado por exclusão pontual nas etapas que dependem diretamente do IDEB (Estágio 2). Algumas variáveis explicativas apresentam valores ausentes pontuais adicionais decorrentes de municípios sem turmas de correção de fluxo (alunos com atraso em relação à idade esperada para a série).
 
 \subsection{Estágio 1: segmentação socioeconômica por \textit{K-Means}}
 
