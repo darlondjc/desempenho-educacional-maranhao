@@ -1,0 +1,205 @@
+% =====================================================================
+% debates.sty — formatação do template da revista Debates em Educação
+% (PPGE/Ufal, ISSN 2175-6600), versão 2026.
+%
+% Reproduz em LaTeX as especificações do arquivo
+% template/template_debates_educacao_2026.docx:
+%   - A4; margens superior e esquerda 3 cm, inferior e direita 2 cm;
+%   - Arial 12, preto, justificado, recuo de 1,25 cm, entrelinha 1,5;
+%   - títulos de seção em Arial 12, negrito, azul, caixa alta, sem numeração;
+%   - títulos de subseção em Arial 12, negrito, azul, sem numeração;
+%   - legendas em Arial 11 acima da ilustração (somente o rótulo em negrito);
+%   - fonte das ilustrações em Arial 10, centralizada, com ponto final;
+%   - notas de rodapé em Arial 10, espaço simples, justificadas;
+%   - citações autor-data conforme ABNT NBR 10520:2023 e referências
+%     conforme ABNT NBR 6023:2018 (biblatex-abnt).
+% Compilar com LuaLaTeX (ou XeLaTeX) + Biber.
+% =====================================================================
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{debates}[2026/09/26 Template Debates em Educacao]
+
+% --- Versão identificada ou anônima -------------------------------------
+\newif\ifidentificado
+\identificadofalse
+\ifdefined\versaoidentificada \identificadotrue \fi
+
+% --- Página ---------------------------------------------------------------
+\RequirePackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=2cm,
+  headheight=1.4cm,headsep=0.4cm,footskip=1.6cm,asymmetric]{geometry}
+
+% --- Idioma e fontes ------------------------------------------------------
+\RequirePackage[english,spanish,brazil]{babel}
+\RequirePackage{fontspec}
+\IfFontExistsTF{Arial}
+  {\setmainfont{Arial}}
+  {\setmainfont{Liberation Sans}}% métrica idêntica à Arial
+\RequirePackage{unicode-math}
+\setmathfont{Latin Modern Math}
+
+\RequirePackage[dvipsnames]{xcolor}
+\definecolor{azuldebates}{HTML}{0000FE}
+\definecolor{vermelhodebates}{HTML}{FE0000}
+
+% --- Parágrafos -------------------------------------------------------------
+\RequirePackage{setspace}
+\setstretch{1.43}% equivale ao espaçamento 1,5 do Word para Arial 12
+\setlength{\parindent}{1.25cm}
+\setlength{\parskip}{0pt}
+\RequirePackage{indentfirst}
+\RequirePackage{ragged2e}
+\setlength{\emergencystretch}{3em}
+
+% --- Títulos de seção -------------------------------------------------------
+% Seções: escrever o título em caixa alta no próprio texto.
+\setcounter{secnumdepth}{0}
+\RequirePackage{titlesec}
+\titleformat{\section}
+  {\normalfont\normalsize\bfseries\color{azuldebates}\setstretch{1}\justifying}{}{0pt}{}
+\titleformat{\subsection}
+  {\normalfont\normalsize\bfseries\color{azuldebates}\setstretch{1}\justifying}{}{0pt}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{azuldebates}\setstretch{1}\justifying}{}{0pt}{}
+% Linha em branco (espaçamento 1,5) antes e depois de cada título.
+\titlespacing*{\section}{0pt}{\baselineskip}{\baselineskip}
+\titlespacing*{\subsection}{0pt}{\baselineskip}{\baselineskip}
+\titlespacing*{\subsubsection}{0pt}{\baselineskip}{\baselineskip}
+
+% --- Listas -------------------------------------------------------------------
+\RequirePackage{enumitem}
+\setlist{nosep,leftmargin=1.25cm}
+
+% --- Ilustrações ----------------------------------------------------------------
+\RequirePackage{graphicx}
+\RequirePackage{float}
+\RequirePackage{booktabs}
+\RequirePackage{array}
+\RequirePackage{multirow}
+\RequirePackage{newfloat}
+\DeclareFloatingEnvironment[fileext=lgr,name=Gráfico,placement=H]{grafico}
+\DeclareFloatingEnvironment[fileext=lqd,name=Quadro,placement=H]{quadro}
+\RequirePackage{caption}
+\DeclareCaptionFont{onze}{\fontsize{11}{13}\selectfont}
+\captionsetup{font=onze,labelfont=bf,textfont=md,labelsep=endash,
+  justification=centering,singlelinecheck=false,position=top,skip=4pt}
+\captionsetup[figure]{name=Figura}
+\captionsetup[table]{name=Tabela}
+% Linha em branco antes e depois das ilustrações.
+\setlength{\intextsep}{\baselineskip}
+\setlength{\textfloatsep}{\baselineskip}
+
+% Fonte da ilustração (Arial 10, centralizada, terminada por ponto final).
+\newcommand{\fonte}[1]{\par\vspace{4pt}{\centering\fontsize{10}{12}\selectfont Fonte: #1\par}}
+% Nota da ilustração (mesma formatação da fonte).
+\newcommand{\nota}[1]{\par\vspace{2pt}{\centering\fontsize{10}{12}\selectfont Nota: #1\par}}
+% Conteúdo de quadros e tabelas em Arial 10, espaço simples.
+\newcommand{\corpodez}{\fontsize{10}{12}\selectfont\setstretch{1}}
+
+% --- Notas de rodapé --------------------------------------------------------------
+\RequirePackage[bottom]{footmisc}
+\renewcommand{\footnotelayout}{\fontsize{10}{12}\selectfont\justifying}
+
+% --- Citações e referências (ABNT) --------------------------------------------------
+\RequirePackage{csquotes}
+\RequirePackage[style=abnt,backend=biber,justify=false,extrayear]{biblatex}
+% NBR 10520:2023: sobrenomes nas citações apenas com a inicial maiúscula,
+% ex.: (Hanushek; Woessmann, 2012). Nas referências continuam em caixa alta.
+\renewcommand*{\UpperOrSCCite}[1]{#1}
+\setlength{\bibitemsep}{12pt}% referências separadas por um espaço simples
+\setlength{\bibhang}{0pt}
+
+% --- Links ------------------------------------------------------------------------------
+\RequirePackage{xurl}
+\urlstyle{same}
+\RequirePackage[hidelinks]{hyperref}
+
+% --- Cabeçalhos e rodapés (reproduzem os do template; não alterar) --------------------
+\RequirePackage{fancyhdr}
+\RequirePackage{tabularx}
+\newcommand{\linharevista}{Debates em Educação | Maceió | n. x | pág. inicial - pág. final |mêses abreviados e ano publicado}
+\newcommand{\cabecalhofonte}{\fontsize{10}{12}\selectfont}
+
+\fancypagestyle{debates}{%
+  \fancyhf{}%
+  \fancyhead[CO]{\cabecalhofonte\color{azuldebates}Título do artigo na língua original (português, espanhol, francês ou inglês)}%
+  \fancyhead[CE]{\cabecalhofonte\color{azuldebates}Nome completo do autor 1 / Nome completo do autor 2 / Nome completo do autor 3}%
+  \fancyfoot[C]{\raisebox{0pt}[0pt][0pt]{\parbox[b]{\textwidth}{\setstretch{1}\cabecalhofonte\color{azuldebates}%
+    {\centering\bfseries\linharevista\par}{\raggedleft\thepage\par}}}}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+
+\fancypagestyle{debatesprimeira}{%
+  \fancyhf{}%
+  \fancyhead[L]{%
+    \setstretch{1}%
+    \begin{tabular}{@{}c@{\hspace{6pt}}l@{}}
+      \raisebox{-0.5\height}{\includegraphics[height=1.3cm]{template/media/logo_debates.png}} &
+      \begin{tabular}[c]{@{}l@{}}
+        {\fontsize{14}{16}\selectfont\bfseries DEBATES EM EDUCAÇÃO}\\
+        {\fontsize{9}{11}\selectfont\bfseries\color{vermelhodebates}ISSN: 2175-6600}
+      \end{tabular}
+    \end{tabular}}%
+  \fancyhead[R]{\cabecalhofonte\bfseries\color{azuldebates}Artigo | Article}%
+  \fancyfoot[C]{\raisebox{0pt}[0pt][0pt]{\parbox[b]{\textwidth}{%
+    \setstretch{1}\cabecalhofonte\color{azuldebates}%
+    \begin{tabularx}{\textwidth}{@{}X r@{}}
+      https://doi.org/10.28998/2175-6600.2025v17n39 & Submetido em: dd/mm/aaaa\\
+      \raisebox{-0.3\height}{\includegraphics[height=0.35cm]{template/media/cc_by_nc.png}}\ Artigo publicado sob a Licença Creative Commons 4.0 & Aceito em: dd/mm/aaaa\\
+       & Publicado: dd/mm/aaaa\\
+       & e-Location: xxxxxxx\\
+    \end{tabularx}\par
+    {\centering\bfseries\linharevista\par}}}}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+\pagestyle{debates}
+
+% --- Bloco de título, autoria e resumos ------------------------------------------------
+% \autor{Nome}{Instituição, País.}{Nota: titulação, instituição, ORCID, e-mail.}
+\newcounter{numautores}
+\newcommand{\listaautores}{}
+\newcommand{\autor}[3]{%
+  \stepcounter{numautores}%
+  \expandafter\def\csname autornome\roman{numautores}\endcsname{#1}%
+  \expandafter\def\csname autorinst\roman{numautores}\endcsname{#2}%
+  \expandafter\def\csname autornota\roman{numautores}\endcsname{#3}%
+}
+\newcommand{\imprimeautores}{%
+  \newcounter{iautor}%
+  \loop\ifnum\value{iautor}<\value{numautores}%
+    \stepcounter{iautor}%
+    {\raggedleft\color{azuldebates}\csname autornome\roman{iautor}\endcsname
+      \footnote{\color{black}\csname autornota\roman{iautor}\endcsname}\par}%
+    {\raggedleft\color{azuldebates}\csname autorinst\roman{iautor}\endcsname\par}%
+    \vspace{\baselineskip}%
+  \repeat}
+
+\newcommand{\blocotitulo}{%
+  \thispagestyle{debatesprimeira}%
+  \enlargethispage{-3.2cm}% espaço para o rodapé da primeira página
+  \begingroup\setstretch{1}%
+  {\centering\fontsize{14}{17}\selectfont\bfseries\color{azuldebates}\tituloPT\par}%
+  \vspace{\baselineskip}%
+  {\centering\bfseries\itshape\tituloEN\par}%
+  \vspace{\baselineskip}%
+  {\centering\bfseries\itshape\tituloES\par}%
+  \vspace{\baselineskip}%
+  \ifidentificado\imprimeautores\fi
+  \endgroup}
+
+% \blocoresumo{rótulo}{texto}{rótulo das palavras-chave}{palavras-chave}{estilo}
+\newcommand{\blocoresumo}[5]{%
+  \begingroup\setstretch{1}\setlength{\parindent}{0pt}%
+  {\bfseries#5\color{azuldebates}#1\par}%
+  \vspace{\baselineskip}%
+  {\justifying\setlength{\parindent}{0pt}#5#2\par}%
+  \vspace{\baselineskip}%
+  {\raggedright#5{\bfseries\color{azuldebates}#3:} #4\par}%
+  \vspace{\baselineskip}%
+  \endgroup}
+
+\newcommand{\blocoresumos}{%
+  \blocoresumo{Resumo}{\resumoPT}{Palavras-chave}{\palavrasPT}{}%
+  \blocoresumo{Abstract}{\foreignlanguage{english}{\resumoEN}}{Keywords}{\foreignlanguage{english}{\palavrasEN}}{\itshape}%
+  \blocoresumo{Resumen}{\foreignlanguage{spanish}{\resumoES}}{Palabras-clave}{\foreignlanguage{spanish}{\palavrasES}}{\itshape}%
+}

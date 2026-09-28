@@ -1,0 +1,128 @@
+\section{PROCEDIMENTOS METODOLÓGICOS}
+\label{sec:metodos}
+
+Trata-se de uma pesquisa de abordagem quantitativa, de caráter descritivo e exploratório, baseada exclusivamente em dados secundários de acesso público. O \textit{pipeline} analítico segue as etapas do processo CRISP-DM (\textit{Cross-Industry Standard Process for Data Mining}) \parencite{shearer2000}, adaptado ao contexto de análise de dados educacionais: compreensão do domínio, coleta e preparação dos dados, modelagem e avaliação dos resultados. Dentro desse processo, a análise é conduzida em dois estágios sequenciais, descritos a seguir, após a apresentação das fontes de dados, das variáveis e do tratamento dos dados.
+
+\subsection{Fontes de dados}
+
+Este estudo integra três bases de dados públicas referentes aos municípios do Maranhão:
+
+\begin{itemize}
+    \item \textbf{IDEB EFAI 2025 (INEP).} O Índice de Desenvolvimento da Educação Básica dos anos iniciais do ensino fundamental (EFAI), divulgado pelo INEP \parencite{inep2025}, é calculado conforme a metodologia proposta por \textcite{fernandes2007}: combina a taxa de aprovação escolar (fluxo) com a proficiência média em Língua Portuguesa e Matemática aferida pelo Sistema de Avaliação da Educação Básica (Saeb). Para este estudo, utilizou-se a edição 2025 da rede municipal, que cobriu 216 dos 217 municípios do estado; Nova Iorque não teve o indicador divulgado nesta edição, porque o INEP não divulgou as notas do município no Saeb.
+
+    \item \textbf{Censo Escolar 2025 (INEP).} Os microdados do Censo Escolar \parencite{inep2026microdados} fornecem informações em nível de escola sobre infraestrutura física (internet, biblioteca/sala de leitura, laboratório de informática, quadra esportiva, abastecimento de água e esgotamento sanitário) e sobre o corpo docente. Para as variáveis de formação docente nos anos iniciais do ensino fundamental (EF), utilizou-se a Tabela 2.29 da Sinopse Estatística da Educação Básica 2025 \parencite{inep2026sinopse}, que fornece o número de docentes EFAI por nível de formação de modo consistente entre numerador e denominador, eliminando o viés de dupla contagem presente nos microdados brutos.
+
+    \item \textbf{Censo Demográfico 2022 (IBGE).} Do Censo Demográfico 2022 do Instituto Brasileiro de Geografia e Estatística (IBGE) foram extraídas, por município, duas medidas de renda domiciliar \textit{per capita}: o valor do rendimento nominal médio mensal domiciliar \textit{per capita} (Sidra, tabela 10295) \parencite{ibge2022} e a distribuição dos moradores por classes de rendimento domiciliar \textit{per capita} em salários mínimos (Sidra, tabela 10296) \parencite{ibge2022classes}. Por ser um recenseamento, e não uma pesquisa amostral, o Censo Demográfico é a única fonte de renda com cobertura individual para todos os 217 municípios do estado.
+\end{itemize}
+
+\subsection{Variáveis de segmentação socioeconômica}
+
+A segmentação dos municípios utiliza duas variáveis, ambas do Censo Demográfico 2022:
+
+\begin{itemize}
+    \item \textbf{Renda \textit{per capita}}: rendimento nominal médio mensal domiciliar \textit{per capita}, em reais. Mede o \emph{nível} de recursos econômicos disponíveis no município.
+    \item \textbf{Pobreza extrema}: percentual de moradores em domicílios com rendimento \textit{per capita} de até 1/4 do salário mínimo ou sem rendimento. Mede a \emph{concentração} de famílias em privação severa. O corte de 1/4 do salário mínimo é o critério de miserabilidade adotado pela Lei Orgânica da Assistência Social para o Benefício de Prestação Continuada \parencite{brasil1993}, o que o torna uma linha de referência institucional reconhecida no Brasil.
+\end{itemize}
+
+A escolha dessas duas variáveis apoia-se em três argumentos. O primeiro é teórico: o nível socioeconômico é o preditor mais consistente do desempenho escolar desde \textcite{coleman1966}, e a meta-análise de \textcite{sirin2005} mostra que essa associação é mais forte quando medida em unidades agregadas, como escolas e distritos, do que no nível individual. Controlar o contexto socioeconômico dos municípios antes de comparar seu desempenho é, portanto, condição para não atribuir a fatores escolares diferenças que decorrem da renda \parencite{albernaz2002}. O segundo argumento é que as duas medidas captam aspectos complementares da renda: a média é sensível a rendas altas concentradas em poucos domicílios, enquanto a proporção de moradores em pobreza extrema descreve a base da distribuição. Dois municípios com renda média semelhante podem ter proporções bastante diferentes de famílias em privação severa. O terceiro argumento é de consistência temporal: ambas vêm do mesmo recenseamento, de 2022, o mais recente com desagregação municipal completa.
+
+As duas variáveis são correlacionadas (coeficiente de Pearson de $-0{,}87$ entre os 216 municípios analisados), o que é esperado, dado que ambas derivam da distribuição de renda. A contribuição de cada uma para a partição é avaliada no Estágio 1 por meio de um teste de ablação, que refaz a clusterização sem cada variável e mede o quanto a partição se altera.
+
+\subsection{Variáveis}
+
+O conjunto completo de variáveis é organizado em quatro grupos, descritos no quadro~\ref{qua:variaveis}.
+
+\begin{quadro}[H]
+\centering
+\caption{Variáveis utilizadas na análise}
+\label{qua:variaveis}
+\corpodez
+\begin{tabular}{|>{\raggedright\arraybackslash}p{0.32\textwidth}|>{\raggedright\arraybackslash}p{0.16\textwidth}|>{\raggedright\arraybackslash}p{0.44\textwidth}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{Variável}} & \multicolumn{1}{c|}{\textbf{Fonte}} & \multicolumn{1}{c|}{\textbf{Definição operacional}} \\
+\hline
+\multicolumn{3}{|l|}{\textit{Segmentação socioeconômica}} \\
+\hline
+Renda \textit{per capita} & Censo 2022 & Rendimento domiciliar \textit{per capita} médio mensal municipal (R\$) \\
+\hline
+Pobreza extrema & Censo 2022 & \% de moradores com rendimento domiciliar \textit{per capita} de até 1/4 do salário mínimo ou sem rendimento \\
+\hline
+\multicolumn{3}{|l|}{\textit{Infraestrutura escolar}} \\
+\hline
+\% escolas com internet & Censo 2025 & Proporção de escolas municipais com acesso à internet \\
+\hline
+\% escolas com biblioteca/sala de leitura & Censo 2025 & Proporção com biblioteca, biblioteca-sala de leitura ou sala de leitura \\
+\hline
+\% escolas com laboratório de informática & Censo 2025 & Proporção com laboratório de informática \\
+\hline
+\% escolas com quadra esportiva & Censo 2025 & Proporção com quadra de esportes \\
+\hline
+\% escolas com água adequada & Censo 2025 & Proporção com água potável ou rede pública \\
+\hline
+\% escolas com esgoto adequado & Censo 2025 & Proporção com rede pública ou fossa séptica \\
+\hline
+\multicolumn{3}{|l|}{\textit{Qualificação docente}} \\
+\hline
+\% docentes EFAI com ensino superior & Sinopse 2025 & Proporção de docentes dos anos iniciais com graduação \\
+\hline
+\% docentes EFAI com licenciatura & Sinopse 2025 & Proporção de docentes dos anos iniciais com licenciatura \\
+\hline
+\multicolumn{3}{|l|}{\textit{Fluxo e distorção}} \\
+\hline
+Média de alunos/turma (educação básica) & Censo 2025 & Total de matrículas da educação básica dividido pelo total de turmas da educação básica \\
+\hline
+Média de alunos/turma (EF) & Censo 2025 & Total de matrículas no EF dividido pelo total de turmas do EF \\
+\hline
+Proxy distorção idade-série & Censo 2025 & \% matrículas com 15 anos ou mais na educação básica municipal \\
+\hline
+\% turmas com correção de fluxo (EF anos finais) & Censo 2025 & Proporção de turmas de correção de fluxo entre as turmas do EF anos finais \\
+\hline
+\end{tabular}
+\fonte{elaboração própria (2026).}
+\end{quadro}
+
+\subsection{Coleta e pré-processamento dos dados}
+
+O \textit{pipeline} de ingestão (\texttt{ingest.py}) automatiza a carga das três fontes descritas anteriormente. Para o IDEB, lê a planilha oficial do INEP e filtra os municípios maranhenses da rede municipal, tratando os códigos de não divulgação (ND, ND*, (*), (**)) como valores ausentes. Para o Censo Escolar 2025, o Inep passou a distribuir os microdados em quatro tabelas relacionais por domínio (escola, docente, matrícula e turma), cada uma agregada por escola; o \textit{pipeline} lê as quatro em formato CSV (\textit{encoding} latin-1, separador ponto-e-vírgula), filtra as escolas de dependência municipal no Maranhão (TP\_DEPENDENCIA = 3) e as combina pela chave de identificação da escola (CO\_ENTIDADE). Para os docentes dos anos iniciais, usa exclusivamente a Tabela 2.29 da Sinopse Estatística 2025 (planilha em formato XLSX), garantindo que numerador (docentes com superior) e denominador (total de docentes EFAI) venham da mesma fonte. Os dados de renda e de pobreza extrema vêm de cópias locais das respostas da API pública do Sidra/IBGE (tabelas 10295 e 10296), salvas no repositório para garantir a reprodutibilidade.
+
+As variáveis de infraestrutura são agregadas ao nível municipal como proporção de escolas com cada atributo presente. As variáveis de docentes, como percentual sobre o total de docentes EFAI do município. As variáveis de fluxo, como médias ou proporções sobre o total de matrículas e turmas municipais.
+
+O \textit{pipeline} de transformação (\texttt{transform.py}) aplica as seguintes operações:
+
+\begin{itemize}
+  \item \textbf{IDEB:} substituição de valores especiais por \texttt{NaN}, conversão de vírgula para ponto decimal, remoção de colunas redundantes (notas separadas de língua portuguesa e matemática, já incorporadas na nota média).
+  \item \textbf{Censo Escolar:} remoção de colunas completamente vazias, conversão de colunas de quantidade para inteiro, normalização do código municipal para 7 dígitos.
+  \item \textbf{IBGE:} conversão da renda \textit{per capita} e da pobreza extrema para numérico; a fonte já chega limpa, sem linhas de totalização.
+  \item \textbf{Integração:} junção das três bases pela chave \texttt{NO\_MUNICIPIO} (normalizada), com junção à esquerda a partir do IDEB. Resultado: 217 municípios com renda, pobreza extrema e Censo Escolar completos; 216 com o indicador do IDEB.
+\end{itemize}
+
+Após a integração, não há valores ausentes nas variáveis de \textit{cluster} (renda \textit{per capita} e pobreza extrema). A variável-alvo (IDEB) tem um valor ausente (Nova Iorque). Como o município não pode ser classificado por desempenho, ele é excluído dos dois estágios, e a análise segue com 216 municípios. As variáveis explicativas não têm valores ausentes; municípios sem turmas de correção de fluxo aparecem com proporção zero nessa variável.
+
+\subsection{Estágio 1: segmentação socioeconômica por \textit{K-Means}}
+
+O \textit{K-Means} \parencite{macqueen1967} agrupa os 216 municípios com base na renda \textit{per capita} e na pobreza extrema. Antes da clusterização, as duas variáveis são normalizadas via \texttt{RobustScaler}, que centraliza na mediana e escala pelo intervalo interquartil, reduzindo a influência de municípios atípicos, isto é, com renda \textit{per capita} muito acima e pobreza extrema muito abaixo dos demais municípios do estado, como São Luís e Imperatriz, que, por esses valores extremos, poderiam distorcer a formação dos grupos.
+
+O algoritmo é executado com $k \in \{2, \ldots, 10\}$, inicialização \texttt{k-means++} e \texttt{n\_init = 10}. O número de \textit{clusters} é escolhido pelo \textit{Silhouette Score} médio \parencite{rousseeuw1987}, que mede a separação relativa dos grupos, e confirmado pela estabilidade da partição, avaliada por \textit{bootstrap} de 25 iterações com 80\% dos dados, seguindo a configuração de referência de \textcite{benhur2002}, com o \textit{Adjusted Rand Index} (ARI) como métrica de concordância. A curva de inércia (Método do Cotovelo) é apresentada como apoio visual. A contribuição de cada variável é medida por ablação: a clusterização é refeita sem a variável, e o ARI entre a nova partição e a original indica o quanto a partição depende dela.
+
+A visualização dos \textit{clusters} é feita via Análise de Componentes Principais (PCA) \parencite{abdi2010} com duas componentes, permitindo inspeção gráfica da separação em espaço reduzido.
+
+\subsection{Estágio 2: análise intragrupo}
+
+Dentro de cada \textit{cluster} com amostra suficiente, os municípios são divididos em dois grupos por desempenho: \textit{alto IDEB}, formado pelo quartil superior ($\geq Q_{75}$), e \textit{baixo IDEB}, formado pelo quartil inferior ($\leq Q_{25}$). Os municípios do intervalo central são excluídos da análise comparativa, o que aumenta o contraste entre os grupos e reduz o ruído.
+
+Para identificar quais variáveis diferenciam os dois grupos, aplica-se um \textit{Random Forest Classifier} \parencite{breiman2001} com 500 árvores, \texttt{class\_weight='balanced'} e \texttt{min\_samples\_leaf=3}. A importância de cada variável é calculada pelo critério de redução média de impureza (\textit{Mean Decrease in Impurity}), que quantifica a contribuição de cada variável para separar os dois grupos ao longo das 500 árvores. Em paralelo, o teste de Mann-Whitney \parencite{mannwhitney1947} bicaudal verifica se as distribuições das variáveis diferem significativamente entre os grupos alto e baixo IDEB. São utilizados três limiares de significância: $\alpha = 0{,}01$ (***), $\alpha = 0{,}05$ (**) e $\alpha = 0{,}10$ (*).
+
+A combinação de importâncias do \textit{Random Forest} com os p-valores do Mann-Whitney permite distinguir variáveis com alta relevância preditiva daquelas com diferença estatisticamente sustentada: uma variável é considerada fator discriminante relevante quando apresenta alta importância \textit{e} diferença significativa ao nível de $\alpha = 0{,}10$.
+
+\subsection{Uso de ferramentas de inteligência artificial generativa}
+\label{sec:uso_ia}
+
+Este trabalho utilizou ferramentas de inteligência artificial generativa em três etapas do processo de pesquisa:
+
+\begin{itemize}
+    \item \textbf{Revisão de código.} A primeira etapa do trabalho corresponde às fases de ciência de dados com Python. A ferramenta Claude (Anthropic) foi utilizada para correção e revisão dos \textit{scripts} Python do \textit{pipeline} de análise (\texttt{ingest.py}, \texttt{transform.py} e os módulos de modelagem), com validação e aprovação da autoria em cada alteração sugerida.
+    \item \textbf{Revisão e edição de texto.} Na fase de produção escrita deste artigo, o Claude (Anthropic) e o ChatGPT (OpenAI) foram utilizados para revisar a redação e a clareza das seções. O texto original, a estrutura argumentativa e as interpretações dos resultados são de responsabilidade exclusiva da autoria.
+    \item \textbf{Busca e validação de referências bibliográficas.} Claude (Anthropic) e SciSpace AI Research (PubGenius Inc.) foram utilizados para identificar trabalhos potencialmente relevantes e verificar metadados de citações. Cada referência foi conferida nas fontes originais antes da inclusão.
+\end{itemize}
+
+O uso dessas ferramentas está declarado em conformidade com as diretrizes de integridade científica do Conselho Nacional de Desenvolvimento Científico e Tecnológico (CNPq), que exigem a identificação explícita das ferramentas de inteligência artificial generativa utilizadas, as finalidades de cada uma e a responsabilização integral do pesquisador pelos resultados produzidos.

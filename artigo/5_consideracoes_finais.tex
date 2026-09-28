@@ -1,0 +1,19 @@
+\section{CONSIDERAÇÕES FINAIS}
+\label{sec:consideracoes}
+
+Este trabalho propôs e aplicou uma abordagem em dois estágios (segmentação socioeconômica por \textit{K-Means} seguida de análise intragrupo com \textit{Random Forest Classifier} e teste de Mann-Whitney) aos 216 municípios maranhenses com dados no IDEB 2025 (anos iniciais do ensino fundamental, rede municipal). A segmentação, feita com a renda \textit{per capita} e a proporção de moradores em pobreza extrema do Censo Demográfico 2022, produziu três grupos (vulnerável, intermediário e de alta renda), partição escolhida tanto pelo \textit{Silhouette Score} quanto pela estabilidade \textit{bootstrap}. Nos dois grupos com amostra suficiente para a análise intragrupo, a \textit{formação docente} (proporção de professores com ensino superior e com licenciatura) diferencia os municípios de alto e baixo desempenho, com diferenças de 10 a 12 pontos percentuais. No grupo intermediário, a presença de quadra esportiva também se destaca. Isso atende ao objetivo de isolar fatores escolares que operam mesmo sob contexto socioeconômico semelhante.
+
+Este estudo apresenta cinco limitações relevantes que devem ser consideradas na interpretação dos resultados.
+\begin{itemize}
+    \item \textbf{Segmentação restrita à dimensão de renda.} As duas variáveis de segmentação descrevem a distribuição de renda, e são correlacionadas entre si ($-0{,}87$). Dimensões socioeconômicas não monetárias, como escolaridade dos adultos e condições de saúde, não entram na segmentação. A ablação mostra que a pobreza extrema acrescenta informação à renda média, mas a partição ainda é essencialmente ordenada ao longo de um eixo de renda.
+
+    \item \textbf{\textit{Cluster} de alta renda fora da análise intragrupo.} Os 15 municípios de alta renda, que reúnem a capital e os principais polos regionais, não têm amostra suficiente para a comparação por quartis. Os fatores associados ao desempenho nesse grupo permanecem sem investigação; análises em nível de escola, e não de município, permitiriam estudá-lo.
+
+    \item \textbf{Causalidade.} A análise é descritiva e associativa, não causal. Não é possível afirmar que \textit{formação docente} ou \textit{infraestrutura escolar} causam IDEB mais alto. Municípios com gestão mais eficaz tendem a contratar mais docentes qualificados e a obter melhores resultados ao mesmo tempo, tornando difícil separar o efeito de cada variável do efeito da qualidade de gestão municipal. Estudos de painel com variação longitudinal do IDEB permitiriam estimativas mais robustas do efeito causal.
+
+    \item \textbf{Comparações múltiplas e tamanho das amostras.} Em cada \textit{cluster} foram realizados catorze testes de Mann-Whitney sem correção para comparações múltiplas, sobre grupos de 23 a 34 municípios. Os achados com $p < 0{,}01$ (quadra esportiva e correção de fluxo no \textit{cluster} intermediário) são os mais robustos a essa questão; os demais, inclusive os de formação docente, devem ser lidos à luz da consistência entre os dois \textit{clusters}, que é o que os sustenta.
+
+    \item \textbf{Variáveis de gestão escolar ausentes.} O Censo Escolar não captura variáveis de processos pedagógicos, gestão, clima escolar ou engajamento familiar, que são mediadores importantes do desempenho. A inclusão de dados de avaliações de escola (como avaliações próprias do estado) em pesquisas futuras poderia complementar o diagnóstico aqui apresentado.
+\end{itemize}
+
+Apesar dessas limitações, a abordagem em dois estágios mostrou-se útil para orientar a alocação de recursos educacionais em diferentes perfis socioeconômicos, ao apontar a formação docente como fator passível de intervenção que se repete em municípios de renda baixa e intermediária.

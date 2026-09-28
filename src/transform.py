@@ -6,14 +6,14 @@ RAW_DIR = Path("data/raw")
 TRUSTED_DIR = Path("data/trusted")
 
 # ── TRANSFORMAÇÃO DO IDEB ───────────────────
-def transform_indicadores_municipais_ma_ideb_2023():
-  df_ideb = pd.read_csv(RAW_DIR / 'indicadores_municipais_ma_ideb_2023.csv', sep=';', skiprows=0)
+def transform_indicadores_municipais_ma_ideb_2025():
+  df_ideb = pd.read_csv(RAW_DIR / 'indicadores_municipais_ma_ideb_2025.csv', sep=';', skiprows=0)
 
   # ── TRATAMENTO DE VALORES ESPECIAIS → NaN ───────────────────
   # Todos os códigos de não-divulgação do INEP
   valores_nulos = ['ND', 'ND*', 'ND***', '(*)', '(**)', '--', '-', '']
 
-  anos = '2023'
+  anos = '2025'
   cols_anos = [col for col in df_ideb.columns if anos in col]
   cols_numericas = cols_anos  # todas as colunas de ano são candidatas a float
 
@@ -38,14 +38,14 @@ def transform_indicadores_municipais_ma_ideb_2023():
   if 'SG_UF' in df_ideb.columns:
       df_ideb = df_ideb.drop(columns=['SG_UF'])
 
-  # Remover colunas redundantes de nota (a média já está em VL_NOTA_MEDIA_2023)
-  df_ideb = df_ideb.drop(columns=['VL_NOTA_MATEMATICA_2023', 'VL_NOTA_PORTUGUES_2023'], errors='ignore')
-  
+  # Remover colunas redundantes de nota (a média já está em VL_NOTA_MEDIA_2025)
+  df_ideb = df_ideb.drop(columns=['VL_NOTA_MATEMATICA_2025', 'VL_NOTA_PORTUGUES_2025'], errors='ignore')
+
   return df_ideb
 
 # ── TRANSFORMAÇÃO DO CENSO ───────────────────
-def transform_indicadores_municipais_ma_censo_2023():
-  df_censo = pd.read_csv(RAW_DIR / 'indicadores_municipais_ma_censo_escolar_2023.csv', sep=';', skiprows=0)
+def transform_indicadores_municipais_ma_censo_2025():
+  df_censo = pd.read_csv(RAW_DIR / 'indicadores_municipais_ma_censo_escolar_2025.csv', sep=';', skiprows=0)
 
   # Remover colunas sem nenhum valor preenchido
   df_censo = df_censo.dropna(axis=1, how='all')
@@ -63,71 +63,18 @@ def transform_indicadores_municipais_ma_censo_2023():
 
   return df_censo
 
-# ── TRANSFORMAÇÃO DO IBGE ───────────────────
-def transform_indicadores_municipais_ma_ibge_2010():
-  df_ibge = pd.read_csv(RAW_DIR / 'indicadores_municipais_ma_ibge_2010.csv', sep=';', skiprows=0)
+# ── TRANSFORMAÇÃO DO IBGE (RENDA PER CAPITA, CENSO 2022) ───────────────────
+def transform_indicadores_municipais_ma_ibge_2022():
+  df_ibge = pd.read_csv(RAW_DIR / 'indicadores_municipais_ma_ibge_2022.csv', sep=';', skiprows=0)
 
-  # Remover linhas completamente vazias
-  df_ibge = df_ibge.dropna(how='all')
-
-  # Remover as 3 ultimas linhas
-  df_ibge = df_ibge.iloc[:-3]
-
-  # Tratar coluna 'Territorialidades': onde houver (MA) no final, remover e manter apenas o nome do município
-  df_ibge['Territorialidades'] = df_ibge['Territorialidades'].str.replace(r'\s*\(MA\)$', '', regex=True).str.strip()
-  # Remover a linha onde a Territorialidade for 'Brasil' (linha 0), pois não é um município
-  df_ibge = df_ibge[df_ibge['Territorialidades'] != 'Brasil']
-  
-  # Renomear a coluna 'Territorialidades' para 'NO_MUNICIPIO'
-  df_ibge = df_ibge.rename(columns={'Territorialidades': 'NO_MUNICIPIO'})
-
-  # Renomear a coluna 'População urbana 2010' para 'POPULACAO_URBANA_2010'
-  df_ibge = df_ibge.rename(columns={'População urbana 2010': 'POPULACAO_URBANA_2010'})
-
-  # Renomear a coluna 'Renda per capita 2010' para 'RENDA_PER_CAPITA_2010'
-  df_ibge = df_ibge.rename(columns={'Renda per capita 2010': 'RENDA_PER_CAPITA_2010'})
-
-  # Remover a coluna '% de extremamente pobres 2010'
-  if '% de extremamente pobres 2010' in df_ibge.columns:
-      df_ibge = df_ibge.drop(columns=['% de extremamente pobres 2010'])
-
-  # Remover a coluna '% de pobres 2010'
-  if '% de pobres 2010' in df_ibge.columns:
-      df_ibge = df_ibge.drop(columns=['% de pobres 2010'])
-
-  # Converter 'POPULACAO_URBANA_2010' para int
-  df_ibge['POPULACAO_URBANA_2010'] = pd.to_numeric(df_ibge['POPULACAO_URBANA_2010'], errors='coerce').astype('int64')
+  for col in ['RENDA_PER_CAPITA_2022', 'PCT_POBREZA_EXTREMA_2022']:
+    df_ibge[col] = pd.to_numeric(df_ibge[col], errors='coerce')
 
   return df_ibge
 
-# ── TRANSFORMAÇÃO DO IDHM ───────────────────
-def transform_indicadores_municipais_ma_idhm_2010():
-  df_idhm = pd.read_csv(RAW_DIR / 'indicadores_municipais_ma_idhm_2010.csv', sep=';', skiprows=0)
-
-  # Remover as 3 ultimas linhas
-  df_idhm = df_idhm.iloc[:-3]
-  
-  # Remover a coluna '2000'
-  if '2000' in df_idhm.columns:
-      df_idhm = df_idhm.drop(columns=['2000'])
-
-  # Renomear a coluna '2010' para 'IDHM_2010'
-  df_idhm = df_idhm.rename(columns={'2010': 'IDHM_2010'})
-
-  # Renomear coluna 'Código IBGE' para 'COD_IBGE'
-  df_idhm = df_idhm.rename(columns={'Código IBGE': 'COD_IBGE'})
-
-  # Converter 'COD_IBGE' para int 
-  df_idhm['COD_IBGE'] = pd.to_numeric(df_idhm['COD_IBGE'], errors='coerce').astype('int64')
-  
-  # Renomear a coluna 'Município' para 'NO_MUNICIPIO'
-  df_idhm = df_idhm.rename(columns={'Município': 'NO_MUNICIPIO'})
-
-  return df_idhm
-
-def merge_dataframes(df_ideb, df_censo, df_ibge, df_idhm):
+def merge_dataframes(df_ideb, df_censo, df_ibge):
   #Normalizar NO_MUNICIPIO para garantir o join correto
-  for df in [df_ideb, df_censo, df_ibge, df_idhm]:
+  for df in [df_ideb, df_censo, df_ibge]:
       df['NO_MUNICIPIO'] = df['NO_MUNICIPIO'].str.strip().str.upper()
 
   # Etapa 1: ideb + censo (sem CO_MUNICIPIO e NO_MUNICIPIO do censo)
@@ -137,36 +84,27 @@ def merge_dataframes(df_ideb, df_censo, df_ibge, df_idhm):
   #Etapa 2: merge com IBGE (sem NO_MUNICIPIO do IBGE após o join)
   df_merged = df_merged.merge(df_ibge, on='NO_MUNICIPIO', how='left')
 
-  #Etapa 3: merge com IDHM (pegar somente a coluna IDHM_2010)
-  df_idhm_reduzido = df_idhm[['NO_MUNICIPIO', 'IDHM_2010']]
-  df_merged = df_merged.merge(df_idhm_reduzido, on='NO_MUNICIPIO', how='left')
-
   return df_merged
 
 def main() -> None:
   TRUSTED_DIR.mkdir(parents=True, exist_ok=True)
       
   # ── TRANSFORMAÇÃO DO IDEB ───────────────────
-  print("Transformação do IDEB 2023...")
-  df_ideb = transform_indicadores_municipais_ma_ideb_2023()
+  print("Transformação do IDEB 2025...")
+  df_ideb = transform_indicadores_municipais_ma_ideb_2025()
   print(df_ideb.head())
-      
-  # ── TRANSFORMAÇÃO DO CENSO ───────────────────
-  print("Transformação do CENSO 2023...")
-  df_censo = transform_indicadores_municipais_ma_censo_2023()
-      
-  # ── TRANSFORMAÇÃO DO IBGE ───────────────────
-  print("Transformação do IBGE 2010...")
-  df_ibge = transform_indicadores_municipais_ma_ibge_2010()
-      
-  # ── TRANSFORMAÇÃO DO IDHM ───────────────────
-  print("Transformação do IDHM 2010...")
-  df_idhm = transform_indicadores_municipais_ma_idhm_2010()
-  print(df_idhm.info())
 
+  # ── TRANSFORMAÇÃO DO CENSO ───────────────────
+  print("Transformação do CENSO 2025...")
+  df_censo = transform_indicadores_municipais_ma_censo_2025()
+
+  # ── TRANSFORMAÇÃO DO IBGE (RENDA PER CAPITA, CENSO 2022) ───────────────────
+  print("Transformação da renda e da pobreza extrema — Censo 2022...")
+  df_ibge = transform_indicadores_municipais_ma_ibge_2022()
+      
   # ── MERGE DOS INDICADORES BASEADO NA COLUNA 'NO_MUNICIPIO' ───────────────────
   print("Realizando merge dos indicadores...")
-  df_merged = merge_dataframes(df_ideb, df_censo, df_ibge, df_idhm) 
+  df_merged = merge_dataframes(df_ideb, df_censo, df_ibge) 
   print(df_merged.info())
   output_path_trusted = TRUSTED_DIR / "indicadores_municipais_ma.csv"
   df_merged.to_csv(output_path_trusted, index=False, sep=";")

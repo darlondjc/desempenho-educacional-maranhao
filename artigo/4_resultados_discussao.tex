@@ -1,0 +1,160 @@
+\section{RESULTADOS E DISCUSSÃO}
+\label{sec:resultados}
+
+Esta seção apresenta os resultados obtidos com a aplicação dos dois estágios descritos nos procedimentos metodológicos e os discute à luz da literatura. Inicialmente, caracterizam-se o contexto socioeconômico e educacional do Maranhão e a distribuição do IDEB entre os municípios, o que evidencia a variabilidade de desempenho que motiva a investigação. Em seguida, apresentam-se a segmentação socioeconômica obtida com o \textit{K-Means} e, dentro de cada grupo com amostra suficiente, os fatores que diferenciam os municípios de alto e de baixo desempenho. Por fim, esses achados são confrontados com os estudos sobre o IDEB e traduzidos em implicações para as políticas educacionais.
+
+\subsection{Contexto socioeconômico e educacional do Maranhão}
+
+O Maranhão é o segundo maior estado do Nordeste em extensão territorial e um dos mais populosos, com 217 municípios distribuídos em cinco mesorregiões. No Censo Demográfico 2022, o estado tem a menor renda domiciliar \textit{per capita} entre as 27 unidades da federação (R\$~899,87, contra R\$~1.638,06 no Brasil) e a segunda maior proporção de moradores em pobreza extrema, com rendimento \textit{per capita} de até 1/4 do salário mínimo ou sem rendimento (26,6\%, contra 13,3\% no Brasil) \parencite{ibge2022, ibge2022classes}. Entre os municípios, a desigualdade também é expressiva: a renda \textit{per capita} mediana é de R\$~667, e a proporção de moradores em pobreza extrema varia de 11,2\% a 60,3\%. Esse contexto reflete-se nos resultados educacionais: na edição 2025 do IDEB, a média dos 216 municípios maranhenses com indicador divulgado nos anos iniciais da rede municipal ficou em 5,39 (desvio-padrão de 0,59), com metade dos municípios abaixo de 5,30.
+
+A questão central desta investigação é identificar, entre municípios com contexto socioeconômico semelhante, quais fatores escolares estão associados ao desempenho superior no IDEB. Respondê-la exige, primeiro, neutralizar o efeito do contexto por meio de uma segmentação explícita e, depois, comparar, dentro de cada grupo, os municípios de alto e baixo desempenho.
+
+\subsection{Distribuição do IDEB entre os municípios}
+
+A distribuição do IDEB dos 216 municípios maranhenses com indicador divulgado é apresentada no gráfico~\ref{graf:dist_ideb}. A distribuição é aproximadamente unimodal, ligeiramente assimétrica à direita, com média de 5,39 (desvio-padrão de 0,59), mediana de 5,30, mínimo de 4,10 e máximo de 8,10.
+
+\begin{grafico}[H]
+  \centering
+  \caption{Distribuição do IDEB 2025 dos municípios maranhenses – rede municipal, anos iniciais do ensino fundamental}
+  \label{graf:dist_ideb}
+  \includegraphics[width=0.85\textwidth]{distribuicao_ideb.png}
+  \nota{linha vermelha tracejada: média (5,39); linha laranja tracejada: mediana (5,30); faixa vermelha: intervalo de $\pm 1$ desvio-padrão.}
+  \fonte{elaboração própria com base em \textcite{inep2025}.}
+\end{grafico}
+
+A amplitude de 4,00 pontos (4,10 a 8,10) é expressiva dado que o IDEB varia de 0 a 10. Isso indica que, mesmo dentro do Maranhão (estado homogeneamente vulnerável em termos nacionais), existe variabilidade interna substancial que justifica investigar os fatores associados aos destaques positivos.
+
+\subsection{Segmentação socioeconômica dos municípios}
+
+A clusterização \textit{K-Means} foi aplicada sobre a \textit{renda per capita} e a \textit{pobreza extrema} (normalizadas via RobustScaler), testando $k \in \{2, \ldots, 10\}$, conforme descrito nos procedimentos metodológicos.
+
+No gráfico~\ref{graf:elbow}, são apresentadas as curvas de inércia (cotovelo) e de \textit{Silhouette Score}. O \textit{Silhouette Score} atinge o valor máximo em $k = 3$ (0,506), acima de $k = 2$ (0,489) e de $k = 4$ (0,456). A estabilidade \textit{bootstrap} confirma a escolha: o ARI médio é 0,812 em $k = 3$, contra 0,744 em $k = 2$ e 0,704 em $k = 4$. Os dois critérios apontam, portanto, para a mesma partição, que é ao mesmo tempo a mais bem separada e a mais estável sob reamostragem entre as testadas. A curva de inércia decresce de forma gradual e não oferece, por si só, um critério adicional.
+
+\begin{grafico}[H]
+  \centering
+  \caption{Curvas de inércia e de \textit{Silhouette Score} para $k \in \{2, \ldots, 10\}$}
+  \label{graf:elbow}
+  \includegraphics[width=0.90\textwidth]{elbow_silhouette.png}
+  \nota{à esquerda, inércia; à direita, \textit{Silhouette Score}. A linha vertical vermelha indica o $k$ ótimo segundo o \textit{Silhouette Score}.}
+  \fonte{dados da pesquisa (2026).}
+\end{grafico}
+
+No gráfico~\ref{graf:pca}, são exibidos os \textit{clusters} projetados nas duas primeiras componentes principais (a primeira componente, PC1, explica 93,6\% da variância; a segunda, PC2, explica 6,4\%). A predominância da primeira componente reflete a correlação entre as duas variáveis de segmentação: os municípios se distribuem essencialmente ao longo de um eixo de renda, no qual renda média alta e pobreza extrema baixa caminham juntas.
+
+\begin{grafico}[H]
+  \centering
+  \caption{Projeção dos \textit{clusters} de municípios maranhenses nas duas primeiras componentes principais para $k \in \{2, 3, 4\}$}
+  \label{graf:pca}
+  \includegraphics[width=0.85\textwidth]{pca_clusters.png}
+  \fonte{dados da pesquisa (2026).}
+\end{grafico}
+
+O teste de ablação indica que as duas variáveis contribuem para a partição, com peso maior para a renda média. Refazendo a clusterização sem a renda \textit{per capita}, a concordância com a partição original cai para um ARI de 0,379; sem a pobreza extrema, o ARI é de 0,688. A pobreza extrema, portanto, não é redundante: sua retirada reclassifica parte relevante dos municípios, o que confirma que ela acrescenta à renda média a informação sobre a base da distribuição de renda.
+
+Os três \textit{clusters} obtidos são denominados pelo critério de renda média:
+
+\begin{itemize}
+  \item \textbf{\textit{Cluster} vulnerável} (n = 88): renda \textit{per capita} média de R\$~555,84, 41,8\% dos moradores em pobreza extrema, IDEB médio de 5,29.
+  \item \textbf{\textit{Cluster} intermediário} (n = 113): renda \textit{per capita} média de R\$~732,06, 27,5\% dos moradores em pobreza extrema, IDEB médio de 5,42.
+  \item \textbf{\textit{Cluster} de alta renda} (n = 15): renda \textit{per capita} média de R\$~1.082,44, 15,3\% dos moradores em pobreza extrema, IDEB médio de 5,78. Reúne a capital e os principais polos regionais do estado: São Luís, São José de Ribamar, Paço do Lumiar, Imperatriz, Timon, Açailândia, Balsas, Santa Inês, Pedreiras, Presidente Dutra, Porto Franco, Estreito, Carolina, Fortaleza dos Nogueiras e Itinga do Maranhão.
+\end{itemize}
+
+O \textit{cluster} de alta renda, com 15 municípios, não tem amostra suficiente para a análise intragrupo por quartis, que resultaria em quatro ou cinco municípios em cada extremo. A análise comparativa é, portanto, conduzida nos \textit{clusters} vulnerável e intermediário, que juntos reúnem 201 dos 216 municípios analisados.
+
+Os percentuais médios das variáveis de infraestrutura e de formação docente acompanham o gradiente de renda. A \textit{conectividade à internet} está presente em 83,8\% das escolas municipais do \textit{cluster} vulnerável, em 89,0\% das do intermediário e em 94,3\% das de alta renda. O acesso a \textit{biblioteca ou sala de leitura} é baixo nos dois primeiros grupos (15,8\% e 19,3\%) e mais que dobra no de alta renda (38,7\%). A proporção média de \textit{docentes EFAI com ensino superior} é de 55,9\%, 64,0\% e 79,1\%, respectivamente, diferença que antecipa uma das hipóteses testadas no estágio intragrupo.
+
+\subsection{Fatores discriminantes no \textit{cluster} vulnerável}
+
+Dentro do \textit{cluster} vulnerável (n = 88), os 24 municípios que se encontram no quartil superior de IDEB (alto, $\geq 5{,}60$, média 6,08) são comparados aos 23 do quartil inferior (baixo, $\leq 4{,}80$, média 4,61). A diferença média de 1,47 ponto de IDEB entre os grupos é substancial: equivale a quase dois desvios-padrão e meio da distribuição estadual.
+
+No gráfico~\ref{graf:rf_vulneraveis}, apresentam-se as importâncias do \textit{Random Forest Classifier} para o \textit{cluster} vulnerável. As oito variáveis de maior importância são, em ordem decrescente: \textit{\% docentes com ensino superior} (0,128), \textit{\% docentes com licenciatura} (0,117), \textit{média de alunos por turma no ensino fundamental} (0,108), \textit{média de alunos por turma na educação básica} (0,104), \textit{\% escolas com esgoto adequado} (0,082), \textit{pobreza extrema} (0,072), \textit{\% escolas com biblioteca/sala de leitura} (0,068) e \textit{renda per capita} (0,063).
+
+\begin{grafico}[H]
+  \centering
+  \caption{Importância das variáveis no \textit{Random Forest Classifier} para diferenciar municípios de alto e baixo IDEB no \textit{cluster} vulnerável}
+  \label{graf:rf_vulneraveis}
+  \includegraphics[width=0.85\textwidth]{cluster_vulneraveis_variaveis_relevantes_destaque.png}
+  \fonte{dados da pesquisa (2026).}
+\end{grafico}
+
+O teste de Mann-Whitney complementa a análise ao indicar quais variáveis apresentam diferenças estatisticamente significativas entre os grupos. Na tabela~\ref{tab:mw}, resumem-se os resultados para as variáveis com $p < 0{,}10$; as diferenças entre proporções são expressas em pontos percentuais (p.p.).
+
+\begin{table}[H]
+\centering
+\caption{Variáveis com diferença significativa entre municípios de alto e baixo IDEB no \textit{cluster} vulnerável (Mann-Whitney bicaudal)}
+\label{tab:mw}
+\corpodez
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Variável} & \textbf{Média alto} & \textbf{Média baixo} & \textbf{$\Delta$} & \textbf{p-valor} \\
+\midrule
+\% doc. com ensino superior & 60,6\% & 49,0\% & +11,6 p.p. & 0,039** \\
+\% doc. com licenciatura     & 59,1\% & 47,8\% & +11,4 p.p. & 0,049** \\
+\bottomrule
+\end{tabular}
+\nota{** $p < 0{,}05$.}
+\fonte{dados da pesquisa (2026).}
+\end{table}
+
+A formação docente é o único fator que diferencia de forma estatisticamente significativa os municípios de alto e baixo IDEB no \textit{cluster} vulnerável, e as duas variáveis que a medem também lideram a importância no \textit{Random Forest}. Os municípios vulneráveis de alto IDEB têm, em média, 11,6 p.p. a mais de \textit{docentes com ensino superior} e 11,4 p.p. a mais com \textit{licenciatura} do que os de baixo IDEB. Esse achado é convergente com a literatura internacional: \textcite{rivkin2005} demonstraram que a qualidade do professor é o fator intraescolar de maior impacto sobre o aprendizado, e estudos nacionais também apontam a formação docente como variável central nos resultados do IDEB \parencite{vasconcelos2021}.
+
+A renda \textit{per capita} e a pobreza extrema não diferenciam os grupos de alto e baixo IDEB dentro desse \textit{cluster} ($p = 0{,}322$ e $p = 0{,}463$). Esse resultado indica que a segmentação cumpriu seu papel: dentro do grupo, o contexto socioeconômico é homogêneo o bastante para que as diferenças de desempenho não sejam atribuíveis à renda. As variáveis de tamanho de turma aparecem entre as mais importantes no \textit{Random Forest}, mas sem diferença significativa no teste de Mann-Whitney; como a importância no \textit{Random Forest} tende a favorecer variáveis contínuas, essa importância isolada não deve ser lida como evidência de associação.
+
+\subsection{Fatores discriminantes no \textit{cluster} intermediário}
+
+Dentro do \textit{cluster} intermediário (n = 113), os 34 municípios do quartil superior de IDEB (alto, $\geq 5{,}70$, média 6,07) são comparados aos 29 do quartil inferior (baixo, $\leq 5{,}00$, média 4,81).
+
+No gráfico~\ref{graf:rf_intermediarios}, apresentam-se as importâncias do \textit{Random Forest Classifier} para esse \textit{cluster}. As oito variáveis de maior importância são, em ordem decrescente: \textit{\% escolas com quadra esportiva} (0,153), \textit{renda per capita} (0,095), \textit{\% docentes com ensino superior} (0,089), \textit{proxy de distorção idade-série} (0,078), \textit{\% docentes com licenciatura} (0,078), \textit{média de alunos por turma na educação básica} (0,078), \textit{pobreza extrema} (0,073) e \textit{\% escolas com esgoto adequado} (0,070).
+
+\begin{grafico}[H]
+  \centering
+  \caption{Importância das variáveis no \textit{Random Forest Classifier} para diferenciar municípios de alto e baixo IDEB no \textit{cluster} intermediário}
+  \label{graf:rf_intermediarios}
+  \includegraphics[width=0.85\textwidth]{cluster_intermediarios_variaveis_relevantes_destaque.png}
+  \fonte{dados da pesquisa (2026).}
+\end{grafico}
+
+A tabela~\ref{tab:mw_intermediarios} resume as variáveis com diferença estatisticamente significativa ($p < 0{,}10$) entre os municípios de alto e baixo IDEB nesse \textit{cluster}.
+
+\begin{table}[H]
+\centering
+\caption{Variáveis com diferença significativa entre municípios de alto e baixo IDEB no \textit{cluster} intermediário (Mann-Whitney bicaudal)}
+\label{tab:mw_intermediarios}
+\corpodez
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Variável} & \textbf{Média alto} & \textbf{Média baixo} & \textbf{$\Delta$} & \textbf{p-valor} \\
+\midrule
+\% escolas com quadra                            & 12,9\%  & 5,4\%   & +7,5 p.p.  & 0,004*** \\
+\% turmas corr. de fluxo (EF-AF) & 0,90\%  & 0,07\%  & +0,8 p.p.  & 0,007*** \\
+\% doc. com ensino superior                      & 69,2\%  & 58,1\%  & +11,1 p.p. & 0,047**  \\
+\% doc. com licenciatura                         & 67,4\%  & 57,4\%  & +10,1 p.p. & 0,051*   \\
+Renda \textit{per capita} (R\$)                  & 753,15  & 719,13  & +34,02     & 0,081*   \\
+\bottomrule
+\end{tabular}
+\nota{*** $p < 0{,}01$; ** $p < 0{,}05$; * $p < 0{,}10$.}
+\fonte{dados da pesquisa (2026).}
+\end{table}
+
+A formação docente reaparece no \textit{cluster} intermediário com magnitude semelhante à observada entre os municípios vulneráveis: 11,1 p.p. a mais de \textit{docentes com ensino superior} ($p = 0{,}047$) e 10,1 p.p. a mais com \textit{licenciatura} ($p = 0{,}051$) nos municípios de IDEB alto. A repetição do achado em dois grupos socioeconômicos distintos reforça que a associação entre formação docente e desempenho não é um artefato de um contexto específico.
+
+A \textit{quadra esportiva} é a variável de maior importância no \textit{Random Forest} e a de diferença mais significativa no teste de Mann-Whitney ($p = 0{,}004$): as escolas com quadra são mais que o dobro nos municípios de IDEB alto (12,9\% contra 5,4\%). A presença de quadra pode sinalizar, mais do que um efeito direto da atividade esportiva, um padrão mais amplo de investimento em infraestrutura escolar, e a análise não permite distinguir entre essas leituras. A proporção de turmas de correção de fluxo nos anos finais também é maior nos municípios de IDEB alto ($p = 0{,}007$), mas os valores são pequenos (menos de 1\% das turmas), e o resultado, isoladamente, não permite inferir se a oferta de correção de fluxo é causa ou consequência do desempenho.
+
+Diferentemente do \textit{cluster} vulnerável, a renda \textit{per capita} ainda apresenta diferença marginal entre os grupos ($p = 0{,}081$), de R\$~34 em média, o que indica alguma heterogeneidade residual de renda no \textit{cluster} intermediário, o maior dos três.
+
+\subsection{Diálogo com a literatura sobre o IDEB}
+
+Os achados dialogam com a literatura de maneiras específicas. A centralidade da qualificação docente, observada nos dois \textit{clusters} analisados com diferenças de 10 a 12 p.p. entre municípios de alto e baixo IDEB, é convergente com o achado seminal de \textcite{rivkin2005} no contexto norte-americano e com estudos brasileiros que identificaram formação superior como fator associado ao IDEB \parencite{vasconcelos2021}. A ausência de diferença significativa de renda e de pobreza extrema dentro do \textit{cluster} vulnerável é consistente com a tese de \textcite{coleman1966} de que o contexto socioeconômico explica a maior parte da variação do desempenho: uma vez neutralizado esse contexto, emergem os fatores escolares, que têm efeito real, embora secundário.
+
+Em relação à literatura de mineração de dados educacionais, o trabalho contribui com uma aplicação metodológica que supera duas limitações frequentes: o uso de modelos globais que ignoram a heterogeneidade socioeconômica entre municípios e a concentração de estudos EDM nas regiões Sul e Sudeste \parencite{baker2010, romero2020}. A abordagem em dois estágios é replicável para outros estados e pode ser adaptada a outros níveis de ensino (anos finais do ensino fundamental, ensino médio) ou outras medidas de desempenho.
+
+Quanto ao IDEB como métrica, os pressupostos estatísticos identificados por \textcite{soares2013} (especialmente a correlação entre fluxo e proficiência) não invalidam a análise, mas sugerem cautela na interpretação: municípios com IDEB elevado podem estar priorizando aprovação em detrimento da proficiência. A combinação de variáveis de fluxo (\textit{distorção idade-série}, \textit{correção de fluxo}) com os indicadores estruturais na mesma análise ajuda a mitigar parcialmente esse risco.
+
+\subsection{Implicações para as políticas educacionais}
+
+Os resultados têm implicações para gestores municipais e formuladores de políticas educacionais do Maranhão:
+\begin{itemize}
+  \item \textbf{Formação e habilitação docente (\textit{clusters} vulnerável e intermediário).} A diferença de 11 a 12 p.p. na proporção de \textit{docentes com ensino superior} entre municípios de alto e baixo IDEB, repetida nos dois grupos analisados, torna programas de formação continuada e de indução à licenciatura específica candidatos plausíveis de política pública em todo o estado, e não apenas nos municípios mais pobres. A análise associativa não permite, porém, quantificar o impacto esperado. Políticas estaduais e federais de financiamento de graduação a distância para docentes em exercício, como o Programa Nacional de Formação de Professores da Educação Básica (Parfor), são alvos naturais de expansão.
+
+  \item \textbf{Infraestrutura escolar (\textit{cluster} intermediário).} A quadra esportiva ($p = 0{,}004$) destaca-se como fator discriminante nos municípios de renda intermediária, sugerindo que, nesse grupo, o investimento em infraestrutura física complementar é candidato a priorização no monitoramento e na alocação orçamentária, ainda que a análise não permita estimar o retorno esperado desse investimento.
+\end{itemize}
