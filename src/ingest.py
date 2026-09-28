@@ -299,30 +299,41 @@ def build_indicadores_municipais_ma_censo_escolar_2025() -> pd.DataFrame:
 
 	return indicadores
 
-# ── INGESTÃO DO IBGE (RENDA PER CAPITA, CENSO 2022) ───────────────────
-def build_indicadores_municipais_ma_ibge_2022():
+# ── INGESTÃO DO IBGE (CENSO 2022: RENDA E POBREZA EXTREMA) ───────────────────
+def _load_sidra_series(nome_arquivo: str) -> dict[str, dict[str, float]]:
+	"""Lê uma resposta da API do Sidra salva em data/base e devolve
+	{nome_do_municipio: {categoria: valor}}."""
 	import json
 
-	with open(BASE_DIR / 'renda_per_capita_censo2022_ma.json', encoding='utf-8') as f:
+	with open(BASE_DIR / nome_arquivo, encoding='utf-8') as f:
 		payload = json.load(f)
 
-	series = payload[0]['resultados'][0]['series']
+	valores: dict[str, dict[str, float]] = {}
+	for resultado in payload[0]['resultados']:
+		categoria = '|'.join(
+			str(list(c['categoria'].values())[0]) for c in resultado['classificacoes']
+		)
+		for item in resultado['series']:
+			nome = item['localidade']['nome'].removesuffix(' - MA')
+			valores.setdefault(nome, {})[categoria] = float(item['serie']['2022'])
+	return valores
+
+
+def build_indicadores_municipais_ma_ibge_2022():
+	renda = _load_sidra_series('renda_per_capita_censo2022_ma.json')
+	pobreza = _load_sidra_series('pobreza_extrema_censo2022_ma.json')
+
 	registros = []
-	for item in series:
-		nome_municipio = item['localidade']['nome'].removesuffix(' - MA')
-		valor = item['serie']['2022']
+	for nome, categorias in renda.items():
 		registros.append({
-			'NO_MUNICIPIO': nome_municipio,
-			'RENDA_PER_CAPITA_2022': pd.to_numeric(valor, errors='coerce'),
+			'NO_MUNICIPIO': nome,
+			'RENDA_PER_CAPITA_2022': next(iter(categorias.values())),
+			# Moradores com renda domiciliar per capita até 1/4 do salário mínimo
+			# ou sem rendimento (Sidra, tabela 10296, em % do total de moradores).
+			'PCT_POBREZA_EXTREMA_2022': sum(pobreza[nome].values()),
 		})
 
 	return pd.DataFrame(registros)
-
-# ── INGESTÃO DO IDHM ───────────────────
-def build_indicadores_municipais_ma_idhm_2010():
-	df_ma = pd.read_excel(BASE_DIR / 'idhm.xlsx')
-
-	return df_ma
 
 def main() -> None:
 	RAW_DIR.mkdir(parents=True, exist_ok=True)
@@ -352,8 +363,8 @@ def main() -> None:
 	print(f"Linhas: {len(indicadores_censo_com_docentes)}")
 	print(f"Colunas: {len(indicadores_censo_com_docentes.columns)}")
 
-	#── INGESTÃO DO IBGE (RENDA PER CAPITA, CENSO 2022) ───────────────────
-	print("Iniciando ingestão da renda per capita — Censo 2022...")
+	#── INGESTÃO DO IBGE (CENSO 2022: RENDA E POBREZA EXTREMA) ───────────────────
+	print("Iniciando ingestão da renda e da pobreza extrema — Censo 2022...")
 	timer_thread = start_timer()
 	indicadores_ibge = build_indicadores_municipais_ma_ibge_2022()
 	output_path_ibge = RAW_DIR / "indicadores_municipais_ma_ibge_2022.csv"
@@ -363,18 +374,6 @@ def main() -> None:
 	print(f"Arquivo gerado: {output_path_ibge}")
 	print(f"Linhas: {len(indicadores_ibge)}")
 	print(f"Colunas: {len(indicadores_ibge.columns)}")
-
-	# ── INGESTÃO DO IDHM ───────────────────
-	print("Iniciando ingestão do IDHM 2010...")
-	timer_thread = start_timer()
-	indicadores_idhm = build_indicadores_municipais_ma_idhm_2010()
-	output_path_idhm = RAW_DIR / "indicadores_municipais_ma_idhm_2010.csv"
-	indicadores_idhm.to_csv(output_path_idhm, index=False, sep=";")
-	stop_timer(timer_thread)
-
-	print(f"Arquivo gerado: {output_path_idhm}")
-	print(f"Linhas: {len(indicadores_idhm)}")
-	print(f"Colunas: {len(indicadores_idhm.columns)}")	
 
 
 if __name__ == "__main__":

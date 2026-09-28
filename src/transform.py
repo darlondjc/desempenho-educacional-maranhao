@@ -67,38 +67,14 @@ def transform_indicadores_municipais_ma_censo_2025():
 def transform_indicadores_municipais_ma_ibge_2022():
   df_ibge = pd.read_csv(RAW_DIR / 'indicadores_municipais_ma_ibge_2022.csv', sep=';', skiprows=0)
 
-  df_ibge['RENDA_PER_CAPITA_2022'] = pd.to_numeric(df_ibge['RENDA_PER_CAPITA_2022'], errors='coerce')
+  for col in ['RENDA_PER_CAPITA_2022', 'PCT_POBREZA_EXTREMA_2022']:
+    df_ibge[col] = pd.to_numeric(df_ibge[col], errors='coerce')
 
   return df_ibge
 
-# ── TRANSFORMAÇÃO DO IDHM ───────────────────
-def transform_indicadores_municipais_ma_idhm_2010():
-  df_idhm = pd.read_csv(RAW_DIR / 'indicadores_municipais_ma_idhm_2010.csv', sep=';', skiprows=0)
-
-  # Remover as 3 ultimas linhas
-  df_idhm = df_idhm.iloc[:-3]
-  
-  # Remover a coluna '2000'
-  if '2000' in df_idhm.columns:
-      df_idhm = df_idhm.drop(columns=['2000'])
-
-  # Renomear a coluna '2010' para 'IDHM_2010'
-  df_idhm = df_idhm.rename(columns={'2010': 'IDHM_2010'})
-
-  # Renomear coluna 'Código IBGE' para 'COD_IBGE'
-  df_idhm = df_idhm.rename(columns={'Código IBGE': 'COD_IBGE'})
-
-  # Converter 'COD_IBGE' para int 
-  df_idhm['COD_IBGE'] = pd.to_numeric(df_idhm['COD_IBGE'], errors='coerce').astype('int64')
-  
-  # Renomear a coluna 'Município' para 'NO_MUNICIPIO'
-  df_idhm = df_idhm.rename(columns={'Município': 'NO_MUNICIPIO'})
-
-  return df_idhm
-
-def merge_dataframes(df_ideb, df_censo, df_ibge, df_idhm):
+def merge_dataframes(df_ideb, df_censo, df_ibge):
   #Normalizar NO_MUNICIPIO para garantir o join correto
-  for df in [df_ideb, df_censo, df_ibge, df_idhm]:
+  for df in [df_ideb, df_censo, df_ibge]:
       df['NO_MUNICIPIO'] = df['NO_MUNICIPIO'].str.strip().str.upper()
 
   # Etapa 1: ideb + censo (sem CO_MUNICIPIO e NO_MUNICIPIO do censo)
@@ -107,10 +83,6 @@ def merge_dataframes(df_ideb, df_censo, df_ibge, df_idhm):
 
   #Etapa 2: merge com IBGE (sem NO_MUNICIPIO do IBGE após o join)
   df_merged = df_merged.merge(df_ibge, on='NO_MUNICIPIO', how='left')
-
-  #Etapa 3: merge com IDHM (pegar somente a coluna IDHM_2010)
-  df_idhm_reduzido = df_idhm[['NO_MUNICIPIO', 'IDHM_2010']]
-  df_merged = df_merged.merge(df_idhm_reduzido, on='NO_MUNICIPIO', how='left')
 
   return df_merged
 
@@ -127,17 +99,12 @@ def main() -> None:
   df_censo = transform_indicadores_municipais_ma_censo_2025()
 
   # ── TRANSFORMAÇÃO DO IBGE (RENDA PER CAPITA, CENSO 2022) ───────────────────
-  print("Transformação da renda per capita — Censo 2022...")
+  print("Transformação da renda e da pobreza extrema — Censo 2022...")
   df_ibge = transform_indicadores_municipais_ma_ibge_2022()
       
-  # ── TRANSFORMAÇÃO DO IDHM ───────────────────
-  print("Transformação do IDHM 2010...")
-  df_idhm = transform_indicadores_municipais_ma_idhm_2010()
-  print(df_idhm.info())
-
   # ── MERGE DOS INDICADORES BASEADO NA COLUNA 'NO_MUNICIPIO' ───────────────────
   print("Realizando merge dos indicadores...")
-  df_merged = merge_dataframes(df_ideb, df_censo, df_ibge, df_idhm) 
+  df_merged = merge_dataframes(df_ideb, df_censo, df_ibge) 
   print(df_merged.info())
   output_path_trusted = TRUSTED_DIR / "indicadores_municipais_ma.csv"
   df_merged.to_csv(output_path_trusted, index=False, sep=";")

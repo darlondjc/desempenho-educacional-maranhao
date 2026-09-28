@@ -16,14 +16,14 @@ FIGURES_DIR = PROJECT_ROOT / "reports" / "figures"
 
 VARS_CLUSTER = [
     'RENDA_PER_CAPITA_2022',
-    'IDHM_2010',
+    'PCT_POBREZA_EXTREMA_2022',
 ]
 
-CLUSTER_K = 2
+CLUSTER_K = 3
 
 VARS_EXPLICATIVAS_IDEB = [
     'RENDA_PER_CAPITA_2022',
-    'IDHM_2010',
+    'PCT_POBREZA_EXTREMA_2022',
     'PCT_ESCOLAS_COM_INTERNET',
     'PCT_ESCOLAS_COM_BIBLIOTECA_LEITURA',
     'PCT_ESCOLAS_COM_LAB_INFORMATICA',
@@ -42,7 +42,7 @@ VARS_EXPLICATIVAS_IDEB = [
 VARS_COMPARACAO = [
     'VL_OBSERVADO_2025',
     'RENDA_PER_CAPITA_2022',
-    'IDHM_2010',
+    'PCT_POBREZA_EXTREMA_2022',
     'PCT_ESCOLAS_COM_INTERNET',
     'PCT_ESCOLAS_COM_BIBLIOTECA_LEITURA',
     'PCT_ESCOLAS_COM_LAB_INFORMATICA',
@@ -280,7 +280,7 @@ def outliers_positivos(df: pd.DataFrame) -> None:
         top = sub[sub['VL_OBSERVADO_2025'] >= limiar]
         print(f"\nOutliers positivos Cluster {_nome_cluster(df, cid)} (IDEB >= {limiar:.2f}):")
         print(top[['NO_MUNICIPIO', 'VL_OBSERVADO_2025',
-                   'RENDA_PER_CAPITA_2022', 'IDHM_2010']].sort_values(
+                   'RENDA_PER_CAPITA_2022', 'PCT_POBREZA_EXTREMA_2022']].sort_values(
             'VL_OBSERVADO_2025', ascending=False).to_string())
 
 

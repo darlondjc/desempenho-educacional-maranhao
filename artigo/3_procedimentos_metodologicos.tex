@@ -5,20 +5,32 @@ Trata-se de uma pesquisa de abordagem quantitativa, de caráter descritivo e exp
 
 \subsection{Fontes de dados}
 
-Este estudo integra quatro bases de dados públicas referentes aos municípios do Maranhão:
+Este estudo integra três bases de dados públicas referentes aos municípios do Maranhão:
 
 \begin{itemize}
     \item \textbf{IDEB EFAI 2025 (INEP).} O Índice de Desenvolvimento da Educação Básica dos anos iniciais do ensino fundamental (EFAI), divulgado pelo INEP \parencite{inep2025}, é calculado conforme a metodologia proposta por \textcite{fernandes2007}: combina a taxa de aprovação escolar (fluxo) com a proficiência média em Língua Portuguesa e Matemática aferida pelo Sistema de Avaliação da Educação Básica (Saeb). Para este estudo, utilizou-se a edição 2025 da rede municipal, que cobriu 216 dos 217 municípios do estado; Nova Iorque não teve o indicador divulgado nesta edição.
 
     \item \textbf{Censo Escolar 2025 (INEP).} Os microdados do Censo Escolar \parencite{inep2026microdados} fornecem informações em nível de escola sobre infraestrutura física (internet, biblioteca/sala de leitura, laboratório de informática, quadra esportiva, abastecimento de água e esgotamento sanitário) e sobre o corpo docente. Para as variáveis de formação docente nos anos iniciais do ensino fundamental (EF), utilizou-se a Tabela 2.29 da Sinopse Estatística da Educação Básica 2025 \parencite{inep2026sinopse}, que fornece o número de docentes EFAI por nível de formação de modo consistente entre numerador e denominador, eliminando o viés de dupla contagem presente nos microdados brutos.
-    \item \textbf{Censo Demográfico 2022 (IBGE).} A renda \textit{per capita} municipal foi extraída do Censo Demográfico 2022 do Instituto Brasileiro de Geografia e Estatística (IBGE) \parencite{ibge2022}, tabela "Valor do rendimento nominal médio mensal domiciliar per capita" (Sidra, tabela 10295), e utilizada como \textit{proxy} da capacidade econômica dos municípios. É o dado de renda mais recente disponível com cobertura universal por município.
 
-    \item \textbf{IDHM 2010 (Atlas Brasil/PNUD).} O Índice de Desenvolvimento Humano Municipal, calculado pelo Programa das Nações Unidas para o Desenvolvimento (PNUD) com base no Censo 2010 \parencite{pnud2013}, captura três dimensões do desenvolvimento humano (longevidade, educação e renda) em um índice composto entre 0 e 1. A atualização do Atlas Brasil para o período 2022--2024 baseia-se na Pesquisa Nacional por Amostra de Domicílios Contínua (PNAD Contínua), cuja desagregação geográfica cobre apenas 146 estratos de municípios para todo o Brasil \parencite{ibge2022notatecnica}, não municípios individuais. Como a análise depende de diferenciar cada um dos 217 municípios maranhenses, manteve-se o IDHM calculado a partir do Censo Demográfico de 2010, a edição mais recente com desagregação municipal individual disponível. Junto com a renda \textit{per capita}, compõe o espaço de segmentação socioeconômica utilizado na clusterização.
+    \item \textbf{Censo Demográfico 2022 (IBGE).} Do Censo Demográfico 2022 do Instituto Brasileiro de Geografia e Estatística (IBGE) foram extraídas, por município, duas medidas de renda domiciliar \textit{per capita}: o valor do rendimento nominal médio mensal domiciliar \textit{per capita} (Sidra, tabela 10295) \parencite{ibge2022} e a distribuição dos moradores por classes de rendimento domiciliar \textit{per capita} em salários mínimos (Sidra, tabela 10296) \parencite{ibge2022classes}. Por ser um recenseamento, e não uma pesquisa amostral, o Censo Demográfico é a única fonte de renda com cobertura individual para todos os 217 municípios do estado.
 \end{itemize}
+
+\subsection{Variáveis de segmentação socioeconômica}
+
+A segmentação dos municípios utiliza duas variáveis, ambas do Censo Demográfico 2022:
+
+\begin{itemize}
+    \item \textbf{Renda \textit{per capita}}: rendimento nominal médio mensal domiciliar \textit{per capita}, em reais. Mede o \emph{nível} de recursos econômicos disponíveis no município.
+    \item \textbf{Pobreza extrema}: percentual de moradores em domicílios com rendimento \textit{per capita} de até 1/4 do salário mínimo ou sem rendimento. Mede a \emph{concentração} de famílias em privação severa. O corte de 1/4 do salário mínimo é o critério de miserabilidade adotado pela Lei Orgânica da Assistência Social para o Benefício de Prestação Continuada \parencite{brasil1993}, o que o torna uma linha de referência institucional reconhecida no Brasil.
+\end{itemize}
+
+A escolha dessas duas variáveis apoia-se em três argumentos. O primeiro é teórico: o nível socioeconômico é o preditor mais consistente do desempenho escolar desde \textcite{coleman1966}, e a meta-análise de \textcite{sirin2005} mostra que essa associação é mais forte quando medida em unidades agregadas, como escolas e distritos, do que no nível individual. Controlar o contexto socioeconômico dos municípios antes de comparar seu desempenho é, portanto, condição para não atribuir a fatores escolares diferenças que decorrem da renda \parencite{albernaz2002}. O segundo argumento é que as duas medidas captam aspectos complementares da renda: a média é sensível a rendas altas concentradas em poucos domicílios, enquanto a proporção de moradores em pobreza extrema descreve a base da distribuição. Dois municípios com renda média semelhante podem ter proporções bastante diferentes de famílias em privação severa. O terceiro argumento é de consistência temporal: ambas vêm do mesmo recenseamento, de 2022, o mais recente com desagregação municipal completa.
+
+As duas variáveis são correlacionadas (coeficiente de Pearson de $-0{,}87$ entre os 217 municípios), o que é esperado, dado que ambas derivam da distribuição de renda. A contribuição de cada uma para a partição é avaliada no Estágio 1 por meio de um teste de ablação, que refaz a clusterização sem cada variável e mede o quanto a partição se altera.
 
 \subsection{Variáveis}
 
-As variáveis são organizadas em quatro grupos, descritos no quadro~\ref{qua:variaveis}.
+O conjunto completo de variáveis é organizado em quatro grupos, descritos no quadro~\ref{qua:variaveis}.
 
 \begin{quadro}[H]
 \centering
@@ -31,9 +43,9 @@ As variáveis são organizadas em quatro grupos, descritos no quadro~\ref{qua:va
 \hline
 \multicolumn{3}{|l|}{\textit{Segmentação socioeconômica}} \\
 \hline
-Renda \textit{per capita} 2022 & IBGE/Censo 2022 & Rendimento domiciliar \textit{per capita} médio mensal municipal (R\$) \\
+Renda \textit{per capita} & Censo 2022 & Rendimento domiciliar \textit{per capita} médio mensal municipal (R\$) \\
 \hline
-IDHM 2010 & PNUD/Atlas & Índice de Desenvolvimento Humano Municipal \\
+Pobreza extrema & Censo 2022 & \% de moradores com rendimento domiciliar \textit{per capita} de até 1/4 do salário mínimo ou sem rendimento \\
 \hline
 \multicolumn{3}{|l|}{\textit{Infraestrutura escolar}} \\
 \hline
@@ -57,6 +69,8 @@ IDHM 2010 & PNUD/Atlas & Índice de Desenvolvimento Humano Municipal \\
 \hline
 \multicolumn{3}{|l|}{\textit{Fluxo e distorção}} \\
 \hline
+Média de alunos/turma (educação básica) & Censo 2025 & Total de matrículas da educação básica dividido pelo total de turmas da educação básica \\
+\hline
 Média de alunos/turma (EF) & Censo 2025 & Total de matrículas no EF dividido pelo total de turmas do EF \\
 \hline
 Proxy distorção idade-série & Censo 2025 & \% matrículas com 15 anos ou mais na educação básica municipal \\
@@ -69,7 +83,7 @@ Proxy distorção idade-série & Censo 2025 & \% matrículas com 15 anos ou mais
 
 \subsection{Coleta e pré-processamento dos dados}
 
-O \textit{pipeline} de ingestão (\texttt{ingest.py}) automatiza a carga das quatro fontes descritas anteriormente. Para o IDEB, lê a planilha oficial do INEP e filtra os municípios maranhenses da rede municipal, tratando os códigos de não divulgação (ND, ND*, (*), (**)) como valores ausentes. Para o Censo Escolar 2025, o Inep passou a distribuir os microdados em quatro tabelas relacionais por domínio (escola, docente, matrícula e turma), cada uma agregada por escola; o \textit{pipeline} lê as quatro em formato CSV (\textit{encoding} latin-1, separador ponto-e-vírgula), filtra as escolas de dependência municipal no Maranhão (TP\_DEPENDENCIA = 3) e as combina pela chave de identificação da escola (CO\_ENTIDADE). Para os docentes dos anos iniciais, usa exclusivamente a Tabela 2.29 da Sinopse Estatística 2025 (planilha em formato XLSX), garantindo que numerador (docentes com superior) e denominador (total de docentes EFAI) venham da mesma fonte. Os dados de renda \textit{per capita} vêm de uma cópia local da resposta da API pública do Sidra/IBGE (tabela 10295), salva no repositório para garantir a reprodutibilidade; os dados do IDHM são lidos de planilha Excel curada previamente.
+O \textit{pipeline} de ingestão (\texttt{ingest.py}) automatiza a carga das três fontes descritas anteriormente. Para o IDEB, lê a planilha oficial do INEP e filtra os municípios maranhenses da rede municipal, tratando os códigos de não divulgação (ND, ND*, (*), (**)) como valores ausentes. Para o Censo Escolar 2025, o Inep passou a distribuir os microdados em quatro tabelas relacionais por domínio (escola, docente, matrícula e turma), cada uma agregada por escola; o \textit{pipeline} lê as quatro em formato CSV (\textit{encoding} latin-1, separador ponto-e-vírgula), filtra as escolas de dependência municipal no Maranhão (TP\_DEPENDENCIA = 3) e as combina pela chave de identificação da escola (CO\_ENTIDADE). Para os docentes dos anos iniciais, usa exclusivamente a Tabela 2.29 da Sinopse Estatística 2025 (planilha em formato XLSX), garantindo que numerador (docentes com superior) e denominador (total de docentes EFAI) venham da mesma fonte. Os dados de renda e de pobreza extrema vêm de cópias locais das respostas da API pública do Sidra/IBGE (tabelas 10295 e 10296), salvas no repositório para garantir a reprodutibilidade.
 
 As variáveis de infraestrutura são agregadas ao nível municipal como proporção de escolas com cada atributo presente. As variáveis de docentes, como percentual sobre o total de docentes EFAI do município. As variáveis de fluxo, como médias ou proporções sobre o total de matrículas e turmas municipais.
 
@@ -78,18 +92,17 @@ O \textit{pipeline} de transformação (\texttt{transform.py}) aplica as seguint
 \begin{itemize}
   \item \textbf{IDEB:} substituição de valores especiais por \texttt{NaN}, conversão de vírgula para ponto decimal, remoção de colunas redundantes (notas separadas de língua portuguesa e matemática, já incorporadas na nota média).
   \item \textbf{Censo Escolar:} remoção de colunas completamente vazias, conversão de colunas de quantidade para inteiro, normalização do código municipal para 7 dígitos.
-  \item \textbf{IBGE:} conversão do valor de renda \textit{per capita} para numérico; a fonte já chega limpa, sem linhas de totalização.
-  \item \textbf{IDHM:} remoção de linhas de totalização, renomeação de colunas para padrão interno.
-  \item \textbf{Integração:} junção das quatro bases pela chave \texttt{NO\_MUNICIPIO} (normalizada), com junção à esquerda a partir do IDEB. Resultado: 217 municípios com renda \textit{per capita}, IDHM e Censo Escolar completos; 216 com o indicador do IDEB (ver seção anterior).
+  \item \textbf{IBGE:} conversão da renda \textit{per capita} e da pobreza extrema para numérico; a fonte já chega limpa, sem linhas de totalização.
+  \item \textbf{Integração:} junção das três bases pela chave \texttt{NO\_MUNICIPIO} (normalizada), com junção à esquerda a partir do IDEB. Resultado: 217 municípios com renda, pobreza extrema e Censo Escolar completos; 216 com o indicador do IDEB.
 \end{itemize}
 
-Após a integração, não há valores ausentes nas variáveis de \textit{cluster} (renda \textit{per capita} e IDHM), o que preserva os 217 municípios no Estágio 1. A variável-alvo (IDEB) tem um valor ausente (Nova Iorque), tratado por exclusão pontual nas etapas que dependem diretamente do IDEB (Estágio 2). As variáveis explicativas não têm valores ausentes; municípios sem turmas de correção de fluxo aparecem com proporção zero nessa variável.
+Após a integração, não há valores ausentes nas variáveis de \textit{cluster} (renda \textit{per capita} e pobreza extrema), o que preserva os 217 municípios no Estágio 1. A variável-alvo (IDEB) tem um valor ausente (Nova Iorque), tratado por exclusão pontual nas etapas que dependem diretamente do IDEB (Estágio 2). As variáveis explicativas não têm valores ausentes; municípios sem turmas de correção de fluxo aparecem com proporção zero nessa variável.
 
 \subsection{Estágio 1: segmentação socioeconômica por \textit{K-Means}}
 
-O \textit{K-Means} \parencite{macqueen1967} agrupa os 217 municípios com base em renda \textit{per capita} e IDHM. Antes da clusterização, as duas variáveis são normalizadas via \texttt{RobustScaler}, que centraliza na mediana e escala pelo intervalo interquartil, reduzindo a influência de municípios atípicos, isto é, com renda \textit{per capita} e IDHM muito acima dos demais municípios do estado, como São Luís e Imperatriz, que, por esses valores extremos, poderiam distorcer a formação dos grupos.
+O \textit{K-Means} \parencite{macqueen1967} agrupa os 217 municípios com base na renda \textit{per capita} e na pobreza extrema. Antes da clusterização, as duas variáveis são normalizadas via \texttt{RobustScaler}, que centraliza na mediana e escala pelo intervalo interquartil, reduzindo a influência de municípios atípicos, isto é, com renda \textit{per capita} muito acima e pobreza extrema muito abaixo dos demais municípios do estado, como São Luís e Imperatriz, que, por esses valores extremos, poderiam distorcer a formação dos grupos.
 
-O número de \textit{clusters} $k$ é selecionado pela inspeção conjunta do Método do Cotovelo, que avalia a inércia total em função de $k$, e do \textit{Silhouette Score} médio \parencite{rousseeuw1987}, que mede a separação relativa dos grupos. O algoritmo é executado com $k \in \{2, \ldots, 10\}$, inicialização \texttt{k-means++} e \texttt{n\_init = 10}. A estabilidade dos \textit{clusters} é avaliada por \textit{bootstrap} de 25 iterações com 80\% dos dados, seguindo a configuração de referência de \textcite{benhur2002}, usando o \textit{Adjusted Rand Index} (ARI) como métrica de concordância.
+O algoritmo é executado com $k \in \{2, \ldots, 10\}$, inicialização \texttt{k-means++} e \texttt{n\_init = 10}. O número de \textit{clusters} é escolhido pelo \textit{Silhouette Score} médio \parencite{rousseeuw1987}, que mede a separação relativa dos grupos, e confirmado pela estabilidade da partição, avaliada por \textit{bootstrap} de 25 iterações com 80\% dos dados, seguindo a configuração de referência de \textcite{benhur2002}, com o \textit{Adjusted Rand Index} (ARI) como métrica de concordância. A curva de inércia (Método do Cotovelo) é apresentada como apoio visual. A contribuição de cada variável é medida por ablação: a clusterização é refeita sem a variável, e o ARI entre a nova partição e a original indica o quanto a partição depende dela.
 
 A visualização dos \textit{clusters} é feita via Análise de Componentes Principais (PCA) \parencite{abdi2010} com duas componentes, permitindo inspeção gráfica da separação em espaço reduzido.
 
