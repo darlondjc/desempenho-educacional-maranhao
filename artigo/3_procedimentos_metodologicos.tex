@@ -12,7 +12,7 @@ Este estudo integra três bases de dados públicas referentes aos municípios do
 
     \item \textbf{Censo Escolar 2025 (INEP).} Os microdados do Censo Escolar \parencite{inep2026microdados} fornecem informações em nível de escola sobre infraestrutura física (internet, biblioteca/sala de leitura, laboratório de informática, quadra esportiva, abastecimento de água e esgotamento sanitário) e sobre o corpo docente. Para as variáveis de formação docente nos anos iniciais do ensino fundamental (EF), utilizou-se a Tabela 2.29 da Sinopse Estatística da Educação Básica 2025 \parencite{inep2026sinopse}, que fornece o número de docentes EFAI por nível de formação de modo consistente entre numerador e denominador, eliminando o viés de dupla contagem presente nos microdados brutos.
 
-    \item \textbf{Censo Demográfico 2022 (IBGE).} Do Censo Demográfico 2022 do Instituto Brasileiro de Geografia e Estatística (IBGE) foram extraídas, por município, duas medidas de renda domiciliar \textit{per capita}: o valor do rendimento nominal médio mensal domiciliar \textit{per capita} (Sidra, tabela 10295) \parencite{ibge2022} e a distribuição dos moradores por classes de rendimento domiciliar \textit{per capita} em salários mínimos (Sidra, tabela 10296) \parencite{ibge2022classes}. Por ser um recenseamento, e não uma pesquisa amostral, o Censo Demográfico é a única fonte de renda com cobertura individual para todos os 217 municípios do estado.
+    \item \textbf{Censo Demográfico 2022 (IBGE).} Do Censo Demográfico 2022 do Instituto Brasileiro de Geografia e Estatística (IBGE) foram extraídas, por município, duas medidas de renda domiciliar \textit{per capita}: o valor do rendimento nominal médio mensal domiciliar \textit{per capita} (Sistema IBGE de Recuperação Automática, Sidra, tabela 10295) \parencite{ibge2022} e a distribuição dos moradores por classes de rendimento domiciliar \textit{per capita} em salários mínimos (Sidra, tabela 10296) \parencite{ibge2022classes}. Por ser um recenseamento, e não uma pesquisa amostral, o Censo Demográfico é a única fonte de renda com cobertura individual para todos os 217 municípios do estado.
 \end{itemize}
 
 \subsection{Variáveis de segmentação socioeconômica}
@@ -71,11 +71,11 @@ Pobreza extrema & Censo 2022 & \% de moradores com rendimento domiciliar \textit
 \hline
 Média de alunos/turma (educação básica) & Censo 2025 & Total de matrículas da educação básica dividido pelo total de turmas da educação básica \\
 \hline
-Média de alunos/turma (EF) & Censo 2025 & Total de matrículas no EF dividido pelo total de turmas do EF \\
+Média de alunos/turma (ensino fundamental) & Censo 2025 & Total de matrículas no ensino fundamental dividido pelo total de turmas do ensino fundamental \\
 \hline
 Proxy distorção idade-série & Censo 2025 & \% matrículas com 15 anos ou mais na educação básica municipal \\
 \hline
-\% turmas com correção de fluxo (EF anos finais) & Censo 2025 & Proporção de turmas de correção de fluxo entre as turmas do EF anos finais \\
+\% turmas com correção de fluxo (ensino fundamental, anos finais) & Censo 2025 & Proporção de turmas de correção de fluxo entre as turmas dos anos finais do ensino fundamental \\
 \hline
 \end{tabular}
 \fonte{elaboração própria (2026).}
@@ -83,7 +83,7 @@ Proxy distorção idade-série & Censo 2025 & \% matrículas com 15 anos ou mais
 
 \subsection{Coleta e pré-processamento dos dados}
 
-O \textit{pipeline} de ingestão (\texttt{ingest.py}) automatiza a carga das três fontes descritas anteriormente. Para o IDEB, lê a planilha oficial do INEP e filtra os municípios maranhenses da rede municipal, tratando os códigos de não divulgação (ND, ND*, (*), (**)) como valores ausentes. Para o Censo Escolar 2025, o Inep passou a distribuir os microdados em quatro tabelas relacionais por domínio (escola, docente, matrícula e turma), cada uma agregada por escola; o \textit{pipeline} lê as quatro em formato CSV (\textit{encoding} latin-1, separador ponto-e-vírgula), filtra as escolas de dependência municipal no Maranhão (TP\_DEPENDENCIA = 3) e as combina pela chave de identificação da escola (CO\_ENTIDADE). Para os docentes dos anos iniciais, usa exclusivamente a Tabela 2.29 da Sinopse Estatística 2025 (planilha em formato XLSX), garantindo que numerador (docentes com superior) e denominador (total de docentes EFAI) venham da mesma fonte. Os dados de renda e de pobreza extrema vêm de cópias locais das respostas da API pública do Sidra/IBGE (tabelas 10295 e 10296), salvas no repositório para garantir a reprodutibilidade.
+O \textit{pipeline} de ingestão (\texttt{ingest.py}) automatiza a carga das três fontes descritas anteriormente. Para o IDEB, lê a planilha oficial do INEP e filtra os municípios maranhenses da rede municipal, tratando os códigos de não divulgação (ND, ND*, (*), (**)) como valores ausentes. Para o Censo Escolar 2025, o INEP passou a distribuir os microdados em quatro tabelas relacionais por domínio (escola, docente, matrícula e turma), cada uma agregada por escola; o \textit{pipeline} lê as quatro em formato CSV (\textit{encoding} latin-1, separador ponto-e-vírgula), filtra as escolas de dependência municipal no Maranhão (TP\_DEPENDENCIA = 3) e as combina pela chave de identificação da escola (CO\_ENTIDADE). Para os docentes dos anos iniciais, usa exclusivamente a Tabela 2.29 da Sinopse Estatística 2025 (planilha em formato XLSX), garantindo que numerador (docentes com superior) e denominador (total de docentes EFAI) venham da mesma fonte. Os dados de renda e de pobreza extrema vêm de cópias locais das respostas da interface de programação de aplicações (API, do inglês \textit{Application Programming Interface}) pública do Sidra (tabelas 10295 e 10296), salvas no repositório para garantir a reprodutibilidade.
 
 As variáveis de infraestrutura são agregadas ao nível municipal como proporção de escolas com cada atributo presente. As variáveis de docentes, como percentual sobre o total de docentes EFAI do município. As variáveis de fluxo, como médias ou proporções sobre o total de matrículas e turmas municipais.
 

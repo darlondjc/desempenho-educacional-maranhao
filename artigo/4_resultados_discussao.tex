@@ -49,7 +49,7 @@ No gráfico~\ref{graf:pca}, são exibidos os \textit{clusters} projetados nas du
   \fonte{dados da pesquisa (2026).}
 \end{grafico}
 
-O teste de ablação indica que as duas variáveis contribuem para a partição, com peso maior para a renda média. Refazendo a clusterização sem a renda \textit{per capita}, a concordância com a partição original cai para um ARI de 0,379; sem a pobreza extrema, o ARI é de 0,688. A pobreza extrema, portanto, não é redundante: sua retirada reclassifica parte relevante dos municípios, o que confirma que ela acrescenta à renda média a informação sobre a base da distribuição de renda.
+O teste de ablação indica que as duas variáveis contribuem para a partição, com peso maior para a renda média. Refazendo a clusterização sem a renda \textit{per capita}, a concordância com a partição original cai para um ARI de 0,379; sem a pobreza extrema, o ARI é de 0,688. A pobreza extrema, portanto, não é redundante: a retirada dessa variável reclassifica parte relevante dos municípios, o que confirma que ela acrescenta à renda média a informação sobre a base da distribuição de renda.
 
 Os três \textit{clusters} obtidos são denominados pelo critério de renda média:
 
@@ -114,7 +114,7 @@ No gráfico~\ref{graf:rf_intermediarios}, apresentam-se as importâncias do \tex
   \fonte{dados da pesquisa (2026).}
 \end{grafico}
 
-A tabela~\ref{tab:mw_intermediarios} resume as variáveis com diferença estatisticamente significativa ($p < 0{,}10$) entre os municípios de alto e baixo IDEB nesse \textit{cluster}.
+Na tabela~\ref{tab:mw_intermediarios}, resumem-se as variáveis com diferença estatisticamente significativa ($p < 0{,}10$) entre os municípios de alto e baixo IDEB nesse \textit{cluster}.
 
 \begin{table}[H]
 \centering
@@ -126,7 +126,7 @@ A tabela~\ref{tab:mw_intermediarios} resume as variáveis com diferença estatis
 \textbf{Variável} & \textbf{Média alto} & \textbf{Média baixo} & \textbf{$\Delta$} & \textbf{p-valor} \\
 \midrule
 \% escolas com quadra                            & 12,9\%  & 5,4\%   & +7,5 p.p.  & 0,004*** \\
-\% turmas corr. de fluxo (EF-AF) & 0,90\%  & 0,07\%  & +0,8 p.p.  & 0,007*** \\
+\% turmas corr. de fluxo (anos finais) & 0,90\%  & 0,07\%  & +0,8 p.p.  & 0,007*** \\
 \% doc. com ensino superior                      & 69,2\%  & 58,1\%  & +11,1 p.p. & 0,047**  \\
 \% doc. com licenciatura                         & 67,4\%  & 57,4\%  & +10,1 p.p. & 0,051*   \\
 Renda \textit{per capita} (R\$)                  & 753,15  & 719,13  & +34,02     & 0,081*   \\
