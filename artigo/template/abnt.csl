@@ -73,7 +73,7 @@
       <!--Os termos abaixo serao utilizados quando houverem nomes de editores. Apos a citacao dos nomes, eles irao aparecer entre parenteses.-->
       <term name="editor" form="short">
         <single>org</single>
-        <multiple>orgs</multiple>
+        <multiple>org</multiple>
       </term>
       <term name="container-author" form="short">
         <single>ed</single>
@@ -84,6 +84,7 @@
         <multiple>eds</multiple>
       </term>
       <term name="in">in</term>
+      <term name="page-range-delimiter">-</term>
     </terms>
   </locale>
   <!--A macro 'container-contribuitor' e responsavel por mostrar os nomes dos editores, serao apresentados SOBRENOME, INICIAIS PRENOMES 
@@ -97,7 +98,7 @@ tendo as inicias separadas por ponto.-->
             <name-part name="given"/>
           </name>
           <et-al font-style="italic"/>
-          <label form="short" prefix=" (" suffix=".)" text-case="capitalize-first"/>
+          <label form="short" prefix=" (" suffix=".)" text-case="lowercase"/>
           <substitute>
             <names variable="editor"/>
             <names variable="collection-editor"/>
@@ -150,7 +151,7 @@ aparecera a expess o 'et. al.'. Na regra da ABNT 2023 essa expressao deve aparec
         <name-part name="given"/>
       </name>
       <et-al font-style="italic"/>
-      <label form="short" prefix=" (" suffix=".)" text-case="uppercase"/>
+      <label form="short" prefix=" (" suffix=".)" text-case="lowercase"/>
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
@@ -182,7 +183,7 @@ aparecera a expess o 'et. al.'. Na regra da ABNT 2023 essa expressao deve aparec
   </macro>
   <!--A macro 'access' e utilizada em arquivos de paginas da web. Ela e responsavel por mostrar a URL do site pesquisado e a data do acesso-->
   <macro name="access">
-    <text variable="URL" prefix="Disponível em: &lt;" suffix="&gt;"/>
+    <text variable="URL" prefix="Disponível em: "/>
     <date variable="accessed" prefix=". Acesso em: " suffix=".">
       <date-part name="day" suffix=" "/>
       <date-part name="month" form="short" suffix=" " text-case="lowercase"/>
@@ -255,7 +256,10 @@ em caixa alta. Utiliza-se antes do nome da conferencia a expressao "In". Segundo
       <if variable="event">
         <choose>
           <if variable="genre" match="none">
-            <text variable="event" text-case="uppercase" suffix=". "/>
+            <group delimiter=", " suffix=". ">
+              <text variable="event" text-case="uppercase"/>
+              <text variable="event-place"/>
+            </group>
           </if>
           <else>
             <group delimiter=" ">
@@ -308,6 +312,7 @@ em caixa alta. Utiliza-se antes do nome da conferencia a expressao "In". Segundo
         <date variable="issued">
           <date-part name="year"/>
         </date>
+        <text variable="year-suffix"/>
       </if>
       <else>
         <text value="[S.d.]" font-style="italic"/>
@@ -474,6 +479,13 @@ em caixa alta. Utiliza-se antes do nome da conferencia a expressao "In". Segundo
             <!--Local, data, etc-->
             <text macro="locators"/>
             <!--Dados complementares "pagina, volume"-->
+            <group delimiter=", " prefix="(" suffix="). ">
+              <text variable="collection-title"/>
+              <text variable="collection-number"/>
+            </group>
+            <!--Serie-->
+            <text macro="access"/>
+            <!--URL, data do acesso-->
           </group>
         </else-if>
         <!--Capitulo-->
@@ -499,6 +511,8 @@ em caixa alta. Utiliza-se antes do nome da conferencia a expressao "In". Segundo
             <!--Local, data, etc-->
             <text macro="locators" suffix=". "/>
             <!--Dados complementares "pagina, volume"-->
+            <text macro="access"/>
+            <!--URL, data do acesso-->
           </group>
         </else-if>
         <!--Artigo de revista, jornal, etc-->
@@ -639,8 +653,6 @@ em caixa alta. Utiliza-se antes do nome da conferencia a expressao "In". Segundo
           <text macro="container-contributors"/>
           <!--Nomes de editore-->
           <text macro="secondary-contributors" suffix=". "/>
-          <text macro="container-title" suffix=". "/>
-          <!--Titulo da publicacao-->
           <text variable="collection-title" prefix=": " suffix="."/>
           <group delimiter=". ">
             <text macro="event"/>

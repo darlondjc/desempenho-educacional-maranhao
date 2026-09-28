@@ -104,6 +104,15 @@
 % NBR 10520:2023: sobrenomes nas citações apenas com a inicial maiúscula,
 % ex.: (Hanushek; Woessmann, 2012). Nas referências continuam em caixa alta.
 \renewcommand*{\UpperOrSCCite}[1]{#1}
+% NBR 6023:2018: URL sem os sinais < >, "maio" por extenso e hífen nos
+% intervalos de páginas (as mesmas regras estão em template/abnt.csl).
+\DeclareFieldFormat{url}{\bibstring{urlfrom}\addcolon\space\url{#1}}
+\DefineBibliographyStrings{brazilian}{may = {maio}}
+\DefineBibliographyExtras{brazilian}{\renewcommand*{\bibrangedash}{-}}
+% "p." sempre em minúscula (o abnt.bbx capitaliza após ponto) e "(org.)",
+% "(ed.)" em minúscula, como nos exemplos da NBR 6023:2018.
+\DeclareFieldFormat*{pages}{p\adddot\addnbspace\mknormrange{#1}}
+\DeclareFieldFormat{editortype}{\printtext[parens]{#1}}
 \setlength{\bibitemsep}{12pt}% referências separadas por um espaço simples
 \setlength{\bibhang}{0pt}
 

@@ -77,9 +77,9 @@ def merge_dataframes(df_ideb, df_censo, df_ibge):
   for df in [df_ideb, df_censo, df_ibge]:
       df['NO_MUNICIPIO'] = df['NO_MUNICIPIO'].str.strip().str.upper()
 
-  # Etapa 1: ideb + censo (sem CO_MUNICIPIO e NO_MUNICIPIO do censo)
-  censo_cols = df_censo.drop(columns=['CO_MUNICIPIO', 'NO_MUNICIPIO'])
-  df_merged = df_ideb.merge(censo_cols, left_index=True, right_index=True, how='left')
+  # Etapa 1: ideb + censo pelo código do município (sem NO_MUNICIPIO do censo)
+  censo_cols = df_censo.drop(columns=['NO_MUNICIPIO'])
+  df_merged = df_ideb.merge(censo_cols, on='CO_MUNICIPIO', how='left', validate='one_to_one')
 
   #Etapa 2: merge com IBGE (sem NO_MUNICIPIO do IBGE após o join)
   df_merged = df_merged.merge(df_ibge, on='NO_MUNICIPIO', how='left')

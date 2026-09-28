@@ -10,7 +10,9 @@ Educação:
   - fonte e nota abaixo, nos estilos "Fonte" e "Nota";
   - referências cruzadas (\ref) substituídas pelo número da ilustração;
   - itens de lista no estilo "Lista";
-  - larguras de coluna repassadas por build_docx.py (bloco "larguras").
+  - larguras de coluna repassadas por build_docx.py (bloco "larguras");
+  - citação narrativa no padrão da NBR 10520:2023 ("Rivkin, Hanushek e
+    Kain (2005)"), já que o CSL só gera a forma entre parênteses.
 ]]
 
 local TIPOS = {
@@ -171,7 +173,32 @@ local function formatar(doc)
   })
 end
 
+-- Citação narrativa (\textcite): o citeproc separa os autores por ";", como
+-- na citação entre parênteses. Troca o último ";" por " e" e os demais por ",".
+-- Roda depois do --citeproc, que já preencheu o conteúdo da citação.
+local function citacao_narrativa(c)
+  if c.citations[1].mode ~= "AuthorInText" then return nil end
+  local separadores = {}
+  for i, el in ipairs(c.content) do
+    if el.t == "Str" and el.text:sub(1, 1) == "(" then break end
+    if el.t == "Str" and el.text:sub(-1) == ";" then table.insert(separadores, i) end
+  end
+  if #separadores == 0 then return nil end
+  for j, i in ipairs(separadores) do
+    local nome = c.content[i].text:sub(1, -2)
+    if j < #separadores then
+      c.content[i] = pandoc.Str(nome .. ",")
+    else
+      c.content[i] = pandoc.Str(nome)
+      c.content:insert(i + 1, pandoc.Str("e"))
+      c.content:insert(i + 1, pandoc.Space())
+    end
+  end
+  return c
+end
+
 return {
+  { Cite = citacao_narrativa },
   { Blocks = aplicar_larguras },
   { Pandoc = numerar },
   { Pandoc = formatar },

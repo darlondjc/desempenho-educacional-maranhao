@@ -138,6 +138,24 @@ def ensure_columns(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 	return df
 
 
+def load_participacao_rede_municipal_efai() -> pd.DataFrame:
+	"""Percentual dos docentes EFAI do município (todas as redes) que atuam em
+	escolas da rede municipal, a partir das contagens por escola dos microdados."""
+	docente = _read_censo_tabela(
+		"Tabela_Docente_2025_V2.csv",
+		["SG_UF", "TP_DEPENDENCIA", "CO_MUNICIPIO", "QT_DOC_FUND_AI"],
+	)
+	docente = docente[docente["SG_UF"] == "MA"].copy()
+	docente["CO_MUNICIPIO"] = normalize_municipio_code(docente["CO_MUNICIPIO"])
+	total = docente.groupby("CO_MUNICIPIO")["QT_DOC_FUND_AI"].sum()
+	municipal = docente[docente["TP_DEPENDENCIA"] == 3].groupby("CO_MUNICIPIO")["QT_DOC_FUND_AI"].sum()
+	return (
+		safe_divide(municipal.reindex(total.index).fillna(0), total, factor=100)
+		.rename("PCT_DOC_EFAI_REDE_MUN")
+		.reset_index()
+	)
+
+
 def build_indicadores_municipais_ma_censo_docentes_2025(indicadores: pd.DataFrame) -> pd.DataFrame:
 	"""Substitui as colunas de docentes com formação superior pelos dados da
 	Sinopse Estatística 2025 (Tabela 2.29 – EFAI), garantindo que numerador e
@@ -153,6 +171,19 @@ def build_indicadores_municipais_ma_censo_docentes_2025(indicadores: pd.DataFram
 		on="CO_MUNICIPIO",
 		how="left",
 	)
+
+	# A Tabela 2.29 conta os docentes EFAI de todas as redes do município, e o
+	# IDEB analisado é só da rede municipal. Antes da substituição, guarda a
+	# formação medida só na rede municipal (microdados, educação básica inteira,
+	# pois os microdados não separam a formação por etapa), usada no artigo
+	# como análise de sensibilidade.
+	indicadores["PCT_DOC_SUPERIOR_REDE_MUN"] = safe_divide(
+		indicadores["QT_DOC_BAS_ESCO_SUP_GRAD"], indicadores["QT_DOC_BAS"], factor=100
+	)
+	indicadores["PCT_DOC_LICENCIATURA_REDE_MUN"] = safe_divide(
+		indicadores["QT_DOC_BAS_ESCO_SUP_GRAD_LICEN"], indicadores["QT_DOC_BAS"], factor=100
+	)
+	indicadores = indicadores.merge(load_participacao_rede_municipal_efai(), on="CO_MUNICIPIO", how="left")
 
 	# Substitui QT_DOC_BAS pelo total EFAI (denominador consistente com os numeradores)
 	indicadores["QT_DOC_BAS"] = indicadores["qt_doc_efai_total"].fillna(0).astype(int)

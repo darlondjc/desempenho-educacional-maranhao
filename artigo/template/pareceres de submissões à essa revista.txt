@@ -1,0 +1,37 @@
+Nós chegamos a uma decisão referente a sua submissão para o periódico Debates em Educação, "Da sala de aula ao chão de fábrica digital".
+
+Nossa decisão é de: Rejeitar a Submissão
+
+PARECER 1
+
+Apresento a seguir algumas considerações para a tomada de decisão quanto ao artigo/manuscrito submetido.
+
+Adequação ao escopo da revista: este é o ponto mais problemático. A Debates em Educação é um periódico de Educação; o artigo, no entanto, é majoritariamente um relato técnico de engenharia (arquitetura de hardware/software, sinais, RMS, frequência de falha). A dimensão pedagógica aparece como moldura teórica na introdução, mas o corpo do artigo (metodologia, resultados) é quase todo técnico-experimental, sem estudantes, sala de aula ou dados de aprendizagem envolvidos.
+
+Fundamentação teórica: a revisão de literatura é ampla e articula normativas educacionais (LDB, DCN de Engenharia, Resolução Confea/Crea) com literatura sobre metodologias ativas e kits didáticos similares. Isso é um ponto forte. Porém, falta profundidade em literatura própria do campo da Educação/Didática (teorias de aprendizagem, avaliação de competências, metodologia de pesquisa educacional) — a base é mais normativa/institucional e de engenharia educacional do que de pesquisa educacional propriamente dita.
+
+Metodologia: os autores são transparentes ao classificar o estudo como "exploratório e demonstrativo" e, na conclusão, admitem explicitamente que não houve avaliação pedagógica formal em sala de aula. Essa honestidade é positiva, mas também expõe uma lacuna estrutural: o artigo testa um protótipo, não testa uma proposta pedagógica com aprendizes reais. O termo "validação" é usado de forma ambígua — validação técnica do hardware é confundida, em vários trechos, com validação da proposta pedagógica. Também quando se fala de estudo de caso? Qual teórico da metodologia da pesquisa foi utilizado para se definir estudo de caso? Quais os procedimentos de coleta e de análise? Foi só a validação?
+
+Resultados e discussão: tecnicamente bem descritos e coerentes com a metodologia proposta, mas novamente distantes de um resultado educacional (não há dado sobre engajamento, aprendizagem, percepção discente etc.).
+
+Conclusão: sintetiza bem os achados técnicos e reconhece com clareza as limitações do estudo, propondo agenda de pesquisa futura (estudo longitudinal com avaliação pedagógica real), o que é um ponto positivo do texto.
+
+ 
+
+PARECER 2
+
+O manuscrito apresenta necessidade de  alterações substanciais:
+
+Os objetivos precisam ser revistos, porque existe uma incompatibilidade entre o que o artigo se propõe a validar e o que a pesquisa efetivamente investigou. O artigo afirma, em diferentes momentos, que a proposta pedagógica foi validada e que o protótipo favorece ou garante o desenvolvimento de competências nos estudantes. Entretanto, a própria conclusão informa que não houve avaliação formal da eficácia pedagógica em sala de aula. A investigação concentrou-se na construção e validação técnica/funcional do protótipo, deixando a eficácia pedagógica para investigação futura.
+
+O resumo afirma que a metodologia utilizou estudo de caso para testar a funcionalidade do protótipo, mas a caracterização metodológica ainda é insuficiente. Não estão suficientemente explicitados: o contexto do estudo de caso; os critérios de seleção; os procedimentos de coleta; os instrumentos; o procedimento de análise dos dados;
+
+Revisão linguística integral. São observados: períodos excessivamente longos. Verificar os recuos de primeira linha no início de cada parágrafo.
+
+Informar, com aspas, onde inicia e onde finaliza a citação  mencionada na página 7 sobre as Diretrizes Curriculares Nacionais do Curso de Graduação em Engenharia, aprovadas pelo Parecer CNE/CES Nº 1/2019;
+
+Recomenda-se uma revisão das referências segundo as normas vigentes da ABNT e aos padrão específico adotado pela revista.
+
+Informa a fonte das figuras (páginas 11 e 12)
+
+A termo Proposta Pedagógica de Ação (PPA) consta em diferentes pontos do texto. Deixar apenas a sigla nas páginas 8, 10, 12  e 13.

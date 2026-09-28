@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import locale
 import unicodedata
 from pathlib import Path
 from sklearn.preprocessing import RobustScaler
@@ -55,6 +56,24 @@ VARS_COMPARACAO = [
 
 VARS_RF = VARS_CLUSTER + ['PCT_DOC_COM_SUPERIOR']
 
+ROTULOS_VARIAVEIS = {
+    'RENDA_PER_CAPITA_2022': 'Renda per capita',
+    'PCT_POBREZA_EXTREMA_2022': 'Pobreza extrema',
+    'PCT_ESCOLAS_COM_INTERNET': '% escolas com internet',
+    'PCT_ESCOLAS_COM_BIBLIOTECA_LEITURA': '% escolas com biblioteca/sala de leitura',
+    'PCT_ESCOLAS_COM_LAB_INFORMATICA': '% escolas com laboratório de informática',
+    'PCT_ESCOLAS_COM_QUADRA': '% escolas com quadra esportiva',
+    'PCT_ESCOLAS_COM_AGUA_ADEQUADA': '% escolas com água adequada',
+    'PCT_ESCOLAS_COM_ESGOTO_ADEQUADO': '% escolas com esgoto adequado',
+    'PCT_DOC_SUPERIOR_COMPLETO': '% docentes com ensino superior',
+    'PCT_DOC_LICENCIATURA_TOTAL': '% docentes com licenciatura',
+    'MEDIA_ALUNOS_POR_TURMA_BAS': 'Média de alunos/turma (educação básica)',
+    'MEDIA_ALUNOS_POR_TURMA_FUND': 'Média de alunos/turma (ensino fundamental)',
+    'MEDIA_ALUNOS_POR_TURMA_MED': 'Média de alunos/turma (ensino médio)',
+    'PCT_MAT_15_ANOS_OU_MAIS_PROXY_DISTSERIE': 'Proxy de distorção idade-série',
+    'PCT_TURMAS_CORRFLUXO_FUND_AF': '% turmas de correção de fluxo (anos finais)',
+}
+
 
 # ── FUNÇÕES ───────────────────────────────────────────────────────────────────
 
@@ -78,6 +97,19 @@ def normalizar(df: pd.DataFrame) -> tuple:
     return X_scaled, scaler
 
 
+# Gráficos no padrão brasileiro (vírgula decimal nos eixos), como no artigo.
+try:
+    locale.setlocale(locale.LC_NUMERIC, 'pt_BR.UTF-8')
+    plt.rcParams['axes.formatter.use_locale'] = True
+except locale.Error:
+    pass
+
+
+def _br(valor: float, casas: int = 2) -> str:
+    """Número com vírgula decimal, para rótulos e legendas dos gráficos."""
+    return f"{valor:.{casas}f}".replace('.', ',')
+
+
 def _renderizar_ou_salvar(nome_arquivo: str, salvar_arquivo: bool = True) -> None:
     if salvar_arquivo:
         FIGURES_DIR.mkdir(parents=True, exist_ok=True)
@@ -99,16 +131,16 @@ def elbow_silhouette(X_scaled, k_range: range, salvar_arquivo: bool = True) -> l
 
     fig, axes = plt.subplots(1, 2, figsize=(12, 4))
     axes[0].plot(k_range, inertias, marker='o', color='steelblue', linewidth=2)
-    axes[0].set_title('Elbow Method')
+    axes[0].set_title('Inércia (método do cotovelo)')
     axes[0].set_xlabel('Número de clusters (k)')
     axes[0].set_ylabel('Inércia')
 
     axes[1].plot(k_range, silhouettes, marker='o', color='darkorange', linewidth=2)
     axes[1].set_title('Silhouette Score')
     axes[1].set_xlabel('Número de clusters (k)')
-    axes[1].set_ylabel('Score')
+    axes[1].set_ylabel('Silhouette Score médio')
     axes[1].axvline(best_k, color='red', linestyle='--',
-                    label=f'Melhor k={best_k} ({max(silhouettes):.3f})')
+                    label=f'Melhor k = {best_k} ({_br(max(silhouettes), 3)})')
     axes[1].legend()
 
     plt.tight_layout()
@@ -133,11 +165,10 @@ def visualizar_pca(X_scaled, silhouettes: list, k_range: range, salvar_arquivo: 
         labels = km.fit_predict(X_scaled)
         axes[idx].scatter(X_pca[:, 0], X_pca[:, 1], c=labels,
                           cmap='Set1', alpha=0.6, s=40)
-        axes[idx].set_title(f'k={k} | silhouette={silhouettes[k-2]:.3f}')
-        axes[idx].set_xlabel(f'PC1 ({variancia[0]*100:.1f}% variância)')
-        axes[idx].set_ylabel(f'PC2 ({variancia[1]*100:.1f}% variância)')
+        axes[idx].set_title(f'k = {k} | silhouette = {_br(silhouettes[k-2], 3)}')
+        axes[idx].set_xlabel(f'PC1 ({_br(variancia[0]*100, 1)}% da variância)')
+        axes[idx].set_ylabel(f'PC2 ({_br(variancia[1]*100, 1)}% da variância)')
 
-    plt.suptitle('Visualização PCA dos Clusters', fontsize=13, fontweight='bold')
     plt.tight_layout()
     _renderizar_ou_salvar("pca_clusters.png", salvar_arquivo=salvar_arquivo)
 
@@ -408,17 +439,146 @@ def variaveis_relevantes_por_cluster(
 
         if salvar_arquivo:
             fig, ax = plt.subplots(figsize=(10, 6))
-            tabela.sort_values('importancia_rf').plot(
-                x='variavel', y='importancia_rf', kind='barh',
+            grafico = tabela.sort_values('importancia_rf').assign(
+                rotulo=lambda t: t['variavel'].map(ROTULOS_VARIAVEIS).fillna(t['variavel'])
+            )
+            grafico.plot(
+                x='rotulo', y='importancia_rf', kind='barh',
                 color='darkorange', legend=False, ax=ax
             )
-            ax.set_title(f'Cluster {nome} — Relevância de Variáveis (alto vs baixo IDEB)')
+            ax.set_ylabel('')
             ax.set_xlabel('Importância no Random Forest Classifier')
             plt.tight_layout()
             _renderizar_ou_salvar(
                 f"cluster_{_slug_cluster_nome(nome)}_variaveis_relevantes_destaque.png",
                 salvar_arquivo=salvar_arquivo,
             )
+
+
+def _benjamini_hochberg(pvalores) -> np.ndarray:
+    """Valores q (taxa de falsas descobertas) de Benjamini e Hochberg (1995)."""
+    p = np.asarray(pvalores, dtype=float)
+    n = len(p)
+    ordem = np.argsort(p)
+    ajustado = p[ordem] * n / np.arange(1, n + 1)
+    ajustado = np.minimum.accumulate(ajustado[::-1])[::-1]
+    q = np.empty(n)
+    q[ordem] = np.minimum(ajustado, 1)
+    return q
+
+
+def comparar_extremos_por_cluster(
+    df: pd.DataFrame,
+    q: float = 0.25,
+    min_amostras_por_grupo: int = 10,
+) -> dict:
+    """Estágio 2 do artigo: compara os quartis superior e inferior de IDEB em
+    cada cluster (Mann-Whitney bicaudal, delta de Cliff e valor q de
+    Benjamini-Hochberg) e, como robustez, correlaciona cada variável com o
+    IDEB em todos os municípios do cluster (Spearman)."""
+    print("\n" + "=" * 60)
+    print("ESTÁGIO 2: ALTO x BAIXO IDEB DENTRO DE CADA CLUSTER")
+    print("=" * 60)
+
+    resultados = {}
+    for cid in _clusters_ordenados_por_renda(df):
+        sub = df[df['CLUSTER'] == cid].dropna(subset=['VL_OBSERVADO_2025'])
+        alto, baixo = _separar_alto_baixo_por_quantis(sub, q=q)
+        nome = _nome_cluster(df, cid)
+        if len(alto) < min_amostras_por_grupo or len(baixo) < min_amostras_por_grupo:
+            continue
+
+        variaveis = [v for v in VARS_EXPLICATIVAS_IDEB if v in sub.columns]
+        linhas = []
+        for var in variaveis:
+            u, p = stats.mannwhitneyu(alto[var], baixo[var], alternative='two-sided')
+            rho, p_rho = stats.spearmanr(sub[var], sub['VL_OBSERVADO_2025'])
+            linhas.append({
+                'variavel': var,
+                'media_alto': alto[var].mean(),
+                'media_baixo': baixo[var].mean(),
+                'delta': alto[var].mean() - baixo[var].mean(),
+                'cliff': 2 * u / (len(alto) * len(baixo)) - 1,
+                'p_mw': p,
+                'rho': rho,
+                'p_rho': p_rho,
+            })
+        tabela = pd.DataFrame(linhas)
+        tabela['q_mw'] = _benjamini_hochberg(tabela['p_mw'])
+        tabela['q_rho'] = _benjamini_hochberg(tabela['p_rho'])
+        tabela = tabela.sort_values('p_mw')
+        resultados[nome] = tabela
+
+        print(f"\nCluster {nome} | n={len(sub)} | alto={len(alto)} | baixo={len(baixo)}")
+        print(tabela.round(3).to_string(index=False))
+    return resultados
+
+
+def sensibilidade_rede_municipal(df: pd.DataFrame, q: float = 0.25) -> None:
+    """Refaz a comparação da formação docente com a medida restrita à rede
+    municipal (microdados, educação básica), já que a Tabela 2.29 da Sinopse
+    inclui todas as redes do município, e o IDEB analisado é só o municipal."""
+    print("\n" + "=" * 60)
+    print("SENSIBILIDADE: FORMAÇÃO DOCENTE SÓ NA REDE MUNICIPAL")
+    print("=" * 60)
+    print("\nParticipação da rede municipal nos docentes EFAI do município (%):")
+    print(df.groupby('CLUSTER_NOME')['PCT_DOC_EFAI_REDE_MUN'].describe().round(1).to_string())
+
+    for cid in _clusters_ordenados_por_renda(df):
+        sub = df[df['CLUSTER'] == cid].dropna(subset=['VL_OBSERVADO_2025'])
+        alto, baixo = _separar_alto_baixo_por_quantis(sub, q=q)
+        if len(alto) < 10 or len(baixo) < 10:
+            continue
+        for var in ['PCT_DOC_SUPERIOR_REDE_MUN', 'PCT_DOC_LICENCIATURA_REDE_MUN']:
+            u, p = stats.mannwhitneyu(alto[var], baixo[var], alternative='two-sided')
+            rho, p_rho = stats.spearmanr(sub[var], sub['VL_OBSERVADO_2025'])
+            print(
+                f"Cluster {_nome_cluster(df, cid)} | {var} | alto={alto[var].mean():.1f} "
+                f"baixo={baixo[var].mean():.1f} | p={p:.3f} | cliff={2 * u / (len(alto) * len(baixo)) - 1:.2f} "
+                f"| rho={rho:.2f} (p={p_rho:.3f})"
+            )
+
+
+def validacao_preditiva(df: pd.DataFrame, q: float = 0.25, n_repeticoes: int = 20) -> None:
+    """Poder preditivo conjunto das variáveis, em validação cruzada (5 partes,
+    repetida): Random Forest para separar alto x baixo IDEB em cada cluster
+    (AUC) e regressão ridge para o IDEB contínuo, no estado e nos clusters (R²)."""
+    from sklearn.linear_model import RidgeCV
+    from sklearn.model_selection import (
+        RepeatedKFold, RepeatedStratifiedKFold, cross_val_score,
+    )
+    from sklearn.pipeline import make_pipeline
+    from sklearn.preprocessing import StandardScaler
+
+    print("\n" + "=" * 60)
+    print("VALIDAÇÃO PREDITIVA (VALIDAÇÃO CRUZADA)")
+    print("=" * 60)
+
+    base = df.dropna(subset=['VL_OBSERVADO_2025'])
+    variaveis = [v for v in VARS_EXPLICATIVAS_IDEB if v in base.columns]
+    ridge = make_pipeline(StandardScaler(), RidgeCV(alphas=np.logspace(-2, 3, 20)))
+    cv_reg = RepeatedKFold(n_splits=5, n_repeats=n_repeticoes, random_state=42)
+
+    r2 = cross_val_score(ridge, base[variaveis], base['VL_OBSERVADO_2025'], cv=cv_reg, scoring='r2')
+    print(f"\nEstado (n={len(base)}) | ridge R² = {r2.mean():.3f} ± {r2.std():.3f}")
+
+    for cid in _clusters_ordenados_por_renda(base):
+        sub = base[base['CLUSTER'] == cid]
+        alto, baixo = _separar_alto_baixo_por_quantis(sub, q=q)
+        if len(alto) < 10 or len(baixo) < 10:
+            continue
+        extremos = pd.concat([alto, baixo])
+        y = (extremos['VL_OBSERVADO_2025'] >= alto['VL_OBSERVADO_2025'].min()).astype(int)
+        clf = RandomForestClassifier(
+            n_estimators=500, random_state=42, class_weight='balanced', min_samples_leaf=3,
+        )
+        cv_clf = RepeatedStratifiedKFold(n_splits=5, n_repeats=n_repeticoes, random_state=42)
+        auc = cross_val_score(clf, extremos[variaveis], y, cv=cv_clf, scoring='roc_auc')
+        r2 = cross_val_score(ridge, sub[variaveis], sub['VL_OBSERVADO_2025'], cv=cv_reg, scoring='r2')
+        print(
+            f"Cluster {_nome_cluster(base, cid)} (n={len(sub)}; extremos={len(extremos)}) | "
+            f"RF AUC = {auc.mean():.3f} ± {auc.std():.3f} | ridge R² = {r2.mean():.3f} ± {r2.std():.3f}"
+        )
 
 
 def classificar_perfil(cluster_df: pd.DataFrame, q: float = 0.25) -> pd.DataFrame:
@@ -564,10 +724,9 @@ def distribuicao_ideb(df: pd.DataFrame, salvar_arquivo: bool = True) -> None:
 
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.hist(ideb, bins=20, color='steelblue', edgecolor='white', alpha=0.85)
-    ax.axvline(media, color='red', linestyle='--', linewidth=1.5, label=f'Média: {media:.2f}')
-    ax.axvline(mediana, color='orange', linestyle='--', linewidth=1.5, label=f'Mediana: {mediana:.2f}')
-    ax.axvspan(media - std, media + std, alpha=0.1, color='red', label=f'±1 desvio-padrão ({std:.2f})')
-    ax.set_title('Distribuição do IDEB 2025 — Municípios Maranhenses (Rede Municipal)', fontsize=13, fontweight='bold')
+    ax.axvline(media, color='red', linestyle='--', linewidth=1.5, label=f'Média: {_br(media)}')
+    ax.axvline(mediana, color='orange', linestyle='--', linewidth=1.5, label=f'Mediana: {_br(mediana)}')
+    ax.axvspan(media - std, media + std, alpha=0.1, color='red', label=f'±1 desvio-padrão ({_br(std)})')
     ax.set_xlabel('IDEB (Anos Iniciais do Ensino Fundamental)')
     ax.set_ylabel('Número de municípios')
     ax.legend()
@@ -596,6 +755,9 @@ def main(salvar_graficos: bool = True) -> None:
     relevancia_variaveis_cluster(X_scaled, k=CLUSTER_K, n_bootstrap=25)
     destacar_municipios_por_cluster(df, top_n=5)
     variaveis_relevantes_por_cluster(df, salvar_arquivo=salvar_graficos, q=0.25)
+    comparar_extremos_por_cluster(df, q=0.25)
+    sensibilidade_rede_municipal(df, q=0.25)
+    validacao_preditiva(df, q=0.25)
     distribuicao_quartis_cluster(df, cluster_nome='vulneráveis', q=0.25, salvar_arquivo=salvar_graficos)
     outliers_positivos(df)
     comparar_perfis(df)
