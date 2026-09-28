@@ -60,6 +60,8 @@ VARS_RF = VARS_CLUSTER + ['PCT_DOC_COM_SUPERIOR']
 
 def carregar_dados() -> pd.DataFrame:
     df = pd.read_csv(TRUSTED_DIR / "indicadores_municipais_ma.csv", sep=";")
+    # Municípios sem IDEB divulgado (Nova Iorque em 2025) ficam fora de toda a análise.
+    df = df.dropna(subset=['VL_OBSERVADO_2025']).reset_index(drop=True)
     df['PCT_DOC_COM_SUPERIOR'] = (
         df['QT_DOC_BAS_ESCO_SUP_GRAD'] / df['QT_DOC_BAS'] * 100
     ).round(2)

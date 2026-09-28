@@ -28,7 +28,7 @@ A amplitude de 4,00 pontos (4,10 a 8,10) é expressiva dado que o IDEB varia de 
 
 A clusterização \textit{K-Means} foi aplicada sobre a \textit{renda per capita} e a \textit{pobreza extrema} (normalizadas via RobustScaler), testando $k \in \{2, \ldots, 10\}$, conforme descrito nos procedimentos metodológicos.
 
-No gráfico~\ref{graf:elbow}, são apresentadas as curvas de inércia (cotovelo) e de \textit{Silhouette Score}. O \textit{Silhouette Score} atinge o valor máximo em $k = 3$ (0,507), acima de $k = 2$ (0,487) e de $k = 4$ (0,454). A estabilidade \textit{bootstrap} confirma a escolha: o ARI médio é 0,801 em $k = 3$, contra 0,734 em $k = 2$ e 0,693 em $k = 4$. Os dois critérios apontam, portanto, para a mesma partição, que é ao mesmo tempo a mais bem separada e a mais estável sob reamostragem entre as testadas. A curva de inércia decresce de forma gradual e não oferece, por si só, um critério adicional.
+No gráfico~\ref{graf:elbow}, são apresentadas as curvas de inércia (cotovelo) e de \textit{Silhouette Score}. O \textit{Silhouette Score} atinge o valor máximo em $k = 3$ (0,506), acima de $k = 2$ (0,489) e de $k = 4$ (0,456). A estabilidade \textit{bootstrap} confirma a escolha: o ARI médio é 0,812 em $k = 3$, contra 0,744 em $k = 2$ e 0,704 em $k = 4$. Os dois critérios apontam, portanto, para a mesma partição, que é ao mesmo tempo a mais bem separada e a mais estável sob reamostragem entre as testadas. A curva de inércia decresce de forma gradual e não oferece, por si só, um critério adicional.
 
 \begin{grafico}[H]
   \centering
@@ -49,17 +49,17 @@ No gráfico~\ref{graf:pca}, são exibidos os \textit{clusters} projetados nas du
   \fonte{dados da pesquisa (2026).}
 \end{grafico}
 
-O teste de ablação indica que as duas variáveis contribuem para a partição, com peso maior para a renda média. Refazendo a clusterização sem a renda \textit{per capita}, a concordância com a partição original cai para um ARI de 0,380; sem a pobreza extrema, o ARI é de 0,708. A pobreza extrema, portanto, não é redundante: sua retirada reclassifica parte relevante dos municípios, o que confirma que ela acrescenta à renda média a informação sobre a base da distribuição de renda.
+O teste de ablação indica que as duas variáveis contribuem para a partição, com peso maior para a renda média. Refazendo a clusterização sem a renda \textit{per capita}, a concordância com a partição original cai para um ARI de 0,379; sem a pobreza extrema, o ARI é de 0,688. A pobreza extrema, portanto, não é redundante: sua retirada reclassifica parte relevante dos municípios, o que confirma que ela acrescenta à renda média a informação sobre a base da distribuição de renda.
 
 Os três \textit{clusters} obtidos são denominados pelo critério de renda média:
 
 \begin{itemize}
   \item \textbf{\textit{Cluster} vulnerável} (n = 88): renda \textit{per capita} média de R\$~555,84, 41,8\% dos moradores em pobreza extrema, IDEB médio de 5,29.
-  \item \textbf{\textit{Cluster} intermediário} (n = 114): renda \textit{per capita} média de R\$~732,01, 27,5\% dos moradores em pobreza extrema, IDEB médio de 5,42.
+  \item \textbf{\textit{Cluster} intermediário} (n = 113): renda \textit{per capita} média de R\$~732,06, 27,5\% dos moradores em pobreza extrema, IDEB médio de 5,42.
   \item \textbf{\textit{Cluster} de alta renda} (n = 15): renda \textit{per capita} média de R\$~1.082,44, 15,3\% dos moradores em pobreza extrema, IDEB médio de 5,78. Reúne a capital e os principais polos regionais do estado: São Luís, São José de Ribamar, Paço do Lumiar, Imperatriz, Timon, Açailândia, Balsas, Santa Inês, Pedreiras, Presidente Dutra, Porto Franco, Estreito, Carolina, Fortaleza dos Nogueiras e Itinga do Maranhão.
 \end{itemize}
 
-O \textit{cluster} de alta renda, com 15 municípios, não tem amostra suficiente para a análise intragrupo por quartis, que resultaria em quatro ou cinco municípios em cada extremo. A análise comparativa é, portanto, conduzida nos \textit{clusters} vulnerável e intermediário, que juntos reúnem 202 dos 217 municípios do estado.
+O \textit{cluster} de alta renda, com 15 municípios, não tem amostra suficiente para a análise intragrupo por quartis, que resultaria em quatro ou cinco municípios em cada extremo. A análise comparativa é, portanto, conduzida nos \textit{clusters} vulnerável e intermediário, que juntos reúnem 201 dos 216 municípios analisados.
 
 Os percentuais médios das variáveis de infraestrutura e de formação docente acompanham o gradiente de renda. A \textit{conectividade à internet} está presente em 83,8\% das escolas municipais do \textit{cluster} vulnerável, em 89,0\% das do intermediário e em 94,3\% das de alta renda. O acesso a \textit{biblioteca ou sala de leitura} é baixo nos dois primeiros grupos (15,8\% e 19,3\%) e mais que dobra no de alta renda (38,7\%). A proporção média de \textit{docentes EFAI com ensino superior} é de 55,9\%, 64,0\% e 79,1\%, respectivamente, diferença que antecipa uma das hipóteses testadas no estágio intragrupo.
 
@@ -102,7 +102,7 @@ A renda \textit{per capita} e a pobreza extrema não diferenciam os grupos de al
 
 \subsection{Fatores discriminantes no \textit{cluster} intermediário}
 
-Dentro do \textit{cluster} intermediário (n = 114), os 34 municípios do quartil superior de IDEB (alto, $\geq 5{,}70$, média 6,07) são comparados aos 29 do quartil inferior (baixo, $\leq 5{,}00$, média 4,81).
+Dentro do \textit{cluster} intermediário (n = 113), os 34 municípios do quartil superior de IDEB (alto, $\geq 5{,}70$, média 6,07) são comparados aos 29 do quartil inferior (baixo, $\leq 5{,}00$, média 4,81).
 
 No gráfico~\ref{graf:rf_intermediarios}, apresentam-se as importâncias do \textit{Random Forest Classifier} para esse \textit{cluster}. As oito variáveis de maior importância são, em ordem decrescente: \textit{\% escolas com quadra esportiva} (0,153), \textit{renda per capita} (0,095), \textit{\% docentes com ensino superior} (0,089), \textit{proxy de distorção idade-série} (0,078), \textit{\% docentes com licenciatura} (0,078), \textit{média de alunos por turma na educação básica} (0,078), \textit{pobreza extrema} (0,073) e \textit{\% escolas com esgoto adequado} (0,070).
 
