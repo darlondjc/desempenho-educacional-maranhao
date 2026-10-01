@@ -69,3 +69,8 @@ output/
 *.bcf
 *.run.xml
 artigo/main_identificado.pdf
+
+# Skills de agentes instaladas localmente (npx skills add)
+.agents/
+.claude/skills/
+skills-lock.json

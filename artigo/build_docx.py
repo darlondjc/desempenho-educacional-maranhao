@@ -22,6 +22,8 @@ import tempfile
 import zipfile
 from pathlib import Path
 
+from graficos_docx import incorporar_graficos
+
 DIR = Path(__file__).resolve().parent
 TEMPLATE = DIR / "template" / "template_debates_educacao_2026.docx"
 CSL = DIR / "template" / "abnt.csl"
@@ -64,6 +66,11 @@ def ler_metadados():
         m = re.match(r"^\\autor\{(.*?)\}\{(.*?)\}\{(.*)\}\s*$", linha)
         if m:
             autores.append(m.groups())
+    meta["contribuicoes"] = {}
+    for linha in texto.splitlines():
+        m = re.match(r"^\\contribuicao\{(.*?)\}\{(.*)\}\s*$", linha)
+        if m:
+            meta["contribuicoes"][m.group(1)] = m.group(2)  # LaTeX; convertido para Markdown em informacao_autores
     return meta, autores
 
 
@@ -124,8 +131,11 @@ def larguras_das_colunas(m):
     return marcador + "\\begin{tabular}{" + spec + "}"
 
 
-def ler_tex(nome, identificado):
+def ler_tex(nome, identificado, contribuicoes=None):
     texto = (DIR / nome).read_text(encoding="utf-8")
+    # \imprimecontribuicoes (definido em debates.sty) lê as contribuições de metadados.tex
+    lista = "".join(f"\\textbf{{{n}.}} Contribuições: {t}\n\n" for n, t in (contribuicoes or {}).items())
+    texto = texto.replace(r"\imprimecontribuicoes", lista)
     trecho = r"\1" if identificado else ""
     texto = re.sub(r"\\ifidentificado(.*?)\\fi", trecho, texto, flags=re.S)
     return re.sub(r"\\begin\{tabular\}\{((?:[^{}]|\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\})*)\}",
@@ -134,10 +144,10 @@ def ler_tex(nome, identificado):
 
 def documento(meta, autores, identificado):
     doc = pandoc_json(front_matter(meta, autores, identificado), "markdown")
-    corpo = MACROS_PANDOC + "\n".join(ler_tex(s, identificado) for s in SECOES)
+    corpo = MACROS_PANDOC + "\n".join(ler_tex(s, identificado, meta["contribuicoes"]) for s in SECOES)
     doc["blocks"] += pandoc_json(corpo, "latex")["blocks"]
     doc["blocks"] += pandoc_json("# REFERÊNCIAS\n\n::: {#refs}\n:::\n", "markdown")["blocks"]
-    doc["blocks"] += pandoc_json(ler_tex(COMPLEMENTARES, identificado), "latex")["blocks"]
+    doc["blocks"] += pandoc_json(ler_tex(COMPLEMENTARES, identificado, meta["contribuicoes"]), "latex")["blocks"]
     return doc
 
 
@@ -158,6 +168,7 @@ def gerar_docx(doc, destino, referencia):
         input=json.dumps(doc), text=True, check=True, cwd=DIR,
     )
     ajustar_tabelas(destino)
+    incorporar_graficos(destino)  # gráficos editáveis, como exige o template
 
 
 # ---------------------------------------------------------------------------
@@ -313,6 +324,27 @@ def borda(lado, espessura=6):
     return f'<w:{lado} w:val="single" w:sz="{espessura}" w:space="0" w:color="000000"/>'
 
 
+LARGURA_UTIL = 9073  # twips: A4 (11906) menos margens esquerda (1700) e direita (1133)
+
+
+def ocupar_largura(tabela):
+    """Faz a tabela ocupar toda a largura útil do texto.
+
+    Mantém as proporções definidas para as colunas; sem larguras definidas
+    (colunas todas iguais), a primeira coluna recebe 26% e as demais dividem o resto.
+    """
+    colunas = [int(w) for w in re.findall(r'<w:gridCol w:w="(\d+)"', tabela)]
+    if len(colunas) < 2:
+        return tabela
+    if len(set(colunas)) == 1:
+        pesos = [0.26] + [0.74 / (len(colunas) - 1)] * (len(colunas) - 1)
+    else:
+        pesos = [c / sum(colunas) for c in colunas]
+    novas = iter(round(p * LARGURA_UTIL) for p in pesos)
+    tabela = re.sub(r'<w:gridCol w:w="\d+"', lambda _: f'<w:gridCol w:w="{next(novas)}"', tabela)
+    return re.sub(r'<w:tblW [^>]*/>', '<w:tblW w:type="pct" w:w="5000" />', tabela, count=1)
+
+
 def ajustar_tabelas(caminho):
     with zipfile.ZipFile(caminho) as z:
         itens = {i.filename: (i, z.read(i.filename)) for i in z.infolist()}
@@ -338,10 +370,10 @@ def ajustar_tabelas(caminho):
                 novo = re.sub(r"<w:tcPr>", f"<w:tcPr><w:tcBorders>{borda('bottom')}</w:tcBorders>", cab)
                 novo = re.sub(r"<w:tc>(?!<w:tcPr>)", f"<w:tc><w:tcPr><w:tcBorders>{borda('bottom')}</w:tcBorders></w:tcPr>", novo)
                 tabela = tabela.replace(cab, novo, 1)
-        return antes + tabela
+        return antes + ocupar_largura(tabela)
 
     # parágrafo de legenda imediatamente anterior a cada tabela
-    xml = re.sub(r"(<w:p>(?:(?!<w:p>).)*?</w:p>)(<w:tbl>.*?</w:tbl>)", ajustar, xml, flags=re.S)
+    xml = re.sub(r"(<w:p>(?:(?!<w:p>).)*?</w:p>\s*)(<w:tbl>.*?</w:tbl>)", ajustar, xml, flags=re.S)
 
     with zipfile.ZipFile(caminho, "w", zipfile.ZIP_DEFLATED) as z:
         for nome, (info, dados) in itens.items():
@@ -360,6 +392,8 @@ def informacao_autores(meta, autores):
         md += bloco("Resumo Titulo", nome)
         md += bloco("Resumo Texto", f"**Instituição de vínculo:** {inst}")
         md += bloco("Resumo Texto", f"**Titulação, instituição, ORCID e e-mail:** {nota}")
+        contrib = re.sub(r"\\textit\{([^{}]*)\}", r"*\1*", meta["contribuicoes"].get(nome, ""))
+        md += bloco("Resumo Texto", f"**Contribuições (CRediT):** {contrib}")
     return pandoc_json(md, "markdown")
 
 

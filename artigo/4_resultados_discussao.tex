@@ -18,7 +18,7 @@ A distribuição do IDEB dos 216 municípios maranhenses com indicador divulgado
   \caption{Distribuição do IDEB 2025 dos municípios maranhenses – rede municipal, anos iniciais do ensino fundamental}
   \label{graf:dist_ideb}
   \includegraphics[width=0.85\textwidth]{distribuicao_ideb.png}
-  \nota{linha vermelha tracejada: média (5,39); linha laranja tracejada: mediana (5,30); faixa vermelha: intervalo de $\pm 1$ desvio-padrão.}
+  \nota{média: 5,39; mediana: 5,30; desvio-padrão: 0,59.}
   \fonte{elaboração própria com base em \textcite{inep2025}.}
 \end{grafico}
 
@@ -35,7 +35,7 @@ No gráfico~\ref{graf:elbow}, são apresentadas as curvas de inércia (cotovelo)
   \caption{Curvas de inércia e de \textit{Silhouette Score} para $k \in \{2, \ldots, 10\}$}
   \label{graf:elbow}
   \includegraphics[width=0.90\textwidth]{elbow_silhouette.png}
-  \nota{à esquerda, inércia; à direita, \textit{Silhouette Score}. A linha vertical vermelha indica o $k$ ótimo segundo o \textit{Silhouette Score}.}
+  \nota{o $k$ ótimo segundo o \textit{Silhouette Score} é 3 (0,506).}
   \fonte{elaboração própria com base em \textcite{ibge2022classes, ibge2022}.}
 \end{grafico}
 
@@ -43,7 +43,7 @@ No gráfico~\ref{graf:pca}, são exibidos os \textit{clusters} projetados nas du
 
 \begin{grafico}[H]
   \centering
-  \caption{Projeção dos \textit{clusters} de municípios maranhenses nas duas primeiras componentes principais para $k \in \{2, 3, 4\}$}
+  \caption{Projeção dos \textit{clusters} de municípios maranhenses nas duas primeiras componentes principais para $k = 3$}
   \label{graf:pca}
   \includegraphics[width=0.85\textwidth]{pca_clusters.png}
   \fonte{elaboração própria com base em \textcite{ibge2022classes, ibge2022}.}

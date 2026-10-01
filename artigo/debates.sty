@@ -173,6 +173,10 @@
   \expandafter\def\csname autorinst\roman{numautores}\endcsname{#2}%
   \expandafter\def\csname autornota\roman{numautores}\endcsname{#3}%
 }
+\newcommand{\listacontribuicoes}{}
+\newcommand{\contribuicao}[2]{%
+  \g@addto@macro\listacontribuicoes{\par\textbf{#1.} Contribuições: #2\par}}
+\newcommand{\imprimecontribuicoes}{\listacontribuicoes}
 \newcommand{\imprimeautores}{%
   \newcounter{iautor}%
   \loop\ifnum\value{iautor}<\value{numautores}%

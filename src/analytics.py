@@ -14,6 +14,8 @@ from scipy import stats
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 TRUSTED_DIR = PROJECT_ROOT / "data" / "trusted"
 FIGURES_DIR = PROJECT_ROOT / "reports" / "figures"
+# Dados dos gráficos nativos do .docx (o template da revista não aceita gráfico em imagem).
+DADOS_GRAFICOS_DIR = PROJECT_ROOT / "artigo" / "dados_graficos"
 
 VARS_CLUSTER = [
     'RENDA_PER_CAPITA_2022',
@@ -119,6 +121,11 @@ def _renderizar_ou_salvar(nome_arquivo: str, salvar_arquivo: bool = True) -> Non
     plt.close()
 
 
+def _exportar_dados_grafico(nome: str, dados: pd.DataFrame) -> None:
+    DADOS_GRAFICOS_DIR.mkdir(parents=True, exist_ok=True)
+    dados.to_csv(DADOS_GRAFICOS_DIR / f"{nome}.csv", sep=";", index=False)
+
+
 def elbow_silhouette(X_scaled, k_range: range, salvar_arquivo: bool = True) -> list:
     inertias, silhouettes = [], []
     for k in k_range:
@@ -128,6 +135,8 @@ def elbow_silhouette(X_scaled, k_range: range, salvar_arquivo: bool = True) -> l
         silhouettes.append(silhouette_score(X_scaled, labels))
 
     best_k = k_range[silhouettes.index(max(silhouettes))]
+    _exportar_dados_grafico("elbow_silhouette", pd.DataFrame(
+        {"k": list(k_range), "inercia": inertias, "silhouette": silhouettes}))
 
     fig, axes = plt.subplots(1, 2, figsize=(12, 4))
     axes[0].plot(k_range, inertias, marker='o', color='steelblue', linewidth=2)
@@ -154,20 +163,29 @@ def elbow_silhouette(X_scaled, k_range: range, salvar_arquivo: bool = True) -> l
     return silhouettes
 
 
-def visualizar_pca(X_scaled, silhouettes: list, k_range: range, salvar_arquivo: bool = True) -> None:
+def visualizar_pca(df: pd.DataFrame, X_scaled, silhouettes: list, k_range: range, salvar_arquivo: bool = True) -> None:
     pca = PCA(n_components=2)
     X_pca = pca.fit_transform(X_scaled)
     variancia = pca.explained_variance_ratio_
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-    for idx, k in enumerate([2, 3, 4]):
-        km = KMeans(n_clusters=k, random_state=42, n_init=10)
-        labels = km.fit_predict(X_scaled)
-        axes[idx].scatter(X_pca[:, 0], X_pca[:, 1], c=labels,
-                          cmap='Set1', alpha=0.6, s=40)
-        axes[idx].set_title(f'k = {k} | silhouette = {_br(silhouettes[k-2], 3)}')
-        axes[idx].set_xlabel(f'PC1 ({_br(variancia[0]*100, 1)}% da variância)')
-        axes[idx].set_ylabel(f'PC2 ({_br(variancia[1]*100, 1)}% da variância)')
+    km = KMeans(n_clusters=CLUSTER_K, random_state=42, n_init=10)
+    nomeado = nomear_clusters(df.assign(CLUSTER=km.fit_predict(X_scaled)))
+    projecao = pd.DataFrame({
+        "municipio": nomeado['NO_MUNICIPIO'],
+        "grupo": nomeado['CLUSTER_NOME'],
+        "pc1": X_pca[:, 0],
+        "pc2": X_pca[:, 1],
+    })
+    _exportar_dados_grafico("pca_clusters", projecao)
+
+    fig, ax = plt.subplots(figsize=(7, 5))
+    for grupo, cor in zip(['vulneráveis', 'intermediários', 'alta renda'], ['tab:red', 'tab:blue', 'tab:green']):
+        sub = projecao[projecao['grupo'] == grupo]
+        ax.scatter(sub['pc1'], sub['pc2'], color=cor, alpha=0.6, s=40, label=grupo)
+    ax.set_title(f'k = {CLUSTER_K} | silhouette = {_br(silhouettes[CLUSTER_K - 2], 3)}')
+    ax.set_xlabel(f'PC1 ({_br(variancia[0]*100, 1)}% da variância)')
+    ax.set_ylabel(f'PC2 ({_br(variancia[1]*100, 1)}% da variância)')
+    ax.legend(title='Grupo')
 
     plt.tight_layout()
     _renderizar_ou_salvar("pca_clusters.png", salvar_arquivo=salvar_arquivo)
@@ -722,6 +740,10 @@ def distribuicao_ideb(df: pd.DataFrame, salvar_arquivo: bool = True) -> None:
     mediana = ideb.median()
     std = ideb.std()
 
+    contagem, limites = np.histogram(ideb, bins=20)
+    _exportar_dados_grafico("distribuicao_ideb", pd.DataFrame(
+        {"inicio": limites[:-1], "fim": limites[1:], "municipios": contagem}))
+
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.hist(ideb, bins=20, color='steelblue', edgecolor='white', alpha=0.85)
     ax.axvline(media, color='red', linestyle='--', linewidth=1.5, label=f'Média: {_br(media)}')
@@ -749,7 +771,7 @@ def main(salvar_graficos: bool = True) -> None:
 
     k_range = range(2, 11)
     silhouettes = elbow_silhouette(X_scaled, k_range, salvar_arquivo=salvar_graficos)
-    visualizar_pca(X_scaled, silhouettes, k_range, salvar_arquivo=salvar_graficos)
+    visualizar_pca(df, X_scaled, silhouettes, k_range, salvar_arquivo=salvar_graficos)
 
     df = clusterizar(df, X_scaled, k=CLUSTER_K)
     relevancia_variaveis_cluster(X_scaled, k=CLUSTER_K, n_bootstrap=25)
