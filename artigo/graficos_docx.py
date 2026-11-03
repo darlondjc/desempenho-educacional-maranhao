@@ -26,8 +26,8 @@ NS_R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 NS_PKG = "http://schemas.openxmlformats.org/package/2006/relationships"
 FOLHA = "Planilha1"
 
-LARGURA = 4896000  # 13,6 cm (85% da largura útil do texto), em EMU
-ALTURA = 2880000   # 8 cm
+LARGURA = 4161600  # 11,56 cm (72% da largura útil do texto, como no PDF), em EMU
+ALTURA = 2448000   # 6,8 cm
 
 
 # ---------------------------------------------------------------------------

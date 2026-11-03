@@ -138,6 +138,10 @@ def ler_tex(nome, identificado, contribuicoes=None):
     texto = texto.replace(r"\imprimecontribuicoes", lista)
     trecho = r"\1" if identificado else ""
     texto = re.sub(r"\\ifidentificado(.*?)\\fi", trecho, texto, flags=re.S)
+    # \multicolumn com coluna p{} e prefixo >{...} (quebra de linha no PDF) também
+    # confunde o pandoc; no Word a quebra é automática, então basta uma coluna l.
+    texto = re.sub(r"\\multicolumn\{(\d+)\}\{(\|?)>\{[^{}]*\}p\{[^{}]*\}(\|?)\}",
+                   r"\\multicolumn{\1}{\2l\3}", texto)
     return re.sub(r"\\begin\{tabular\}\{((?:[^{}]|\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\})*)\}",
                   larguras_das_colunas, texto)
 
@@ -169,6 +173,7 @@ def gerar_docx(doc, destino, referencia):
     )
     ajustar_tabelas(destino)
     incorporar_graficos(destino)  # gráficos editáveis, como exige o template
+    ligar_hifenizacao(destino)
 
 
 # ---------------------------------------------------------------------------
@@ -343,6 +348,25 @@ def ocupar_largura(tabela):
     novas = iter(round(p * LARGURA_UTIL) for p in pesos)
     tabela = re.sub(r'<w:gridCol w:w="\d+"', lambda _: f'<w:gridCol w:w="{next(novas)}"', tabela)
     return re.sub(r'<w:tblW [^>]*/>', '<w:tblW w:type="pct" w:w="5000" />', tabela, count=1)
+
+
+def ligar_hifenizacao(caminho):
+    """Liga a divisão silábica automática do Word (texto justificado, como no PDF).
+
+    No esquema do settings.xml, <w:autoHyphenation> vem logo após <w:defaultTabStop>.
+    """
+    with zipfile.ZipFile(caminho) as z:
+        itens = {i.filename: (i, z.read(i.filename)) for i in z.infolist()}
+    xml = itens["word/settings.xml"][1].decode("utf-8")
+    if "<w:autoHyphenation" not in xml:
+        xml, n = re.subn(r"(<w:defaultTabStop [^>]*/>)", r"\1<w:autoHyphenation/>", xml, count=1)
+        if not n:
+            raise RuntimeError("settings.xml sem <w:defaultTabStop>: hifenização não ligada")
+    with zipfile.ZipFile(caminho, "w", zipfile.ZIP_DEFLATED) as z:
+        for nome, (info, dados) in itens.items():
+            if nome == "word/settings.xml":
+                dados = xml.encode("utf-8")
+            z.writestr(info, dados)
 
 
 def ajustar_tabelas(caminho):
