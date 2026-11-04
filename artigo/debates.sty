@@ -173,10 +173,27 @@
   \expandafter\def\csname autorinst\roman{numautores}\endcsname{#2}%
   \expandafter\def\csname autornota\roman{numautores}\endcsname{#3}%
 }
+% Autores consecutivos com as mesmas contribuições saem num único parágrafo
+% ("A e B. Contribuições: ..."), como em build_docx.py.
 \newcommand{\listacontribuicoes}{}
+\newcommand{\debates@nomes}{}
+\newcommand{\debates@texto}{}
+\newcommand{\debates@descarrega}{%
+  \ifx\debates@nomes\@empty\else
+    \begingroup\edef\x{\endgroup\noexpand\g@addto@macro\noexpand\listacontribuicoes{%
+      \noexpand\par\noexpand\textbf{\unexpanded\expandafter{\debates@nomes}.}
+      Contribuições: \unexpanded\expandafter{\debates@texto}\noexpand\par}}\x
+    \gdef\debates@nomes{}%
+  \fi}
 \newcommand{\contribuicao}[2]{%
-  \g@addto@macro\listacontribuicoes{\par\textbf{#1.} Contribuições: #2\par}}
-\newcommand{\imprimecontribuicoes}{\listacontribuicoes}
+  \def\debates@novo{#2}%
+  \ifx\debates@novo\debates@texto
+    \g@addto@macro\debates@nomes{ e #1}%
+  \else
+    \debates@descarrega
+    \gdef\debates@nomes{#1}\gdef\debates@texto{#2}%
+  \fi}
+\newcommand{\imprimecontribuicoes}{\debates@descarrega\listacontribuicoes}
 \newcommand{\imprimeautores}{%
   \newcounter{iautor}%
   \loop\ifnum\value{iautor}<\value{numautores}%

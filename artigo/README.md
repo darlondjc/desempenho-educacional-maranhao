@@ -10,7 +10,7 @@ mantido em LaTeX e os arquivos `.docx` são gerados a partir dele.
 | --- | --- |
 | `metadados.tex` | títulos (PT/EN/ES), autoria, resumos e palavras-chave |
 | `1_introducao.tex` … `5_consideracoes_finais.tex` | seções do artigo |
-| `6_informacoes_complementares.tex` | declaração de IA, dados, agradecimentos e CRediT (os dois últimos só na versão identificada) |
+| `6_informacoes_complementares.tex` | declaração de IA, dados e CRediT (este só na versão identificada) |
 | `debates.sty` | formatação do template em LaTeX |
 | `build_docx.py` | gera os `.docx` usando o template oficial como base |
 | `template/` | template oficial (`.docx`), estilo ABNT (`abnt.csl`) e filtro do pandoc |

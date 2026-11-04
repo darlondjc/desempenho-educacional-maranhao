@@ -134,7 +134,13 @@ def larguras_das_colunas(m):
 def ler_tex(nome, identificado, contribuicoes=None):
     texto = (DIR / nome).read_text(encoding="utf-8")
     # \imprimecontribuicoes (definido em debates.sty) lê as contribuições de metadados.tex
-    lista = "".join(f"\\textbf{{{n}.}} Contribuições: {t}\n\n" for n, t in (contribuicoes or {}).items())
+    # autores com as mesmas contribuições saem num único parágrafo ("A e B. Contribuições: ...")
+    grupos = {}
+    for n, t in (contribuicoes or {}).items():
+        grupos.setdefault(t, []).append(n)
+    lista = "".join(
+        f"\\textbf{{{', '.join(ns[:-1]) + ' e ' + ns[-1] if len(ns) > 1 else ns[0]}.}} Contribuições: {t}\n\n"
+        for t, ns in grupos.items())
     texto = texto.replace(r"\imprimecontribuicoes", lista)
     trecho = r"\1" if identificado else ""
     texto = re.sub(r"\\ifidentificado(.*?)\\fi", trecho, texto, flags=re.S)
