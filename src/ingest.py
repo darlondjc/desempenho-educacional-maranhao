@@ -1,0 +1,412 @@
+from pathlib import Path
+import pandas as pd
+from util import start_timer, stop_timer
+
+BASE_DIR = Path("data/base")
+RAW_DIR = Path("data/raw")
+
+# ── INGESTÃO DO IDEB ───────────────────
+def build_indicadores_municipais_ma_ideb_2025():
+	df = pd.read_excel(BASE_DIR / 'divulgacao_anos_iniciais_municipios_2025.xlsx', skiprows=9)
+	df_ma = df[(df['SG_UF'] == 'MA') & (df['REDE'] == 'Municipal')]
+	cols_id = ['SG_UF', 'CO_MUNICIPIO', 'NO_MUNICIPIO', 'REDE']
+	anos = '2025'
+	cols_anos = [col for col in df_ma.columns if anos in col]
+	df_ma = df_ma[cols_id + cols_anos]
+
+	return df_ma
+
+# ── INGESTÃO DO CENSO ESCOLAR 2025 ───────────────────
+def safe_divide(numerator: pd.Series, denominator: pd.Series, factor: float = 1.0) -> pd.Series:
+	denominator = denominator.replace(0, pd.NA)
+	return (numerator / denominator) * factor
+
+
+def normalize_municipio_code(series: pd.Series) -> pd.Series:
+	return pd.to_numeric(series, errors="coerce").astype("Int64").astype("string")
+
+
+def resolve_censo_dir() -> Path:
+	path_censo_escolar = Path("data/base/microdados_censo_escolar_2025/dados")
+	if path_censo_escolar.exists():
+		return path_censo_escolar
+	raise FileNotFoundError("Diretório de microdados do Censo Escolar 2025 não encontrado em data/base.")
+
+
+# A edição 2025 do Censo Escolar passou a distribuir os microdados em tabelas
+# relacionais separadas por domínio (Escola, Docente, Matrícula, Turma), cada
+# uma ainda agregada por escola (CO_ENTIDADE) — diferente do arquivo único de
+# 2023 (microdados_ed_basica_2023.csv), que já vinha com tudo numa linha só.
+def _read_censo_tabela(nome_arquivo: str, usecols: list[str]) -> pd.DataFrame:
+	censo_dir = resolve_censo_dir()
+	return pd.read_csv(
+		censo_dir / nome_arquivo,
+		sep=";",
+		low_memory=False,
+		encoding="latin1",
+		usecols=lambda c: c in usecols,
+	)
+
+
+def load_censo_microdados() -> pd.DataFrame:
+	cols_comuns = ["SG_UF", "TP_DEPENDENCIA", "CO_ENTIDADE"]
+
+	escola = _read_censo_tabela(
+		"Tabela_Escola_2025_V2.csv",
+		cols_comuns + [
+			"NO_MUNICIPIO",
+			"CO_MUNICIPIO",
+			"IN_INTERNET",
+			"IN_BIBLIOTECA",
+			"IN_BIBLIOTECA_SALA_LEITURA",
+			"IN_SALA_LEITURA",
+			"IN_LABORATORIO_INFORMATICA",
+			"IN_QUADRA_ESPORTES",
+			"IN_AGUA_POTAVEL",
+			"IN_AGUA_REDE_PUBLICA",
+			"IN_ESGOTO_REDE_PUBLICA",
+			"IN_ESGOTO_FOSSA_SEPTICA",
+		],
+	)
+	docente = _read_censo_tabela(
+		"Tabela_Docente_2025_V2.csv",
+		cols_comuns + ["QT_DOC_BAS", "QT_DOC_BAS_ESCO_SUP_GRAD", "QT_DOC_BAS_ESCO_SUP_GRAD_LICEN"],
+	)
+	matricula = _read_censo_tabela(
+		"Tabela_Matricula_2025_V2.csv",
+		cols_comuns + ["QT_MAT_BAS", "QT_MAT_FUND", "QT_MAT_MED", "QT_MAT_BAS_15_17", "QT_MAT_BAS_18_MAIS"],
+	)
+	turma = _read_censo_tabela(
+		"Tabela_Turma_2025_V2.csv",
+		cols_comuns + ["QT_TUR_BAS", "QT_TUR_FUND", "QT_TUR_MED", "QT_TUR_FUND_AF", "QT_TUR_FUND_AF_CORRFLUXO"],
+	)
+
+	REDE_MUNICIPAL = 3
+	escola = escola[(escola["SG_UF"] == "MA") & (escola["TP_DEPENDENCIA"] == REDE_MUNICIPAL)]
+	docente = docente[docente["CO_ENTIDADE"].isin(escola["CO_ENTIDADE"])]
+	matricula = matricula[matricula["CO_ENTIDADE"].isin(escola["CO_ENTIDADE"])]
+	turma = turma[turma["CO_ENTIDADE"].isin(escola["CO_ENTIDADE"])]
+
+	censo = escola.merge(
+		docente.drop(columns=["SG_UF", "TP_DEPENDENCIA"]), on="CO_ENTIDADE", how="left"
+	).merge(
+		matricula.drop(columns=["SG_UF", "TP_DEPENDENCIA"]), on="CO_ENTIDADE", how="left"
+	).merge(
+		turma.drop(columns=["SG_UF", "TP_DEPENDENCIA"]), on="CO_ENTIDADE", how="left"
+	)
+	return censo
+
+
+def load_sinopse_docentes_efai_2025() -> pd.DataFrame:
+	"""Carrega a Tabela 2.29 da Sinopse Estatística 2025 (docentes EFAI por
+	município). Na edição 2023 essa tabela era a 2.23 — o Inep deslocou a
+	numeração ao inserir tabelas novas de EJA/educação especial entre as
+	edições, então a tabela foi localizada pelo título ("Número de Docentes
+	nos Anos Iniciais do Ensino Fundamental Regular, por Nível de Escolaridade
+	e Formação Acadêmica..."), não pelo número antigo."""
+	import openpyxl
+
+	path = BASE_DIR / "microdados_censo_escolar_2025" / "dados" / "sinopse_docentes_2025.xlsx"
+	wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
+	ws = wb["2.29"]
+
+	registros = []
+	for row in ws.iter_rows(min_row=12, values_only=True):
+		uf = (row[1] or "").strip()
+		municipio = (row[2] or "").strip()
+		if uf != "Maranhão" or municipio == "":
+			continue
+		registros.append({
+			"co_municipio": row[3],
+			"qt_doc_efai_total": row[4],
+			"qt_doc_efai_sup_grad": row[7],
+			"qt_doc_efai_sup_grad_lic": row[8],
+		})
+	wb.close()
+
+	df = pd.DataFrame(registros)
+	df["co_municipio"] = normalize_municipio_code(df["co_municipio"])
+	for col in ["qt_doc_efai_total", "qt_doc_efai_sup_grad", "qt_doc_efai_sup_grad_lic"]:
+		df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0).astype(int)
+	return df[["co_municipio", "qt_doc_efai_total", "qt_doc_efai_sup_grad", "qt_doc_efai_sup_grad_lic"]]
+
+
+def ensure_columns(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+	for col in columns:
+		if col not in df.columns:
+			df[col] = 0
+	return df
+
+
+def load_participacao_rede_municipal_efai() -> pd.DataFrame:
+	"""Percentual dos docentes EFAI do município (todas as redes) que atuam em
+	escolas da rede municipal, a partir das contagens por escola dos microdados."""
+	docente = _read_censo_tabela(
+		"Tabela_Docente_2025_V2.csv",
+		["SG_UF", "TP_DEPENDENCIA", "CO_MUNICIPIO", "QT_DOC_FUND_AI"],
+	)
+	docente = docente[docente["SG_UF"] == "MA"].copy()
+	docente["CO_MUNICIPIO"] = normalize_municipio_code(docente["CO_MUNICIPIO"])
+	total = docente.groupby("CO_MUNICIPIO")["QT_DOC_FUND_AI"].sum()
+	municipal = docente[docente["TP_DEPENDENCIA"] == 3].groupby("CO_MUNICIPIO")["QT_DOC_FUND_AI"].sum()
+	return (
+		safe_divide(municipal.reindex(total.index).fillna(0), total, factor=100)
+		.rename("PCT_DOC_EFAI_REDE_MUN")
+		.reset_index()
+	)
+
+
+def build_indicadores_municipais_ma_censo_docentes_2025(indicadores: pd.DataFrame) -> pd.DataFrame:
+	"""Substitui as colunas de docentes com formação superior pelos dados da
+	Sinopse Estatística 2025 (Tabela 2.29 – EFAI), garantindo que numerador e
+	denominador sejam da mesma fonte e ano."""
+	sinopse = load_sinopse_docentes_efai_2025()
+	# Filtra apenas municípios do Maranhão (CO_MUNICIPIO inicia com 21)
+	sinopse = sinopse[sinopse["co_municipio"].str.startswith("21")].copy()
+
+	indicadores = indicadores.copy()
+	indicadores["CO_MUNICIPIO"] = normalize_municipio_code(indicadores["CO_MUNICIPIO"])
+	indicadores = indicadores.merge(
+		sinopse.rename(columns={"co_municipio": "CO_MUNICIPIO"}),
+		on="CO_MUNICIPIO",
+		how="left",
+	)
+
+	# A Tabela 2.29 conta os docentes EFAI de todas as redes do município, e o
+	# IDEB analisado é só da rede municipal. Antes da substituição, guarda a
+	# formação medida só na rede municipal (microdados, educação básica inteira,
+	# pois os microdados não separam a formação por etapa), usada no artigo
+	# como análise de sensibilidade.
+	indicadores["PCT_DOC_SUPERIOR_REDE_MUN"] = safe_divide(
+		indicadores["QT_DOC_BAS_ESCO_SUP_GRAD"], indicadores["QT_DOC_BAS"], factor=100
+	)
+	indicadores["PCT_DOC_LICENCIATURA_REDE_MUN"] = safe_divide(
+		indicadores["QT_DOC_BAS_ESCO_SUP_GRAD_LICEN"], indicadores["QT_DOC_BAS"], factor=100
+	)
+	indicadores = indicadores.merge(load_participacao_rede_municipal_efai(), on="CO_MUNICIPIO", how="left")
+
+	# Substitui QT_DOC_BAS pelo total EFAI (denominador consistente com os numeradores)
+	indicadores["QT_DOC_BAS"] = indicadores["qt_doc_efai_total"].fillna(0).astype(int)
+	indicadores["QT_DOC_BAS_ESCO_SUP_GRAD"] = indicadores["qt_doc_efai_sup_grad"].fillna(0).astype(int)
+	indicadores["QT_DOC_BAS_ESCO_SUP_GRAD_LICEN"] = indicadores["qt_doc_efai_sup_grad_lic"].fillna(0).astype(int)
+
+	indicadores["PCT_DOC_SUPERIOR_COMPLETO"] = safe_divide(
+		indicadores["QT_DOC_BAS_ESCO_SUP_GRAD"], indicadores["QT_DOC_BAS"], factor=100
+	)
+	indicadores["PCT_DOC_LICENCIATURA_TOTAL"] = safe_divide(
+		indicadores["QT_DOC_BAS_ESCO_SUP_GRAD_LICEN"], indicadores["QT_DOC_BAS"], factor=100
+	)
+
+	return indicadores.drop(
+		columns=["qt_doc_efai_total", "qt_doc_efai_sup_grad", "qt_doc_efai_sup_grad_lic"]
+	)
+
+
+def build_indicadores_municipais_ma_censo_escolar_2025() -> pd.DataFrame:
+	censo = load_censo_microdados()
+
+	censo = ensure_columns(
+		censo,
+		[
+			"QT_DOC_BAS_ESCO_SUP_GRAD",
+			"QT_DOC_BAS_ESCO_SUP_GRAD_LICEN",
+			"QT_TUR_FUND_AF",
+			"QT_TUR_FUND_AF_CORRFLUXO",
+		],
+	)
+	has_doc_sup = censo["QT_DOC_BAS_ESCO_SUP_GRAD"].sum() > 0
+	has_doc_lic = censo["QT_DOC_BAS_ESCO_SUP_GRAD_LICEN"].sum() > 0
+	has_corrfluxo = censo["QT_TUR_FUND_AF_CORRFLUXO"].sum() > 0
+
+	# FILTRA rede municipal no Maranhão.
+	REDE_MUNICIPAL = 3
+	censo = censo[(censo["SG_UF"] == "MA") & (censo["TP_DEPENDENCIA"] == REDE_MUNICIPAL)].copy()
+	censo["CO_MUNICIPIO"] = normalize_municipio_code(censo["CO_MUNICIPIO"])
+
+	censo["IN_BIBLIOTECA_OU_LEITURA"] = (
+		(censo["IN_BIBLIOTECA"].fillna(0) == 1)
+		| (censo["IN_BIBLIOTECA_SALA_LEITURA"].fillna(0) == 1)
+		| (censo["IN_SALA_LEITURA"].fillna(0) == 1)
+	).astype(int)
+	censo["IN_AGUA_ADEQUADA"] = (
+		(censo["IN_AGUA_POTAVEL"].fillna(0) == 1)
+		| (censo["IN_AGUA_REDE_PUBLICA"].fillna(0) == 1)
+	).astype(int)
+	censo["IN_ESGOTO_ADEQUADO"] = (
+		(censo["IN_ESGOTO_REDE_PUBLICA"].fillna(0) == 1)
+		| (censo["IN_ESGOTO_FOSSA_SEPTICA"].fillna(0) == 1)
+	).astype(int)
+
+	indicadores = (
+		censo.groupby("CO_MUNICIPIO", as_index=False)
+		.agg(
+			SG_UF=("SG_UF", "first"),
+			NO_MUNICIPIO=("NO_MUNICIPIO", "first"),
+			QT_ESCOLAS=("CO_ENTIDADE", "nunique"),
+			PCT_ESCOLAS_COM_INTERNET=("IN_INTERNET", "mean"),
+			PCT_ESCOLAS_COM_BIBLIOTECA_LEITURA=("IN_BIBLIOTECA_OU_LEITURA", "mean"),
+			PCT_ESCOLAS_COM_LAB_INFORMATICA=("IN_LABORATORIO_INFORMATICA", "mean"),
+			PCT_ESCOLAS_COM_QUADRA=("IN_QUADRA_ESPORTES", "mean"),
+			PCT_ESCOLAS_COM_AGUA_ADEQUADA=("IN_AGUA_ADEQUADA", "mean"),
+			PCT_ESCOLAS_COM_ESGOTO_ADEQUADO=("IN_ESGOTO_ADEQUADO", "mean"),
+			QT_DOC_BAS=("QT_DOC_BAS", "sum"),
+			QT_DOC_BAS_ESCO_SUP_GRAD=("QT_DOC_BAS_ESCO_SUP_GRAD", "sum"),
+			QT_DOC_BAS_ESCO_SUP_GRAD_LICEN=("QT_DOC_BAS_ESCO_SUP_GRAD_LICEN", "sum"),
+			QT_MAT_BAS=("QT_MAT_BAS", "sum"),
+			QT_MAT_FUND=("QT_MAT_FUND", "sum"),
+			QT_MAT_MED=("QT_MAT_MED", "sum"),
+			QT_MAT_BAS_15_17=("QT_MAT_BAS_15_17", "sum"),
+			QT_MAT_BAS_18_MAIS=("QT_MAT_BAS_18_MAIS", "sum"),
+			QT_TUR_BAS=("QT_TUR_BAS", "sum"),
+			QT_TUR_FUND=("QT_TUR_FUND", "sum"),
+			QT_TUR_MED=("QT_TUR_MED", "sum"),
+			QT_TUR_FUND_AF=("QT_TUR_FUND_AF", "sum"),
+			QT_TUR_FUND_AF_CORRFLUXO=("QT_TUR_FUND_AF_CORRFLUXO", "sum"),
+		)
+		.assign(
+			PCT_ESCOLAS_COM_INTERNET=lambda x: x["PCT_ESCOLAS_COM_INTERNET"] * 100,
+			PCT_ESCOLAS_COM_BIBLIOTECA_LEITURA=lambda x: x["PCT_ESCOLAS_COM_BIBLIOTECA_LEITURA"] * 100,
+			PCT_ESCOLAS_COM_LAB_INFORMATICA=lambda x: x["PCT_ESCOLAS_COM_LAB_INFORMATICA"] * 100,
+			PCT_ESCOLAS_COM_QUADRA=lambda x: x["PCT_ESCOLAS_COM_QUADRA"] * 100,
+			PCT_ESCOLAS_COM_AGUA_ADEQUADA=lambda x: x["PCT_ESCOLAS_COM_AGUA_ADEQUADA"] * 100,
+			PCT_ESCOLAS_COM_ESGOTO_ADEQUADO=lambda x: x["PCT_ESCOLAS_COM_ESGOTO_ADEQUADO"] * 100,
+		)
+	)
+
+	if has_doc_sup:
+		indicadores["PCT_DOC_SUPERIOR_COMPLETO"] = safe_divide(
+			indicadores["QT_DOC_BAS_ESCO_SUP_GRAD"], indicadores["QT_DOC_BAS"], factor=100
+		)
+	else:
+		indicadores["PCT_DOC_SUPERIOR_COMPLETO"] = pd.NA
+
+	# Proxy de formação específica: participação de licenciatura no total de docentes.
+	if has_doc_lic:
+		indicadores["PCT_DOC_LICENCIATURA_TOTAL"] = safe_divide(
+			indicadores["QT_DOC_BAS_ESCO_SUP_GRAD_LICEN"], indicadores["QT_DOC_BAS"], factor=100
+		)
+	else:
+		indicadores["PCT_DOC_LICENCIATURA_TOTAL"] = pd.NA
+
+	indicadores["MEDIA_ALUNOS_POR_TURMA_BAS"] = safe_divide(
+		indicadores["QT_MAT_BAS"], indicadores["QT_TUR_BAS"]
+	)
+	indicadores["MEDIA_ALUNOS_POR_TURMA_FUND"] = safe_divide(
+		indicadores["QT_MAT_FUND"], indicadores["QT_TUR_FUND"]
+	)
+	indicadores["MEDIA_ALUNOS_POR_TURMA_MED"] = safe_divide(
+		indicadores["QT_MAT_MED"], indicadores["QT_TUR_MED"]
+	)
+
+	# Proxy 1 para distorção idade-série: alunos de 15+ na educação básica municipal.
+	indicadores["PCT_MAT_15_ANOS_OU_MAIS_PROXY_DISTSERIE"] = safe_divide(
+		indicadores["QT_MAT_BAS_15_17"] + indicadores["QT_MAT_BAS_18_MAIS"],
+		indicadores["QT_MAT_BAS"],
+		factor=100,
+	)
+	# Proxy 2 para distorção (quando disponível): correção de fluxo no fundamental AF.
+	if has_corrfluxo:
+		indicadores["PCT_TURMAS_CORRFLUXO_FUND_AF"] = safe_divide(
+			indicadores["QT_TUR_FUND_AF_CORRFLUXO"], indicadores["QT_TUR_FUND_AF"], factor=100
+		)
+	else:
+		indicadores["PCT_TURMAS_CORRFLUXO_FUND_AF"] = pd.NA
+
+	ideb_path = RAW_DIR / "ideb_municipios_ma_publico.csv"
+	if ideb_path.exists():
+		ideb = pd.read_csv(ideb_path, sep=";", low_memory=False)
+		ideb["CO_MUNICIPIO"] = normalize_municipio_code(ideb["CO_MUNICIPIO"])
+
+		# Proxy para abandono: não aprovação anual no IDEB.
+		aprovacao_col = "VL_APROVACAO_2025_SI"
+		if aprovacao_col in ideb.columns:
+			ideb[aprovacao_col] = pd.to_numeric(ideb[aprovacao_col], errors="coerce")
+			ideb["PCT_NAO_APROVACAO_PROXY_2025"] = 100 - ideb[aprovacao_col]
+			indicadores = indicadores.merge(
+				ideb[["CO_MUNICIPIO", "PCT_NAO_APROVACAO_PROXY_2025"]],
+				on="CO_MUNICIPIO",
+				how="left",
+			)
+
+	return indicadores
+
+# ── INGESTÃO DO IBGE (CENSO 2022: RENDA E POBREZA EXTREMA) ───────────────────
+def _load_sidra_series(nome_arquivo: str) -> dict[str, dict[str, float]]:
+	"""Lê uma resposta da API do Sidra salva em data/base e devolve
+	{nome_do_municipio: {categoria: valor}}."""
+	import json
+
+	with open(BASE_DIR / nome_arquivo, encoding='utf-8') as f:
+		payload = json.load(f)
+
+	valores: dict[str, dict[str, float]] = {}
+	for resultado in payload[0]['resultados']:
+		categoria = '|'.join(
+			str(list(c['categoria'].values())[0]) for c in resultado['classificacoes']
+		)
+		for item in resultado['series']:
+			nome = item['localidade']['nome'].removesuffix(' - MA')
+			valores.setdefault(nome, {})[categoria] = float(item['serie']['2022'])
+	return valores
+
+
+def build_indicadores_municipais_ma_ibge_2022():
+	renda = _load_sidra_series('renda_per_capita_censo2022_ma.json')
+	pobreza = _load_sidra_series('pobreza_extrema_censo2022_ma.json')
+
+	registros = []
+	for nome, categorias in renda.items():
+		registros.append({
+			'NO_MUNICIPIO': nome,
+			'RENDA_PER_CAPITA_2022': next(iter(categorias.values())),
+			# Moradores com renda domiciliar per capita até 1/4 do salário mínimo
+			# ou sem rendimento (Sidra, tabela 10296, em % do total de moradores).
+			'PCT_POBREZA_EXTREMA_2022': sum(pobreza[nome].values()),
+		})
+
+	return pd.DataFrame(registros)
+
+def main() -> None:
+	RAW_DIR.mkdir(parents=True, exist_ok=True)
+
+	#── INGESTÃO DO IDEB ───────────────────
+	print("Iniciando ingestão do IDEB 2025...")
+	timer_thread = start_timer()
+	indicadores_ideb = build_indicadores_municipais_ma_ideb_2025()
+	output_path_ideb = RAW_DIR / "indicadores_municipais_ma_ideb_2025.csv"
+	indicadores_ideb.to_csv(output_path_ideb, index=False, sep=";")
+	stop_timer(timer_thread)
+
+	print(f"Arquivo gerado: {output_path_ideb}")
+	print(f"Linhas: {len(indicadores_ideb)}")
+	print(f"Colunas: {len(indicadores_ideb.columns)}")
+
+	# ── INGESTÃO DO CENSO ESCOLAR 2025 ───────────────────
+	print("Iniciando ingestão do Censo Escolar 2025...")
+	timer_thread = start_timer()
+	indicadores_censo_escolar = build_indicadores_municipais_ma_censo_escolar_2025()
+	indicadores_censo_com_docentes = build_indicadores_municipais_ma_censo_docentes_2025(indicadores_censo_escolar)
+	output_path_censo_escolar_com_docentes = RAW_DIR / "indicadores_municipais_ma_censo_escolar_2025.csv"
+	indicadores_censo_com_docentes.to_csv(output_path_censo_escolar_com_docentes, index=False, sep=";")
+	stop_timer(timer_thread)
+
+	print(f"Arquivo gerado: {output_path_censo_escolar_com_docentes}")
+	print(f"Linhas: {len(indicadores_censo_com_docentes)}")
+	print(f"Colunas: {len(indicadores_censo_com_docentes.columns)}")
+
+	#── INGESTÃO DO IBGE (CENSO 2022: RENDA E POBREZA EXTREMA) ───────────────────
+	print("Iniciando ingestão da renda e da pobreza extrema — Censo 2022...")
+	timer_thread = start_timer()
+	indicadores_ibge = build_indicadores_municipais_ma_ibge_2022()
+	output_path_ibge = RAW_DIR / "indicadores_municipais_ma_ibge_2022.csv"
+	indicadores_ibge.to_csv(output_path_ibge, index=False, sep=";")
+	stop_timer(timer_thread)
+
+	print(f"Arquivo gerado: {output_path_ibge}")
+	print(f"Linhas: {len(indicadores_ibge)}")
+	print(f"Colunas: {len(indicadores_ibge.columns)}")
+
+
+if __name__ == "__main__":
+	main()
+
