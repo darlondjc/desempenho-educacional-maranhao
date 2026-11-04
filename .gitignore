@@ -68,7 +68,7 @@ output/
 # Arquivos auxiliares do biblatex e prévia identificada
 *.bcf
 *.run.xml
-artigo/main_identificado.pdf
+revistas/*/main_identificado.pdf
 
 # Skills de agentes instaladas localmente (npx skills add)
 .agents/

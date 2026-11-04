@@ -1,0 +1,79 @@
+%--------------------------------------------------
+% CARTA DE APRESENTAÇÃO (COVER LETTER) -- RBIE
+% Baseada em template_oficial/coverletter-pt.tex.
+% Compilar com: make carta  (ou latexmk -lualatex coverletter.tex)
+% Limite da revista: uma página. Não alterar fonte, tamanho nem espaçamento.
+%--------------------------------------------------
+
+\documentclass[11pt,a4paper,brazilian]{article}
+
+\usepackage{fontspec}
+\setmainfont{Carlito}
+
+\usepackage[top=2.5cm,bottom=2.5cm,left=3cm,right=3cm]{geometry}
+\usepackage{graphicx}
+\usepackage{babel}
+\usepackage[hidelinks]{hyperref}
+\usepackage{url}
+\urlstyle{same}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\noindent
+\begin{minipage}[t]{0.52\linewidth}
+  \includegraphics[width=4.9cm]{RBIElogo.png}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.44\linewidth}
+  \raggedleft
+  Darlon José Coqueiro\\
+  Instituto Federal de Educação, Ciência e Tecnologia do Maranhão (IFMA)\\
+  darlon.coqueiro@ifma.edu.br
+\end{minipage}
+
+\bigskip
+
+São Luís, 4 de novembro de 2026.
+
+Prezados Editores-Chefes, Dr. Newarney Torrezão da Costa e Dr. Rodrigo Silva Duran,
+
+\subsection*{Apresentação do trabalho}
+Gostaríamos de apresentar o manuscrito original intitulado ``Fatores intracontextuais do desempenho no IDEB: segmentação socioeconômica e análise intragrupo nos municípios do Maranhão'' para consideração da Revista Brasileira de Informática na Educação (RBIE). Confirmamos que este é um trabalho original, não foi publicado em nenhum outro periódico ou evento científico, e nem está sendo considerado atualmente para publicação em outro veículo, tendo adotado boas práticas científicas\footnote{Conforme os códigos da SBC: Código de Conduta para Autores em Publicações da SBC (Resolução 001/2024), disponível em \url{https://sol.sbc.org.br/index.php/indice/conduta}; e Código de Ética e Conduta Profissional da SBC (Resolução 002/2024), disponível em \url{https://www.sbc.org.br/etica-sbc/}.}.
+
+O manuscrito foi preparado no modelo oficial vigente da RBIE (classe LaTeX rbie2026) e, na versão ora submetida, teve todas as informações de identificação de autoria suprimidas, em conformidade com o processo de avaliação duplamente anônima.
+
+\subsection*{Interseção com a Informática na Educação / Educação em Computação}
+Acreditamos que este manuscrito é apropriado para publicação na RBIE porque aplica mineração de dados educacionais a bases educacionais públicas (IDEB, Censo Escolar e Censo Demográfico) para apoiar a análise de redes de ensino. O agrupamento \textit{K-Means} entra como etapa de controle de contexto, validada por \textit{Silhouette}, estabilidade \textit{bootstrap} e ablação, antes da comparação estatística. Todo o fluxo está implementado em Python, com \textit{scripts} abertos e reprodutíveis.
+
+\subsection*{Contribuição e novidade}
+Comparar municípios de contextos muito diferentes tende a atribuir à escola diferenças que vêm da renda. O manuscrito propõe uma abordagem em dois estágios. Os 216 municípios maranhenses com IDEB 2025 divulgado são primeiro segmentados por renda \textit{per capita} e pobreza extrema. Depois, dentro de cada grupo, os de maior e de menor IDEB são comparados pelo teste de Mann-Whitney, com tamanho de efeito, correção para comparações múltiplas e verificação do poder preditivo. A formação docente aparece associada ao desempenho de forma consistente nos grupos vulnerável e intermediário, com diferenças de 10 a 12 pontos percentuais e efeito médio. O Maranhão está entre os estados com piores índices e é pouco estudado na literatura de mineração de dados educacionais. O procedimento usa só dados públicos e pode ser replicado em outros estados, o que interessa tanto a pesquisadores quanto a gestores de redes municipais.
+
+\subsection*{Contribuições dos autores}
+De acordo com as instruções de submissão, aqui está a declaração de autoria CRediT: Darlon José Coqueiro: concepção, metodologia, curadoria de dados, \textit{software}, análise formal, visualização, redação; Orlando Donato Rocha Filho e Danúbia Soares Pires: supervisão, redação (revisão e edição).
+
+\subsection*{Conflitos de interesse}
+As pessoas autoras declaram não haver qualquer conflito de interesse.
+
+\subsection*{Disponibilidade de dados e materiais}
+Os dados são públicos (INEP e IBGE). Os \textit{scripts} estão em repositório aberto, anonimizado para a avaliação: \url{https://anonymous.4open.science/r/desempenho-educacional-maranhao-97FB/}.
+
+\subsection*{Declaração de utilização de inteligência artificial (IA)}
+Em atendimento ao Código de Conduta para autores da SBC, declaramos o uso das seguintes ferramentas de IA generativa: Claude (Anthropic), ChatGPT (OpenAI) e SciSpace, na revisão de \textit{scripts} e de texto, na busca e verificação de referências, na tradução dos resumos e na adaptação ao modelo da RBIE. As ferramentas de IA não figuram como autoras e as pessoas autoras assumem integral responsabilidade por todo o conteúdo do manuscrito.
+
+\subsection*{Outras informações relevantes}
+Declaramos que o trabalho que está sendo enviado não necessita da aprovação de comitês de ética em pesquisa (dados públicos agregados por município, Resolução CNS 510/2016) e asseguramos que todos os cuidados éticos foram tomados para a realização deste trabalho.
+
+\bigskip
+Agradecemos por considerar este manuscrito para o processo de revisão da RBIE.
+
+Atenciosamente em nome de todos os autores,
+
+\vspace{2.5cm}
+
+Darlon José Coqueiro
+
+\end{document}
