@@ -74,3 +74,10 @@ revistas/*/main_identificado.pdf
 .agents/
 .claude/skills/
 skills-lock.json
+
+# Assinatura manuscrita (não publicar no GitHub)
+imagens/assinatura.*
+revistas/*/assinatura.png
+revistas/rbie/coverletter.pdf
+revistas/rbie/submissao/carta_apresentacao.pdf
+revistas/*/submissao/*.zip

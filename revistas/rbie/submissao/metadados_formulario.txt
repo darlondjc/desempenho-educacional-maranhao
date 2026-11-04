@@ -1,0 +1,75 @@
+DADOS PARA O FORMULÁRIO DE SUBMISSÃO DA RBIE
+Revista Brasileira de Informática na Educação (https://journals-sol.sbc.org.br/index.php/rbie)
+
+ARQUIVOS
+Manuscrito (arquivo principal da submissão): artigo_anonimo.pdf
+Documento suplementar: carta_apresentacao.pdf
+
+TIPO DE TRABALHO
+Artigo de pesquisa
+
+IDIOMA
+Português
+
+TÍTULO
+Português: Fatores intracontextuais do desempenho no IDEB: segmentação socioeconômica e análise intragrupo nos municípios do Maranhão
+Inglês: Intracontextual factors of IDEB performance: socioeconomic segmentation and within-group analysis in the municipalities of Maranhão
+Espanhol: Factores intracontextuales del desempeño en el IDEB: segmentación socioeconómica y análisis intragrupo en los municipios de Maranhão
+
+AUTORES (nesta ordem)
+1. Darlon José Coqueiro (autor correspondente)
+   E-mail: darlon.coqueiro@ifma.edu.br
+   ORCID: https://orcid.org/0009-0003-1296-9548
+   Instituição: Instituto Federal de Educação, Ciência e Tecnologia do Maranhão (IFMA)
+   País: Brasil
+
+2. Orlando Donato Rocha Filho
+   E-mail: orlando.rocha@ifma.edu.br
+   ORCID: https://orcid.org/0000-0001-5952-7139
+   Instituição: Instituto Federal de Educação, Ciência e Tecnologia do Maranhão (IFMA)
+   País: Brasil
+
+3. Danúbia Soares Pires
+   E-mail: danubiapires@ifma.edu.br
+   ORCID: https://orcid.org/0000-0002-1307-7985
+   Instituição: Instituto Federal de Educação, Ciência e Tecnologia do Maranhão (IFMA)
+   País: Brasil
+
+RESUMO (português, 255 palavras)
+Introdução. O desempenho educacional dos municípios maranhenses está entre os mais baixos do país, e a desigualdade socioeconômica entre eles dificulta comparar redes de ensino diretamente. Comparações sem controle de contexto tendem a atribuir a fatores escolares diferenças que vêm da renda. Métodos. O estudo, quantitativo e baseado em dados públicos, combina mineração de dados educacionais e estatística não paramétrica em dois estágios. No primeiro, o algoritmo K-Means agrupa os 216 municípios do Maranhão com Índice de Desenvolvimento da Educação Básica (IDEB) 2025 divulgado, nos anos iniciais da rede municipal, pela renda per capita e pela proporção de moradores em pobreza extrema do Censo Demográfico 2022. O número de grupos é escolhido pelo Silhouette Score e confirmado por estabilidade bootstrap. No segundo estágio, dentro de cada grupo, o teste de Mann-Whitney, com delta de Cliff e correção de Benjamini-Hochberg, compara os quartis superior e inferior de desempenho em doze variáveis do Censo Escolar 2025. Resultados. A partição em três grupos foi a mais bem separada e a mais estável. Nos grupos de renda baixa e intermediária, os municípios de IDEB alto têm de 10 a 12 pontos percentuais a mais de docentes com ensino superior e com licenciatura, com efeito médio. No grupo intermediário, destaca-se também a presença de quadra esportiva. Discussão. A formação docente é o fator escolar mais consistente entre os grupos, mas o poder preditivo conjunto das variáveis é baixo e o desenho é associativo. A segmentação prévia por agrupamento é um procedimento replicável para comparar redes de ensino em contextos semelhantes.
+
+PALAVRAS-CHAVE
+Mineração de Dados Educacionais
+Agrupamento
+K-Means
+IDEB
+Formação Docente
+Eficácia Escolar
+
+ABSTRACT (inglês, 245 palavras)
+Introduction. The educational performance of municipalities in Maranhão is among the lowest in Brazil, and socioeconomic inequality among them makes direct comparisons between school systems difficult. Comparisons that do not control for context tend to attribute to school factors differences that stem from income. Methods. This quantitative study, based on public data, combines educational data mining and nonparametric statistics in two stages. In the first, the K-Means algorithm clusters the 216 municipalities of Maranhão with a released 2025 Basic Education Development Index (IDEB), for the early years of municipal elementary schools, by per capita income and the share of residents in extreme poverty from the 2022 Demographic Census. The number of clusters is chosen by the Silhouette Score and confirmed by bootstrap stability. In the second stage, within each cluster, the Mann-Whitney test, with Cliff's delta and Benjamini-Hochberg correction, compares the upper and lower performance quartiles on twelve variables from the 2025 School Census. Results. The three-cluster partition was the best separated and the most stable. In the low- and middle-income clusters, high-IDEB municipalities have 10 to 12 percentage points more teachers with higher education and with a teaching degree, with a medium effect size. In the middle-income cluster, sports courts also stand out. Discussion. Teacher education is the most consistent school factor across clusters, but the joint predictive power of the variables is low and the design is associative. Prior segmentation by clustering is a replicable procedure for comparing school systems in similar contexts.
+
+KEYWORDS
+Educational Data Mining
+Clustering
+K-Means
+IDEB
+Teacher Education
+School Effectiveness
+
+RESUMEN (espanhol, 267 palavras)
+Introducción. El desempeño educativo de los municipios de Maranhão está entre los más bajos de Brasil, y la desigualdad socioeconómica entre ellos dificulta comparar directamente las redes de enseñanza. Las comparaciones sin control del contexto tienden a atribuir a factores escolares diferencias que provienen de la renta. Métodos. El estudio, cuantitativo y basado en datos públicos, combina minería de datos educativos y estadística no paramétrica en dos etapas. En la primera, el algoritmo K-Means agrupa los 216 municipios de Maranhão con Índice de Desarrollo de la Educación Básica (IDEB) 2025 divulgado, en los años iniciales de la red municipal, por la renta per cápita y la proporción de residentes en pobreza extrema del Censo Demográfico 2022. El número de grupos se elige por el Silhouette Score y se confirma por estabilidad bootstrap. En la segunda etapa, dentro de cada grupo, la prueba de Mann-Whitney, con delta de Cliff y corrección de Benjamini-Hochberg, compara los cuartiles superior e inferior de desempeño en doce variables del Censo Escolar 2025. Resultados. La partición en tres grupos fue la mejor separada y la más estable. En los grupos de renta baja e intermedia, los municipios de IDEB alto tienen de 10 a 12 puntos porcentuales más de docentes con educación superior y con licenciatura, con efecto medio. En el grupo intermedio, destacan también las canchas deportivas. Discusión. La formación docente es el factor escolar más consistente entre los grupos, pero el poder predictivo conjunto de las variables es bajo y el diseño es asociativo. La segmentación previa por agrupamiento es un procedimiento replicable para comparar redes de enseñanza en contextos semejantes.
+
+PALABRAS CLAVE
+Minería de Datos Educativos
+Agrupamiento
+K-Means
+IDEB
+Formación Docente
+Eficacia Escolar
+
+AGÊNCIAS DE FOMENTO
+Nenhuma.
+
+COMENTÁRIOS PARA O EDITOR
+O manuscrito foi preparado no modelo rbie2026 e compilado com LuaLaTeX. O código de reprodução está em repositório anonimizado: https://anonymous.4open.science/r/desempenho-educacional-maranhao-97FB/
